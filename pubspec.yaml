@@ -4,7 +4,7 @@ publish_to: 'none'
 version: 0.1.0
 
 environment:
-  sdk: ^3.8.0
+  sdk: '>=3.5.0-236.0.dev <4.0.0'
 
 dependencies:
   flutter:
@@ -110,7 +110,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
-  flutter_lints: ^5.0.0
+  flutter_lints: ^4.0.0
   build_runner: # generate dart files
   hive_generator: # generate hive files
   pub_semver: ^2.1.4 # helper to generate hive models

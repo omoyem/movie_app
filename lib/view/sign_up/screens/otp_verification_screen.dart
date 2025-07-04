@@ -86,15 +86,8 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        SizedBox(height: 40),
-                        
-                       
-                        Center(
-                          child: AppLogoWidget(size: 160),
-                        ),
-                        SizedBox(height: 60),
-                        
-                     
+
+                        SizedBox(height: 20),
                         Text(
                           'VERIFY CODE',
                           style: TextStyle(
@@ -128,14 +121,14 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                             ],
                           ),
                         ),
-                        SizedBox(height: 60),
+                        SizedBox(height: 30),
                         
                         // OTP Input Fields
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: List.generate(6, (index) => _buildOtpField(index)),
                         ),
-                        SizedBox(height: 40),
+                        SizedBox(height: 20),
                         
                         // Timer
                         if (!_canResend)
