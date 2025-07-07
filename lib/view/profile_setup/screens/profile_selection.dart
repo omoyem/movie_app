@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:godly_seed_app/constants/app_router.dart';
+import 'package:godly_seed_app/view/login/models/login_response.dart';
 import 'package:godly_seed_app/view/profile_setup/controller/profile_controller.dart';
 import 'package:godly_seed_app/view/profile_setup/model/profile_model.dart';
 
 class ProfileSelectionScreen extends GetView<ProfileController> {
   const ProfileSelectionScreen({super.key});
 
-  Widget _buildExistingProfile(UserProfile profile) {
+  Widget _buildExistingProfile(Profiles profile) {
     return GestureDetector(
       onTap: () => controller.selectProfile(profile),
       child: Container(
@@ -20,25 +21,25 @@ class ProfileSelectionScreen extends GetView<ProfileController> {
               width: 80,
               height: 80,
               decoration: BoxDecoration(
-                color: profile.ageGroup.toLowerCase() == 'adult' 
+                color: profile.ageGroup?.toLowerCase() == 'adult'
                     ? Colors.blue[100] 
                     : Colors.pink[100],
                 shape: BoxShape.circle,
                 border: Border.all(color: Colors.grey[300]!, width: 2),
               ),
               child: Icon(
-                profile.ageGroup.toLowerCase() == 'adult' 
+                profile.ageGroup?.toLowerCase() == 'adult'
                     ? Icons.person 
                     : Icons.child_care,
                 size: 40,
-                color: profile.ageGroup.toLowerCase() == 'adult' 
+                color: profile.ageGroup?.toLowerCase() == 'adult'
                     ? Colors.blue[600] 
                     : Colors.pink[600],
               ),
             ),
             const SizedBox(height: 8),
             Text(
-              '${profile.ageGroup.capitalize} Profile',
+              '${profile.name?.capitalize}',
               style: const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
@@ -47,7 +48,7 @@ class ProfileSelectionScreen extends GetView<ProfileController> {
               textAlign: TextAlign.center,
             ),
             Text(
-              'Age ${profile.currentAge}',
+              '${profile.ageGroup}',
               style: TextStyle(
                 fontSize: 12,
                 color: Colors.grey[600],
@@ -115,11 +116,11 @@ class ProfileSelectionScreen extends GetView<ProfileController> {
 
   Widget _buildProfileGrid() {
     return Obx(() {
-      if (controller.isLoading.value) {
-        return const Center(
-          child: CircularProgressIndicator(),
-        );
-      }
+      // if (controller.isLoading.value) {
+      //   return const Center(
+      //     child: CircularProgressIndicator(),
+      //   );
+      // }
 
       if (controller.errorMessage.value.isNotEmpty) {
         return Center(
@@ -189,89 +190,89 @@ class ProfileSelectionScreen extends GetView<ProfileController> {
     return Scaffold(
       backgroundColor: Colors.grey[50],
       body: SafeArea(
-        child: Column(
-          children: [
-            // Header
-            Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                children: [
-                  const Text(
-                    'Who\'s watching?',
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Select a profile to get started',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey[600],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            
-         
-            Expanded(
-              child: Center(
-                child: _buildProfileGrid(),
-              ),
-            ),
-            
-            Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                children: [
-                
-                  Obx(() => Text(
-                    '${controller.userProfiles.length} of 5 profiles created',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[600],
-                    ),
-                  )),
-                  const SizedBox(height: 16),
-                  
-                
-                  SizedBox(
-                    width: double.infinity,
-                    child: OutlinedButton(
-                      onPressed: () {
-                       
-                        AppRouter.toProfileSetup();
-                        Get.snackbar(
-                          'Feature Coming Soon',
-                          'Profile management will be available soon',
-                          snackPosition: SnackPosition.BOTTOM,
-                        );
-                      },
-                      style: OutlinedButton.styleFrom(
-                        side: BorderSide(color: Colors.grey[400]!),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: Text(
-                        'Manage Profiles',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.grey[700],
-                        ),
+          child: Column(
+            children: [
+              // Header
+              Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  children: [
+                    const Text(
+                      'Who\'s watching?',
+                      style: TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
                       ),
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 8),
+                    Text(
+                      'Select a profile to get started',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+
+
+              Expanded(
+                child: Center(
+                  child: _buildProfileGrid(),
+                ),
+              ),
+
+              Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  children: [
+
+                    Obx(() => Text(
+                      '${controller.userProfiles.length} of 5 profiles created',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey[600],
+                      ),
+                    )),
+                    const SizedBox(height: 16),
+
+
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton(
+                        onPressed: () {
+
+                          AppRouter.toProfileSetup();
+                          Get.snackbar(
+                            'Feature Coming Soon',
+                            'Profile management will be available soon',
+                            snackPosition: SnackPosition.BOTTOM,
+                          );
+                        },
+                        style: OutlinedButton.styleFrom(
+                          side: BorderSide(color: Colors.grey[400]!),
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: Text(
+                          'Manage Profiles',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.grey[700],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
-      ),
       
       floatingActionButton: Obx(() {
         if (controller.isLoading.value) return const SizedBox.shrink();

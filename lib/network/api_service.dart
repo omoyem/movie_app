@@ -7,7 +7,7 @@ import 'package:godly_seed_app/data/models/movie.dart';
 
 class MovieApiService {
   final LocalStorageHelper _storageHelper = LocalStorageHelper();
- static const String baseUrl = 'https://godlyseed.accessng.com/api/';
+ static const String baseUrl = 'https://www.godlyseed.accessng.com/api/';
 
 
 
@@ -21,7 +21,7 @@ class MovieApiService {
   int perPage = 10,
 }) async {
   try {
-    final token = await LocalStorageHelper.getAccessToken();
+    final token = await LocalStorageHelper.getAccessTokenMain();
 
     if (token == null || token.isEmpty) {
       throw Exception('Token not found');

@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:godly_seed_app/constants/endpoints.dart';
 import 'package:godly_seed_app/data/local/secure_storage_helper.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -41,6 +42,26 @@ logout() {
  
 //  localStorageHelper.clearAll();
   // Get.offAll(const LoginScreen());
+}
+
+logItem(dynamic item, {String? title = "Default Log Title"}) {
+  if (kDebugMode) {
+    print(title);
+    print(item);
+  }
+}
+
+showSnackBar({required title, required message, required type, int? duration = 4}) {
+  var color = type == "error"
+      ? Colors.red
+      : (type == "success"
+      ? Colors.green
+      : (type == "warn" ? Colors.amber : Colors.blue));
+  Get.snackbar(title, message,
+      backgroundColor: color,
+      snackPosition: SnackPosition.BOTTOM,
+      colorText: type == "warn" ? Colors.black : Colors.white,
+      duration: Duration(seconds: duration!));
 }
 
 
@@ -114,12 +135,28 @@ bool isEmailValid(String email) {
       .hasMatch(email);
 }
 
+
+hideKeyboard(BuildContext context) {
+  FocusScope.of(context).requestFocus(new FocusNode());
+}
+
+getImageUrl(String url) {
+  return Endpoints.imageBaseUrl + url;
+}
+
+Future<DecorationImage> getNetworkImageWidget(String url) async {
+
+  var token = await LocalStorageHelper.getAccessTokenMain();
+
+  return DecorationImage(
+    image: NetworkImage(getImageUrl(url)),
+    fit: BoxFit.cover,
+  );
+}
+
 showNoInternetSnackBar() {
   showSnackBar(
       title: "Network Error", message: "No Internet Connection", type: 'error');
-}
-
-void showSnackBar({required String title, required String message, required String type}) {
 }
 
 Future<String?> getDeviceId() async {

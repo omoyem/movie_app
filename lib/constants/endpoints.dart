@@ -3,6 +3,7 @@ class Endpoints {
   static const int appVersion = 1;
 
   static const String baseUrl = 'https://godlyseed.accessng.com/api/';
+  static const String imageBaseUrl = 'https://godlyseed.accessng.com/';
 
   static const String login = "login";
   static const String signup = "create-user";

@@ -3,7 +3,9 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:godly_seed_app/data/models/user.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:godly_seed_app/view/login/models/login_response.dart';
+
+import '../../utils/helpers.dart';
 
 class LocalStorageHelper {
   final storage = const FlutterSecureStorage();
@@ -52,71 +54,57 @@ class LocalStorageHelper {
   
 
 
-  static Future<void> saveUser(User user) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_userKey, jsonEncode(user.toJson()));
+
+
+  Future<Data?> getUser() async {
+    try {
+      var userString = await storage.read(key: "user");
+      Data? newThing = Data.fromJson(jsonDecode(userString!.trim()));
+
+      logItem(newThing.toJson());
+
+      // var newUser = LoginResponse.fromJson(json.decode(userString!.trim())).data?.user;
+      return newThing;
+    } catch (e) {
+      logItem(e);
+    }
+    return null;
   }
+  Future<Profiles?> getProfile() async {
+    try {
+      var userString = await storage.read(key: "current_profile");
+      Profiles? newThing = Profiles.fromJson(jsonDecode(userString!.trim()));
 
+      logItem(newThing.toJson(), title: "Profile selected");
 
-  static Future<User?> getUser() async {
-    final prefs = await SharedPreferences.getInstance();
-    final userData = prefs.getString(_userKey);
-    
-    if (userData != null) {
-      try {
-        return User.fromJson(jsonDecode(userData));
-      } catch (e) {
-        return null;
-      }
+      // var newUser = LoginResponse.fromJson(json.decode(userString!.trim())).data?.user;
+      return newThing;
+    } catch (e) {
+      logItem(e);
     }
     return null;
   }
 
-  static Future<void> saveAccessToken(String token) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_accessTokenKey, token);
+
+  Future<String?> getAccessToken() async {
+    try {
+      return await storage.read(key: "token");
+    } catch (e) {
+      print("Error retrieving item: $e");
+    }
+    return null;
   }
 
-
-  static Future<String?> getAccessToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_accessTokenKey);
+  static Future<String?> getAccessTokenMain() async {
+    try {
+      const storage = FlutterSecureStorage();
+      return await storage.read(key: _accessTokenKey);
+    } catch (e) {
+      print("Error retrieving item: $e");
+    }
+    return null;
   }
 
-  static Future<void> saveRememberMe(bool isRememberMe) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_isRememberMeKey, isRememberMe);
-  }
-
-  static Future<bool> getRememberMe() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool(_isRememberMeKey) ?? false;
-  }
-
-  static Future<void> saveLoginStatus(bool isLoggedIn) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_isLoggedInKey, isLoggedIn);
-  }
-
-
-  static Future<bool> getLoginStatus() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool(_isLoggedInKey) ?? false;
-  }
-
-  static Future<void> clearUserData() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_userKey);
-    await prefs.remove(_accessTokenKey);
-    await prefs.remove(_isRememberMeKey);
-    await prefs.remove(_isLoggedInKey);
-  }
-
-
-  static Future<void> clearAll() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
-  }
 
   static Future<void> clearTokens() async {}
 

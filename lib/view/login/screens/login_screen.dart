@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:godly_seed_app/constants/app_router.dart';
 import 'package:godly_seed_app/constants/images.dart';
+import 'package:godly_seed_app/utils/helpers.dart';
 import 'package:godly_seed_app/view/login/controller/login_controller.dart';
 import 'package:godly_seed_app/view/sign_up/controller/signup_controller.dart';
 import 'package:godly_seed_app/view/widgets/app_logo_widget.dart';
@@ -59,13 +60,11 @@ class _SignInScreenState extends State<SignInScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SizedBox(height: 20),
+                      SizedBox(height: 10),
                       
                       Center(
-                        child: AppLogoWidget(size: 160),
+                        child: AppLogoWidget(size: 140),
                       ),
-                      SizedBox(height: 40),
-                      
                       Text(
                         'SIGN IN',
                         style: TextStyle(
@@ -75,7 +74,7 @@ class _SignInScreenState extends State<SignInScreen> {
                           color: Colors.black87,
                         ),
                       ),
-                      SizedBox(height: 32),
+                      SizedBox(height: 20),
                       
                       // Form fields
                       CustomTextField(
@@ -140,17 +139,15 @@ class _SignInScreenState extends State<SignInScreen> {
                         onForgotPasswordTap: () => _showForgotPasswordDialog(),
                       ),
                       SizedBox(height: 32),
-                   
-                     
                       Obx(() => CustomButton(
                         text: _loginController.isLoading.value ? 'Signing In...' : 'Sign In',
                         onPressed: _handleSignIn,
                         label: '',
                       )),
-                      SizedBox(height: 24),
+                      SizedBox(height: 18),
                       
                       OrDividerWidget(),
-                      SizedBox(height: 24),
+                      SizedBox(height: 18),
                       
                       GoogleSignInButton(
                         onPressed: () {
@@ -166,7 +163,7 @@ class _SignInScreenState extends State<SignInScreen> {
                       
                       // Sign up prompt
                       SignUpPromptWidget(
-                        onSignUpTap: () => AppRouter.toSignup(),
+                        onSignUpTap: () => AppRouter.toGetStarted(),
                       ),
                     ],
                   ),
@@ -180,6 +177,8 @@ class _SignInScreenState extends State<SignInScreen> {
   }
 
   void _handleSignIn() async {
+    hideKeyboard(context);
+
     if (_formKey.currentState?.validate() ?? false) {
       final email = _emailController.text.trim();
       final password = _passwordController.text.trim();
@@ -241,10 +240,10 @@ class _SignInScreenState extends State<SignInScreen> {
             onPressed: _loginController.isLoading.value 
               ? null 
               : () async {
+              hideKeyboard(context);
                   if (_forgotEmailController.text.trim().isNotEmpty && 
                       GetUtils.isEmail(_forgotEmailController.text.trim())) {
                     await _loginController.forgotPassword(_forgotEmailController.text.trim());
-                    Get.back();
                   } else {
                     Get.snackbar(
                       'Error',
