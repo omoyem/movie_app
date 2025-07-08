@@ -44,7 +44,8 @@ class ProfileController extends GetxController {
     _initializeForm();
     _setupValidation();
 
-    if (Get.currentRoute.contains('profile_selection')) {
+    // Always fetch profiles from server on profile selection screen
+    if (Get.currentRoute.contains('profileSelection')) {
       fetchUserProfiles();
     }
   }
@@ -52,10 +53,21 @@ class ProfileController extends GetxController {
   @override
   void onClose() {
     _isDisposed = true;
+    
+    // Close HTTP client first
     _httpClient?.close();
-    nameController.dispose();
-    dateController.dispose();
-    screenTimeController.dispose();
+    
+    // Dispose controllers safely
+    try {
+      // nameController.dispose();
+      // dateController.dispose();
+      // screenTimeController.dispose();
+    } catch (e) {
+      if (kDebugMode) {
+        print('Warning: Error disposing controllers: $e');
+      }
+    }
+    
     super.onClose();
   }
 
@@ -64,9 +76,11 @@ class ProfileController extends GetxController {
       if (kDebugMode) {
         print('🔧 Initializing HTTP client in debug mode (allowing self-signed certificates)');
         _httpClient = IOClient(InsecureHttpClientHelper.createInsecureHttpClient());
+        print('DEBUG: Using INSECURE HTTP client (self-signed certificates allowed)');
       } else {
         print('🔧 Initializing HTTP client in release mode (strict SSL)');
         _httpClient = http.Client();
+        print('DEBUG: Using SECURE HTTP client (strict SSL)');
       }
     } catch (e) {
       print('❌ Error initializing HTTP client: $e');
@@ -88,7 +102,7 @@ class ProfileController extends GetxController {
 
         _clearAuthData();
         
-      
+        // Navigate to login after clearing auth data
         Future.delayed(Duration(seconds: 2), () {
           if (!_isDisposed) {
             AppRouter.toLogin(); 
@@ -98,6 +112,7 @@ class ProfileController extends GetxController {
         errorMessage = 'Server error occurred. Please try again later.';
       }
     } else if (error is HandshakeException) {
+      print('DEBUG: HandshakeException caught: ${error.toString()}');
       if (error.toString().contains('CERTIFICATE_VERIFY_FAILED') || 
           error.toString().contains('self signed certificate')) {
         errorMessage = kDebugMode 
@@ -105,7 +120,7 @@ class ProfileController extends GetxController {
           : 'Secure connection failed. Please contact support.';
         technicalDetails = 'SSL handshake failed: ${error.toString()}';
         
-       
+        // Reinitialize HTTP client for SSL issues
         if (kDebugMode) {
           print('🔄 Reinitializing HTTP client due to SSL error...');
           _initializeHttpClient();
@@ -151,13 +166,13 @@ class ProfileController extends GetxController {
       await _storageHelper.deleteItem(key: 'auth_token');
       await _storageHelper.deleteItem(key: 'access_token');
       await _storageHelper.deleteItem(key: 'user_token');
+      await StorageService.clearAll(); // Clear all auth data
       _authToken = null;
       print('🗑️ Auth data cleared');
     } catch (e) {
       print('❌ Error clearing auth data: $e');
     }
   }
-
 
   void _logResponse(String endpoint, int statusCode, Map<String, dynamic> responseBody, {String? error}) {
     final logMessage = '''
@@ -194,7 +209,7 @@ class ProfileController extends GetxController {
 
     if (requiresAuth && (_authToken == null || _authToken!.isEmpty)) {
       print('⚠️ Auth token required but not available, attempting to reload...');
-       _loadAuthToken();
+      await _loadAuthToken(); // Make this async
       
       if (_authToken == null || _authToken!.isEmpty) {
         throw HttpException('Authorization token not found. Please login again.');
@@ -204,21 +219,18 @@ class ProfileController extends GetxController {
     final client = _httpClient ?? http.Client();
     final uri = Uri.parse('${Endpoints.baseUrl}$endpoint');
     
-   
+    // Base headers
     final requestHeaders = <String, String>{
       'Content-Type': 'application/json',
       'Accept': 'application/json',
-    
     };
 
-    
+    // Add auth header if required and available
     if (requiresAuth && _authToken != null && _authToken!.isNotEmpty) {
-      
       requestHeaders['Authorization'] = 'Bearer $_authToken';
-    
     }
 
- 
+    // Add custom headers
     if (headers != null) {
       requestHeaders.addAll(headers);
     }
@@ -269,7 +281,7 @@ class ProfileController extends GetxController {
         print('📥 Response body: ${response.body}');
       }
 
-   
+      // Handle unauthorized responses
       if (response.statusCode == 401) {
         print('🚫 Unauthorized (401) - Token may be expired or invalid');
         throw HttpException('Authorization failed. Please login again.');
@@ -292,7 +304,7 @@ class ProfileController extends GetxController {
       if (kDebugMode) print('ProfileController: Loaded userEmail from Get.arguments: $userEmail');
       await _storageHelper.storeItem(key: 'user_email', value: userEmail!);
     } else {
-    
+      // Try to get from stored user data
       final user = await StorageService.getUser();
       if (user != null && user.email.isNotEmpty) {
         userEmail = user.email;
@@ -311,48 +323,61 @@ class ProfileController extends GetxController {
     }
   }
 
-
-  void _loadAuthToken() async {
+  // Make this method async and improve token loading
+  Future<void> _loadAuthToken() async {
     try {
       final args = Get.arguments;
+      
+      // First, try to get from navigation arguments
       if (args != null && args is Map && args['token'] != null) {
         _authToken = args['token'];
         await StorageService.saveAccessToken(_authToken!);
         print('✅ Auth token loaded from arguments and saved');
-      } else {
-        _authToken = await StorageService.getAccessToken();
-        if (_authToken != null && _authToken!.isNotEmpty) {
-          print('✅ Auth token loaded from StorageService');
-        }
+        return;
       }
 
-      if (_authToken == null || _authToken!.isEmpty) {
-        print('⚠️ Warning: Auth token not found in StorageService');
-      } else {
-        print('🔐 Auth token available ([32m${_authToken!.length}[0m characters)');
+      // Then try to get from StorageService
+      _authToken = await StorageService.getAccessToken();
+      if (_authToken != null && _authToken!.isNotEmpty) {
+        print('✅ Auth token loaded from StorageService');
+        return;
       }
+
+  
+      _authToken = await _storageHelper.retrieveItem(key: 'auth_token');
+      if (_authToken != null && _authToken!.isNotEmpty) {
+        print('✅ Auth token loaded from secure storage');
+        return;
+      }
+
+      _authToken = await _storageHelper.retrieveItem(key: 'access_token');
+      if (_authToken != null && _authToken!.isNotEmpty) {
+        print('✅ Auth token loaded from secure storage (access_token key)');
+        return;
+      }
+
+      print('⚠️ Warning: Auth token not found in any storage');
     } catch (e) {
       print('❌ Error loading auth token: $e');
     }
   }
 
-
-void setAuthToken(String token) async {
-  _authToken = token;
-
-  await StorageService.saveAccessToken(token);
-  await _storageHelper.storeItem(key: 'auth_token', value: token);
-  print('✅ Auth token set manually and saved to both storage systems');
-}
-
-
+  void setAuthToken(String token) async {
+    _authToken = token;
+    await StorageService.saveAccessToken(token);
+    await _storageHelper.storeItem(key: 'auth_token', value: token);
+    print('✅ Auth token set manually and saved to both storage systems');
+  }
 
   void _initializeForm() {
+    // Check if disposed before accessing controllers
+    if (_isDisposed) return;
+    
     if (profile.value.type == ProfileType.kids) {
-      nameController.text = 'name ';
+      nameController.text = 'Name'; 
       screenTimeController.text = '3pm - 7pm';
     } else {
-      nameController.text = 'name';
+      nameController.text = 'Name';
     }
     updateName(nameController.text);
     updateScreenTime(screenTimeController.text);
@@ -363,6 +388,8 @@ void setAuthToken(String token) async {
   }
 
   void _validateForm() {
+    if (_isDisposed) return;
+    
     final name = profile.value.name.trim();
 
     if (profile.value.type == ProfileType.kids) {
@@ -376,16 +403,28 @@ void setAuthToken(String token) async {
     }
   }
 
- 
   Future<void> fetchUserProfiles({int retryCount = 0}) async {
+    print('DEBUG: fetchUserProfiles called');
     if (_isDisposed) return;
 
+   
     if (userEmail == null || userEmail!.isEmpty) {
-     _loadUserEmail();
+       _loadUserEmail();
     }
 
     if (userEmail == null || userEmail!.isEmpty) {
+      print('DEBUG: User email still missing after _loadUserEmail');
       errorMessage.value = 'User not found. Please login again.';
+      return;
+    }
+    if (_authToken == null || _authToken!.isEmpty) {
+      await _loadAuthToken();
+    }
+
+    if (_authToken == null || _authToken!.isEmpty) {
+      print('DEBUG: Auth token still missing after _loadAuthToken');
+      errorMessage.value = 'Authorization token not found. Please login again.';
+      _handleNetworkError(HttpException('Authorization token not found. Please login again.'), Endpoints.profileSelection);
       return;
     }
 
@@ -396,12 +435,17 @@ void setAuthToken(String token) async {
       if (kDebugMode) {
         print('=== FETCH USER PROFILES (Attempt ${retryCount + 1}) ===');
         print('User email: $userEmail');
+        print('Auth token available: ${_authToken != null && _authToken!.isNotEmpty}');
         print('URL: ${Endpoints.baseUrl}${Endpoints.profileSelection}');
       }
+      final requestBody = {
+        'user_id': userEmail!,
+      };
 
       final response = await makeHttpRequest(
-        'GET',
+        'POST',
         Endpoints.profileSelection,
+        body: requestBody,
         requiresAuth: true, 
       );
 
@@ -410,32 +454,44 @@ void setAuthToken(String token) async {
 
       if (response.statusCode == 200) {
         final profileResponse = ProfileResponse.fromJson(responseBody);
+        print('DEBUG: Parsed profileResponse: responseCode=${profileResponse.responseCode}, message=${profileResponse.responseMessage}, profiles=${profileResponse.data.length}');
 
         if (profileResponse.responseCode == 200) {
           userProfiles.value = profileResponse.data;
+          print('DEBUG: userProfiles updated, count=${userProfiles.length}');
           if (kDebugMode) {
             print('✅ Successfully loaded ${userProfiles.length} profiles');
           }
 
+          // Save profiles to storage
           if (responseBody['data'] != null) {
-            final profiles = responseBody['data']['profiles'];
+            final profiles = responseBody['data'];
             await StorageService.saveProfiles(profiles);
           }
+        } else if (profileResponse.responseMessage != null && profileResponse.responseMessage.toLowerCase().contains('no profile found')) {
+
+          userProfiles.clear();
+          isLoading.value = false;
+          print('DEBUG: No profiles found. Stopping loading.');
+          return;
         } else {
           errorMessage.value = profileResponse.responseMessage;
+          print('DEBUG: API returned error: ${profileResponse.responseMessage}');
           if (kDebugMode) {
             print('❌ API returned error: ${profileResponse.responseMessage}');
           }
         }
       } else {
+        print('DEBUG: Server returned status ${response.statusCode}');
         throw HttpException('Server returned ${response.statusCode}');
       }
+
     } catch (e) {
+      print('DEBUG: Exception in fetchUserProfiles: $e');
       if (kDebugMode) {
         print('❌ Exception in fetchUserProfiles: $e');
       }
       
-   
       if (e is HandshakeException && kDebugMode && retryCount < 2) {
         print('🔄 Retrying due to SSL handshake error... (${retryCount + 1}/3)');
         _initializeHttpClient(); 
@@ -451,167 +507,203 @@ void setAuthToken(String token) async {
     }
   }
 
- 
-Future<void> saveProfile({int retryCount = 0}) async {
-  if (_isDisposed) return;
+  Future<void> saveProfile({int retryCount = 0}) async {
+    print('DEBUG: saveProfile called');
+    if (_isDisposed) return;
 
-  if (!isFormValid.value) {
-    Get.snackbar(
-      'Validation Error',
-      'Please fill in all required fields correctly',
-      backgroundColor: primaryColor,
-      colorText: Colors.white,
-      snackPosition: SnackPosition.TOP,
-    );
-    return;
-  }
-
-  if (userEmail == null || userEmail!.isEmpty) {
-    Get.snackbar(
-      'Error',
-      'User email not found. Please login again.',
-      backgroundColor: Colors.red,
-      colorText: Colors.white,
-      snackPosition: SnackPosition.TOP,
-    );
-    return;
-  }
-
-  try {
-    isLoading.value = true;
-    errorMessage.value = '';
-
-    final requestBody = {
-      "user_id": userEmail!,
-      "name": profile.value.name,
-      "gender": profile.value.gender?.toString().split('.').last ?? "Male", 
-      "screen_time": profile.value.screenTime ?? "3pm-6pm",
-      "dob": profile.value.dateOfBirth!.toIso8601String().split('T')[0],
-    };
-
-    if (kDebugMode) {
-      print('=== SAVE PROFILE (Attempt ${retryCount + 1}) ===');
-      print('User email: $userEmail');
-      print('Request body: $requestBody');
-      print('URL: ${Endpoints.baseUrl}${Endpoints.profileSetup}');
+    if (!isFormValid.value) {
+      print('DEBUG: Form is not valid. Fields: name="${profile.value.name}", dob="${profile.value.dateOfBirth}", gender="${profile.value.gender}", screenTime="${profile.value.screenTime}"');
+      if (!_isDisposed) {
+        Get.snackbar(
+          'Validation Error',
+          'Please fill in all required fields correctly',
+          backgroundColor: primaryColor,
+          colorText: Colors.white,
+          snackPosition: SnackPosition.TOP,
+        );
+      }
+      return;
     }
 
-    final response = await makeHttpRequest(
-      'POST',
-      Endpoints.profileSetup,
-      body: requestBody,
-      requiresAuth: true, 
-    );
+    if (userEmail == null || userEmail!.isEmpty) {
+      print('DEBUG: User email is missing');
+      if (!_isDisposed) {
+        Get.snackbar(
+          'Error',
+          'User email not found. Please login again.',
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+          snackPosition: SnackPosition.TOP,
+        );
+      }
+      return;
+    }
 
-    final responseBody = json.decode(response.body);
-    _logResponse(Endpoints.profileSetup, response.statusCode, responseBody);
+    // Ensure we have auth token
+    if (_authToken == null || _authToken!.isEmpty) {
+      await _loadAuthToken();
+    }
 
-    if (response.statusCode >= 200 && response.statusCode < 300) {
-      // Check if response body indicates success
-      bool isSuccess = false;
-      String successMessage = 'Profile created successfully!';
-      
-      if (responseBody != null) {
-       
-        final responseCode = responseBody['response_code'];
-        final responseMessage = responseBody['response_message'];
-        
-        
-        if (responseCode == 200 || responseCode == 201 || 
-            (responseMessage != null && responseMessage.toString().toLowerCase().contains('success')) ||
-            responseCode == null) {
-          isSuccess = true;
-          successMessage = responseMessage ?? successMessage;
-        }
-      } else {
-       
-        isSuccess = true;
+    if (_authToken == null || _authToken!.isEmpty) {
+      print('DEBUG: Auth token missing for saveProfile');
+      if (!_isDisposed) {
+        Get.snackbar(
+          'Error',
+          'Authorization token not found. Please login again.',
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+          snackPosition: SnackPosition.TOP,
+        );
+      }
+      return;
+    }
+
+    try {
+      isLoading.value = true;
+      errorMessage.value = '';
+
+      final requestBody = {
+        "user_id": userEmail!,
+        "name": profile.value.name,
+        "gender": profile.value.gender?.toString().split('.').last ?? "Male", 
+        "screen_time": profile.value.screenTime ?? "3pm-6pm",
+        "dob": profile.value.dateOfBirth!.toIso8601String().split('T')[0],
+      };
+
+      if (kDebugMode) {
+        print('=== SAVE PROFILE (Attempt ${retryCount + 1}) ===');
+        print('User email: $userEmail');
+        print('Auth token available: ${_authToken != null && _authToken!.isNotEmpty}');
+        print('Request body: $requestBody');
+        print('URL: ${Endpoints.baseUrl}${Endpoints.profileSetup}');
       }
 
-      if (isSuccess) {
-        await _saveToStorage();
+      final response = await makeHttpRequest(
+        'POST',
+        Endpoints.profileSetup,
+        body: requestBody,
+        requiresAuth: true, 
+      );
 
-        if (kDebugMode) {
-          print('✅ Profile saved successfully');
-          print('Success message: $successMessage');
+      final responseBody = json.decode(response.body);
+      _logResponse(Endpoints.profileSetup, response.statusCode, responseBody);
+
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+
+        bool isSuccess = false;
+        String successMessage = 'Profile created successfully!';
+        
+        if (responseBody != null) {
+          
+          final responseCode = responseBody['response_code'];
+          final responseMessage = responseBody['response_message'];
+          
+      
+          if (responseCode == 200 || responseCode == 201 || 
+              (responseMessage != null && responseMessage.toString().toLowerCase().contains('success')) ||
+              responseCode == null) {
+            isSuccess = true;
+            successMessage = responseMessage ?? successMessage;
+          }
+        } else {
+   
+          isSuccess = true;
         }
 
-        if (!_isDisposed) {
-          Get.snackbar(
-            'Success',
-            successMessage,
-            backgroundColor: Colors.green,
-            colorText: Colors.white,
-            snackPosition: SnackPosition.TOP,
-            duration: const Duration(seconds: 3),
-          );
+        if (isSuccess) {
+          await _saveToStorage();
 
-          await StorageService.saveUserProfile(requestBody);
- 
-  Get.offAllNamed('/profileSelection', arguments: {'profile_id': profile});
-          
+          if (kDebugMode) {
+            print('✅ Profile saved successfully');
+            print('Success message: $successMessage');
+          }
+
+          if (!_isDisposed) { 
+            Get.snackbar(
+              'Success',
+              successMessage,
+              backgroundColor: Colors.green,
+              colorText: Colors.white,
+              snackPosition: SnackPosition.TOP,
+              duration: const Duration(seconds: 3),
+            );
+
+            await StorageService.saveUserProfile(requestBody);
+            
+     
+            Get.offAllNamed('/profileSelection', arguments: {'profile_id': profile});
+          }
+        } else {
+          // Server returned error message
+          String errorMsg = responseBody?['response_message'] ?? 'Failed to create profile';
+          throw HttpException(errorMsg);
         }
       } else {
-  
-        String errorMsg = responseBody?['response_message'] ?? 'Failed to create profile';
+        // Non-success status code
+        String errorMsg = 'Server returned status ${response.statusCode}';
+        if (responseBody != null && responseBody['response_message'] != null) {
+          errorMsg = responseBody['response_message'];
+        }
         throw HttpException(errorMsg);
       }
-    } else {
-    
-      String errorMsg = 'Server returned status ${response.statusCode}';
-      if (responseBody != null && responseBody['response_message'] != null) {
-        errorMsg = responseBody['response_message'];
-      }
-      throw HttpException(errorMsg);
-    }
 
-  } catch (e) {
-    if (kDebugMode) {
-      print('❌ Exception in saveProfile: $e');
-    }
-    
-    if (e is HandshakeException && kDebugMode && retryCount < 2) {
-      print('🔄 Retrying due to SSL handshake error... (${retryCount + 1}/3)');
-      _initializeHttpClient(); 
-      await Future.delayed(Duration(seconds: 1));
-      return saveProfile(retryCount: retryCount + 1);
-    }
-    
-    _handleNetworkError(e, Endpoints.profileSetup);
-  } finally {
-    if (!_isDisposed) {
-      isLoading.value = false;
+    } catch (e) {
+      if (kDebugMode) {
+        print('❌ Exception in saveProfile: $e');
+      }
+      
+      if (e is HandshakeException && kDebugMode && retryCount < 2) {
+        print('🔄 Retrying due to SSL handshake error... (${retryCount + 1}/3)');
+        _initializeHttpClient(); 
+        await Future.delayed(Duration(seconds: 1));
+        return saveProfile(retryCount: retryCount + 1);
+      }
+      
+      _handleNetworkError(e, Endpoints.profileSetup);
+    } finally {
+      if (!_isDisposed) {
+        isLoading.value = false;
+      }
     }
   }
-}
 
   void selectProfileType(ProfileType type) {
+    if (_isDisposed) return;
     profile.value = profile.value.copyWith(type: type);
     _initializeForm();
   }
 
   void updateName(String name) {
+    if (_isDisposed) return;
     profile.value = profile.value.copyWith(name: name);
     _validateForm();
   }
 
   void updateEmail(String email) {
+    if (_isDisposed) return;
     _validateForm();
   }
 
   void selectGender(Gender gender) {
+    if (_isDisposed) return;
     profile.value = profile.value.copyWith(gender: gender);
     _validateForm();
   }
 
   void updateScreenTime(String screenTime) {
+    if (_isDisposed) return;
     profile.value = profile.value.copyWith(screenTime: screenTime);
     _validateForm();
   }
 
   void selectDateOfBirth(DateTime date) {
+    if (_isDisposed) return;
     profile.value = profile.value.copyWith(dateOfBirth: date);
-    dateController.text = "${date.day.toString().padLeft(2, '0')}-${date.month.toString().padLeft(2, '0')}-${date.year}";
+    
+    // Safely update controller if not disposed
+    if (!_isDisposed) {
+      dateController.text = "${date.day.toString().padLeft(2, '0')}-${date.month.toString().padLeft(2, '0')}-${date.year}";
+    }
     _validateForm();
   }
 
@@ -619,20 +711,13 @@ Future<void> saveProfile({int retryCount = 0}) async {
   bool get canAddMoreProfiles => userProfiles.length < 5;
 
   void navigateToProfileSetup() {
-    if (canAddMoreProfiles) {
-      AppRouter.toProfileSetup();
-    } else {
-      Get.snackbar(
-        'Limit Reached',
-        'You can only have up to 5 profiles.',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.orange,
-        colorText: Colors.white,
-      );
-    }
+    if (_isDisposed) return;
+    AppRouter.toProfileSetup();
   }
 
   void selectProfile(UserProfile selectedProfile) {
+    if (_isDisposed) return;
+    
     Get.snackbar(
       'Profile Selected',
       'Switched to ${selectedProfile.ageGroup} profile',
@@ -641,14 +726,17 @@ Future<void> saveProfile({int retryCount = 0}) async {
       colorText: Colors.white,
     );
 
-     Get.offAllNamed('/home', arguments: {'profile_id': selectedProfile.id});
+    Get.offAllNamed('/home', arguments: {'profile_id': selectedProfile.id});
   }
 
   Future<void> refreshProfiles() async {
+    if (_isDisposed) return;
     await fetchUserProfiles();
   }
 
   Future<void> _saveToStorage() async {
+    if (_isDisposed) return;
+    
     final profileData = {
       'type': profile.value.type.toString(),
       'name': profile.value.name,
@@ -677,11 +765,22 @@ Future<void> saveProfile({int retryCount = 0}) async {
 
   void resetForm() {
     if (_isDisposed) return;
-
+    
     profile.value = ProfileModel(type: ProfileType.kids);
-    nameController.clear();
-    dateController.clear();
-    screenTimeController.clear();
+    
+    // Safely clear controllers if not disposed
+    if (!_isDisposed) {
+      nameController.clear();
+      dateController.clear();
+      screenTimeController.clear();
+    }
+    
     _initializeForm();
+  }
+
+  Future<void> loadAuthTokenAndFetchProfiles() async {
+    if (_isDisposed) return;
+    await _loadAuthToken();
+    await fetchUserProfiles();
   }
 }

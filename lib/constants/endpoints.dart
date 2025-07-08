@@ -14,6 +14,8 @@ class Endpoints {
 
   static const String profileSetup = "create_profile";
   static const String profileSelection = "get_profiles";
+  static const String profileDelete = "delete_profile";
+  static const String profileUpdate = "update_profile";
 
   static const String getMovies = "get_movies";
   

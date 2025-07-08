@@ -174,7 +174,7 @@ class ApiMovieModel {
       imageUrl: coverPhotoPath,
       description: description,
       categories: categories,
-      episodes: [], 
+      episodes: [], fileUrl: '', 
     );
   }
 }

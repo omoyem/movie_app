@@ -73,6 +73,7 @@ class ProfileResponse {
 
 class UserProfile {
   final String id;
+  final String name;
   final String dob;
   final String ageGroup;
   final String avatar;
@@ -81,6 +82,7 @@ class UserProfile {
 
   UserProfile({
     required this.id,
+    required this.name,
     required this.dob,
     required this.ageGroup,
     required this.avatar,
@@ -91,6 +93,7 @@ class UserProfile {
   factory UserProfile.fromJson(Map<String, dynamic> json) {
     return UserProfile(
       id: json['id'] ?? '',
+      name: json['name'] ?? '',
       dob: json['dob'] ?? '',
       ageGroup: json['age_group'] ?? '',
       avatar: json['avatar'] ?? 'default.png',
@@ -102,6 +105,7 @@ class UserProfile {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      'name': name,
       'dob': dob,
       'age_group': ageGroup,
       'avatar': avatar,

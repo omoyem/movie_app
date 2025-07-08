@@ -27,7 +27,7 @@ class MovieController extends GetxController {
         imageUrl: movie1,
         description: 'Biblical stories for children',
         categories: ['Kids', 'Bible Story'],
-        episodes: [],
+        episodes: [], fileUrl: '',
       ),
       MovieModel(
         id: 9,
@@ -37,7 +37,7 @@ class MovieController extends GetxController {
         imageUrl: movie4,
         description: 'Musical adventures in Sunday school',
         categories: ['Kids', 'Music'],
-        episodes: [],
+        episodes: [], fileUrl: '',
       ),
       MovieModel(
         id: 10,
@@ -47,7 +47,7 @@ class MovieController extends GetxController {
         imageUrl: movie3,
         description: 'Comedy about modern-day Noah',
         categories: ['Comedy', 'Family'],
-        episodes: [],
+        episodes: [], fileUrl: '',
       ),
       MovieModel(
         id: 11,
@@ -57,7 +57,7 @@ class MovieController extends GetxController {
         imageUrl: movie2,
         description: 'Family comedy about dogs',
         categories: ['Comedy', 'Family'],
-        episodes: [],
+        episodes: [], fileUrl: '',
       ),
       MovieModel(
         id: 12,
@@ -67,7 +67,7 @@ class MovieController extends GetxController {
         imageUrl: movie5,
         description: 'Inspirational family drama',
         categories: ['Drama', 'Family'],
-        episodes: [],
+        episodes: [], fileUrl: '',
       ),
       MovieModel(
         id: 13,
@@ -77,7 +77,7 @@ class MovieController extends GetxController {
         imageUrl: movie1,
         description: 'The story of a loyal dog',
         categories: ['Family', 'Drama'],
-        episodes: [],
+        episodes: [], fileUrl: '',
       ),
     ];
   }

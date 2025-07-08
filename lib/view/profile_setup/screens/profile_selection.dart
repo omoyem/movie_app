@@ -38,22 +38,15 @@ class ProfileSelectionScreen extends GetView<ProfileController> {
             ),
             const SizedBox(height: 8),
             Text(
-              '${profile.ageGroup.capitalize} Profile',
+              profile.name.isNotEmpty ? profile.name : 'No Name',
               style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
                 color: Colors.black87,
               ),
               textAlign: TextAlign.center,
             ),
-            Text(
-              'Age ${profile.currentAge}',
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey[600],
-              ),
-              textAlign: TextAlign.center,
-            ),
+            
           ],
         ),
       ),
@@ -244,11 +237,7 @@ class ProfileSelectionScreen extends GetView<ProfileController> {
                       onPressed: () {
                        
                         AppRouter.toProfileSetup();
-                        Get.snackbar(
-                          'Feature Coming Soon',
-                          'Profile management will be available soon',
-                          snackPosition: SnackPosition.BOTTOM,
-                        );
+                        
                       },
                       style: OutlinedButton.styleFrom(
                         side: BorderSide(color: Colors.grey[400]!),

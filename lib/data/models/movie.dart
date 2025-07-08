@@ -6,6 +6,7 @@ class MovieModel {
   final String year;
   final String seasons;
   final String imageUrl;
+  final String fileUrl;
   final String description;
   final List<String> categories;
   final List<EpisodeModel> episodes;
@@ -17,6 +18,7 @@ class MovieModel {
     required this.year,
     required this.seasons,
     required this.imageUrl,
+    required this.fileUrl,
     required this.description,
     required this.categories,
     required this.episodes,
@@ -52,8 +54,17 @@ class MoviesResponse {
   });
   
   factory MoviesResponse.fromJson(Map<String, dynamic> json) {
+    int responseCodeInt;
+    final code = json['response_code'];
+    if (code is int) {
+      responseCodeInt = code;
+    } else if (code is String) {
+      responseCodeInt = int.tryParse(code) ?? 0;
+    } else {
+      responseCodeInt = 0;
+    }
     return MoviesResponse(
-      responseCode: json['response_code'],
+      responseCode: responseCodeInt,
       responseMessage: json['response_message'],
       data: MoviesData.fromJson(json['data']),
     );
@@ -141,12 +152,18 @@ class ApiMovieModel {
     } catch (e) {
       categories = ['General'];
     }
+    // Handle image URL
+    String baseUrl = 'https://your-base-url.com/'; // <-- Replace with your actual base URL
+    String fullImageUrl = coverPhotoPath.startsWith('http')
+      ? coverPhotoPath
+      : baseUrl + coverPhotoPath;
     return MovieModel(
       id: int.tryParse(id) ?? 0,
       title: title,
       year: releaseDate.split('-').first, 
       seasons: '1 season', 
-      imageUrl: coverPhotoPath,
+      imageUrl: fullImageUrl,
+      fileUrl: filePath,
       description: description,
       categories: categories,
       episodes: [], 

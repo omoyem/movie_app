@@ -77,7 +77,6 @@ class _SignInScreenState extends State<SignInScreen> {
                       ),
                       SizedBox(height: 32),
                       
-                      // Form fields
                       CustomTextField(
                         controller: _emailController,
                         label: 'Email',

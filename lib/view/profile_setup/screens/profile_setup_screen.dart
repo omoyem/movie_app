@@ -7,7 +7,6 @@ import 'package:godly_seed_app/view/profile_setup/model/profile_model.dart';
 class ProfileSetupScreen extends GetView<ProfileController> {
   @override
   Widget build(BuildContext context) {
-     final ProfileController controller = Get.put(ProfileController());
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -137,8 +136,6 @@ class ProfileSetupScreen extends GetView<ProfileController> {
               ],
               
               const SizedBox(height: 40),
-              
-         
             
               
               const SizedBox(height: 24),

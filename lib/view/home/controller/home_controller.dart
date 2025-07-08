@@ -28,26 +28,40 @@ class HomeController extends GetxController {
   @override
   void onInit() {
     super.onInit();
- 
+
     final args = Get.arguments;
-    if (args != null && args is Map && args['profile_id'] != null) {
-      profileId.value = args['profile_id'].toString();
-      if (kDebugMode) {
-        print('HomeController: Received profile_id from arguments: \\${profileId.value}');
+    if (args != null && args is Map) {
+      if (args['profile_id'] != null) {
+        profileId.value = args['profile_id'].toString();
+        print('DEBUG: Received profile_id: ${profileId.value}');
+      } else {
+        print('DEBUG: No profile_id in arguments');
+      }
+      if (args['email'] != null) {
+        userId.value = args['email'].toString();
+        print('DEBUG: Received user_id (email) from arguments: ${userId.value}');
       }
     }
-    loadUserName();
-   
+    loadUserName().then((_) async {
+      if (userId.value.isEmpty && args != null && args is Map && args['email'] != null) {
+        userId.value = args['email'].toString();
+        print('DEBUG: Fallback userId from arguments: ${userId.value}');
+      }
+      print('DEBUG: userId: ${userId.value}, profileId: ${profileId.value}');
+      loadMoviesFromApi();
+    });
   }
 
   Future<void> loadUserName() async {
     try {
       User? user = await StorageService.getUser();
-      if (user != null && user.fullName.isNotEmpty) {
-        username.value = user.fullName;
-
+      if (user != null) {
+        username.value = user.fullName.isNotEmpty ? user.fullName : user.email;
         userId.value = user.email;
-            }
+        print('DEBUG: Loaded userId: ${userId.value}, username: ${username.value}');
+      } else {
+        print('DEBUG: No user found in storage');
+      }
     } catch (e) {
       print('Error loading user name: $e');
     }
@@ -107,23 +121,22 @@ class HomeController extends GetxController {
       throw Exception('Token not found');
     }
 
-    final requestBody = {
-      "user_id": userId,
-      "profile_id": profileId,
-      "page": page,
-      "per_page": perPage,
-    };
+    final uri = Uri.parse(Endpoints.baseUrl + Endpoints.getMovies)
+      .replace(queryParameters: {
+        "user_id": userId,
+        "profile_id": profileId,
+        "page": page.toString(),
+        "per_page": perPage.toString(),
+      });
 
-    final uri = Uri.parse(Endpoints.baseUrl + Endpoints.getMovies);
     final client = IOClient(InsecureHttpClientHelper.createInsecureHttpClient());
     try {
-      final response = await client.post(
+      final response = await client.get(
         uri,
         headers: {
           HttpHeaders.contentTypeHeader: 'application/json',
           HttpHeaders.authorizationHeader: 'Bearer $token',
         },
-        body: jsonEncode(requestBody),
       );
 
       if (response.statusCode == 200) {
@@ -140,63 +153,10 @@ class HomeController extends GetxController {
   }
 
   void loadFallbackMovies() {
- 
-    featuredMovies.value = [
-      MovieModel(
-        id: 1,
-        title: 'Little Angel',
-        year: '2022',
-        seasons: '3 seasons',
-        imageUrl: movie1,
-        description: 'Fun and educational content for kids',
-        categories: ['Kids', 'Educational'],
-        episodes: [
-          EpisodeModel(
-            id: 1,
-            title: 'Pilot',
-            description: 'On an island of haves and have-nots, teen John B enlists his three best friends to hunt a legendary treasure linked to his father\'s disappearance.',
-            imageUrl: movie2,
-            duration: '24 min',
-          ),
-          EpisodeModel(
-            id: 2,
-            title: 'The Pilot',
-            description: 'On an island of haves and have-nots, teen John B enlists his three best friends to hunt a legendary treasure linked to his father\'s disappearance.',
-            imageUrl: movie3,
-            duration: '28 min',
-          ),
-        ],
-      ),
-   
-    ];
-
-    topMovies.value = [
-      MovieModel(
-        id: 3,
-        title: 'Jesus for Kids',
-        year: '2021',
-        seasons: '2 seasons',
-        imageUrl: movie3,
-        description: 'Biblical stories for children',
-        categories: ['Kids', 'Bible Story'],
-        episodes: [],
-      ),
-    
-    ];
-
-    continueWatching.value = [
-      MovieModel(
-        id: 6,
-        title: 'Evan Almighty',
-        year: '2007',
-        seasons: '1 season',
-        imageUrl: movie3,
-        description: 'Comedy about modern-day Noah',
-        categories: ['Comedy', 'Family'],
-        episodes: [],
-      ),
-     
-    ];
+  
+    featuredMovies.value = [];
+    topMovies.value = [];
+    continueWatching.value = [];
   }
 
 

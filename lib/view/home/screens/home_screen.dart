@@ -92,55 +92,68 @@ class HomeScreen extends GetView<HomeController> {
   }
 
  Widget _buildFeaturedCarousel() {
-  return Obx(() => Column(
-    children: [
-      CarouselSlider(
-        options: CarouselOptions(
-          height: 300,
-          viewportFraction: 0.7, 
-          autoPlay: true,
-          enlargeCenterPage: true,
-          enlargeFactor: 0.3, 
-          onPageChanged: (index, reason) {
-            controller.updateCarouselIndex(index);
-          },
+  return Obx(() {
+    if (controller.featuredMovies.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32.0),
+          child: Text(
+            'No movies available.',
+            style: TextStyle(fontSize: 18, color: Colors.grey),
+          ),
         ),
-        items: controller.featuredMovies.map((movie) {
-          return GestureDetector(
-            onTap: () => controller.navigateToMovieDetails(movie),
-            child: Container(
-              
-              margin: EdgeInsets.symmetric(horizontal: 8), 
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                image: DecorationImage(
-                  image: AssetImage(movie.imageUrl),
-                  fit: BoxFit.cover,
+      );
+    }
+    return Column(
+      children: [
+        CarouselSlider(
+          options: CarouselOptions(
+            height: 300,
+            viewportFraction: 0.7, 
+            autoPlay: true,
+            enlargeCenterPage: true,
+            enlargeFactor: 0.3, 
+            onPageChanged: (index, reason) {
+              controller.updateCarouselIndex(index);
+            },
+          ),
+          items: controller.featuredMovies.map((movie) {
+            return GestureDetector(
+              onTap: () => controller.navigateToMovieDetails(movie),
+              child: Container(
+                
+                margin: EdgeInsets.symmetric(horizontal: 8), 
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  image: DecorationImage(
+                    image: NetworkImage(movie.imageUrl),
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
-            ),
-          );
-        }).toList(),
-      ),
-      SizedBox(height: 8),
-      Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: controller.featuredMovies.asMap().entries.map((entry) {
-          return Container(
-            width: 8.0,
-            height: 8.0,
-            margin: EdgeInsets.symmetric(horizontal: 4.0),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: controller.currentCarouselIndex.value == entry.key
-                  ? primaryColor
-                  : Colors.grey[300],
-            ),
-          );
-        }).toList(),
-      ),
-    ],
-  ));
+            );
+          }).toList(),
+        ),
+        SizedBox(height: 8),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: controller.featuredMovies.asMap().entries.map((entry) {
+            return Container(
+              width: 8.0,
+              height: 8.0,
+              margin: EdgeInsets.symmetric(horizontal: 4.0),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: controller.currentCarouselIndex.value == entry.key
+                    ? primaryColor
+                    : Colors.grey[300],
+              ),
+            );
+          }).toList(),
+        ),
+      ],
+    );
+  });
 }
 
   Widget _buildCategoryTabs() {
@@ -255,7 +268,7 @@ class HomeScreen extends GetView<HomeController> {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(8),
                     image: DecorationImage(
-                      image: AssetImage(movie.imageUrl),
+                      image: NetworkImage(movie.imageUrl),
                       fit: BoxFit.cover,
                     ),
                   ),

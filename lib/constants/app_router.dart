@@ -12,6 +12,7 @@ import 'package:godly_seed_app/view/movie/screens/movie_details_screen.dart';
 import 'package:godly_seed_app/view/onboarding/screens/onboarding_screen.dart';
 import 'package:godly_seed_app/view/profile_setup/bindings/profile_binding.dart';
 import 'package:godly_seed_app/view/profile_setup/screens/profile_selection.dart';
+import 'package:godly_seed_app/view/profile_setup/screens/profile_selection_screen.dart';
 import 'package:godly_seed_app/view/profile_setup/screens/profile_setup_screen.dart';
 import 'package:godly_seed_app/view/sign_up/binding/signup_binding.dart';
 import 'package:godly_seed_app/view/sign_up/screens/get_started_screen.dart';
@@ -29,6 +30,7 @@ class AppRouter {
   static const String signin = '/login';
   static const String home = '/home';
   static const String profileSelection = '/profileSelection';
+  
   static const String profileSetup = '/profileSetup';
   static const String forgot = '/forgot';
   static const String movie = '/movie';
@@ -88,7 +90,7 @@ class AppRouter {
 
       GetPage(
       name: profileSelection,
-      page: () => ProfileSelectionScreen(),
+      page: () => ProfileSetupIntroScreen(),
       transition: Transition.leftToRight,
       transitionDuration: Duration(milliseconds: 300),
       binding: ProfileBinding(),

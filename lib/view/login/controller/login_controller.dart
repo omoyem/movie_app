@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:godly_seed_app/constants/app_router.dart';
 import 'package:godly_seed_app/constants/endpoints.dart';
 import 'package:godly_seed_app/data/models/user.dart';
 import 'package:godly_seed_app/utils/local_storage_service.dart';
@@ -50,24 +49,26 @@ class LoginController extends GetxController {
       if (response.statusCode == 200 && responseBody['response_code'] == "200") {
         final responseMessage = responseBody['response_message'] ?? 'Login successful';
         
+        Map<String, dynamic>? userData;
         if (responseBody['data'] != null) {
           try {
-            final userData = responseBody['data'];
-            _signupController.user.value = User.fromJson(userData);
-            
-            if (userData['access_token'] != null) {
-              _signupController.accessToken.value = userData['access_token'];
-              await StorageService.saveAccessToken(userData['access_token']);
+            userData = responseBody['data'];
+            if (userData != null) {
+              _signupController.user.value = User.fromJson(userData);
               
-              if (kDebugMode) {
-                print('Access token saved: ${userData['access_token'].substring(0, 20)}...');
+              if (userData['access_token'] != null) {
+                _signupController.accessToken.value = userData['access_token'];
+                await StorageService.saveAccessToken(userData['access_token']);
+                
+                if (kDebugMode) {
+                  print('Access token saved: ${userData['access_token'].substring(0, 20)}...');
+                }
               }
+
+              await StorageService.saveUser(_signupController.user.value!);
+              await StorageService.saveRememberMe(_signupController.isRememberMe.value);
+              await StorageService.saveLoginStatus(true);
             }
-
-            await StorageService.saveUser(_signupController.user.value!);
-            await StorageService.saveRememberMe(_signupController.isRememberMe.value);
-            await StorageService.saveLoginStatus(true);
-
           } catch (e) {
             _signupController.logResponse(Endpoints.login, response.statusCode, responseBody, 
               error: 'User data parsing failed: ${e.toString()}');
@@ -82,7 +83,6 @@ class LoginController extends GetxController {
             return;
           }
         }
-
         Get.snackbar(
           'Success',
           responseMessage,
@@ -90,15 +90,14 @@ class LoginController extends GetxController {
           backgroundColor: Colors.green,
           colorText: Colors.white,
         );
-        // Check if user has created profile
-        final userProfile = await StorageService.getUserProfile();
-        if (userProfile == null) {
-          
-          AppRouter.toProfileSetup(); 
-        } else {
-         
-          AppRouter.toProfile(); 
-        }
+        // Always fetch profiles and navigate to profile selection
+        final profiles = responseBody['data']?['profiles'] ?? [];
+        final accessToken = userData != null ? userData['access_token'] : null;
+        Get.offAllNamed('/profileSelection', arguments: {
+          'email': email,
+          'profiles': profiles,
+          'token': accessToken,
+        });
       } else {
         final errorMessage = responseBody['response_message'] ?? 'Login failed';
         _signupController.logResponse(Endpoints.login, response.statusCode, responseBody, 
@@ -193,7 +192,7 @@ class LoginController extends GetxController {
           print('Auto-login successful for user: ${savedUser.email}');
         }
         
-        Get.offAll(() => ProfileSetupScreen());
+  
       }
     } catch (e) {
       if (kDebugMode) {
