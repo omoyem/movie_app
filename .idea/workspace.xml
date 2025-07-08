@@ -9,44 +9,12 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="be5037f8-8eed-40e7-8087-92ce1d406a93" name="Changes" comment="Nandom updates">
-      <change afterPath="$PROJECT_DIR$/lib/data/models/base_response.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/data/models/movie_list_response.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/network/api_client.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/network/http_fix.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/utils/menu_type.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/view/bottom_nav/bottom_dart.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/view/home/movie_request.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/view/login/models/forgot_password_request.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/view/login/models/forgot_password_response.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/view/login/models/login_request.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/view/login/models/login_response.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/view/movie/screens/play_movie.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/view/reset_password/controllers/reset_password_controller.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/view/reset_password/models/reset_password_request.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/view/reset_password/screen/reset_password_screen.dart" afterDir="false" />
+    <list default="true" id="be5037f8-8eed-40e7-8087-92ce1d406a93" name="Changes" comment="bug fixes and updates for login, forgot password and fetch movies">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/android/app/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/build.gradle.kts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/constants/endpoints.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/constants/endpoints.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/data/local/secure_storage_helper.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/data/local/secure_storage_helper.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/main.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/network/api_service.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/network/api_service.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/utils/helpers.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/utils/helpers.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/view/home/controller/home_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/view/home/controller/home_controller.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/view/home/screens/home_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/view/home/screens/home_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/view/login/controller/login_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/view/login/controller/login_controller.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/view/login/screens/login_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/view/login/screens/login_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/view/bottom_nav/bottom_dart.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/view/bottom_nav/bottom_dart.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/view/movie/controller/movie_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/view/movie/controller/movie_controller.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/view/movie/screens/movie_details_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/view/movie/screens/movie_details_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/view/profile_setup/controller/profile_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/view/profile_setup/controller/profile_controller.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/view/profile_setup/screens/profile_selection.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/view/profile_setup/screens/profile_selection.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/view/profile_setup/screens/profile_setup_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/view/profile_setup/screens/profile_setup_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/view/sign_up/screens/otp_verification_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/view/sign_up/screens/otp_verification_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/view/widgets/custom_button.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/view/widgets/custom_button.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/view/widgets/google_signin_button.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/view/widgets/google_signin_button.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/view/widgets/onboarding_card.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/view/widgets/onboarding_card.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/view/widgets/or_divider_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/view/widgets/or_divider_widget.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/view/movie/screens/play_movie.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/view/movie/screens/play_movie.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -148,7 +116,15 @@
       <option name="project" value="LOCAL" />
       <updated>1751624392396</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="bug fixes and updates for login, forgot password and fetch movies">
+      <option name="closed" value="true" />
+      <created>1751902872971</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1751902872972</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -170,7 +146,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Nandom updates" />
-    <option name="LAST_COMMIT_MESSAGE" value="Nandom updates" />
+    <MESSAGE value="bug fixes and updates for login, forgot password and fetch movies" />
+    <option name="LAST_COMMIT_MESSAGE" value="bug fixes and updates for login, forgot password and fetch movies" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

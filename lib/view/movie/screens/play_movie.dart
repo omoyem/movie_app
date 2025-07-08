@@ -30,11 +30,15 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
     super.initState();
     // initializePlayer();
 
-
-
-    _controller = PodPlayerController( playVideoFrom: PlayVideoFrom.network(
-      widget.videoUrl,
-    ) );
+    _controller = PodPlayerController(
+        playVideoFrom: PlayVideoFrom.network(
+          widget.videoUrl,
+        ),
+        podPlayerConfig: const PodPlayerConfig(
+            autoPlay: true,
+            isLooping: false,
+            videoQualityPriority: [720, 360]))
+      ..initialise();
   }
 
   // void initializePlayer() async {

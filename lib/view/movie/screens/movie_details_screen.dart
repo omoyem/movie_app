@@ -33,7 +33,7 @@ class MovieDetailsScreen extends GetView<MovieController> {
                   ),
                 ),
               ),
-              _buildBottomNavigation(),
+              // _buildBottomNavigation(),
             ],
           );
         }),
@@ -145,7 +145,7 @@ class MovieDetailsScreen extends GetView<MovieController> {
         children: [
           Expanded(
             child: ElevatedButton(
-              onPressed: () => controller.playMovie(),
+              onPressed: controller.playMovie,
               style: ElevatedButton.styleFrom(
                 backgroundColor: primaryColor,
                 foregroundColor: Colors.white,

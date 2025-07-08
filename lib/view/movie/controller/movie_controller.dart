@@ -2,6 +2,7 @@
 import 'package:get/get.dart';
 import 'package:godly_seed_app/constants/images.dart';
 import 'package:godly_seed_app/data/models/movie_list_response.dart';
+import 'package:godly_seed_app/utils/helpers.dart';
 
 import '../../../data/models/movie.dart';
 import '../screens/play_movie.dart';
@@ -89,9 +90,8 @@ class MovieController extends GetxController {
   }
 
   void playMovie() {
-    currentMovie.value;
+    logItem('You need to subscribe to proceed', title:  '${currentMovie.value?.filePath} ');
 
-    // Get.to(()=> VideoPlayerScreen( movieTitle: currentMovie.value.title, videoUrl: currentMovie.value.,));
-    Get.snackbar('You need to subscribe to proceed', '${currentMovie.value?.title} ');
+    Get.to(()=> VideoPlayerScreen( movieTitle: currentMovie.value!.title!, videoUrl: currentMovie.value!.filePath!));
   }
 }

@@ -23,15 +23,15 @@ class _BottomNavState extends State<BottomNav> {
     ),
     const TabItem(
       icon: Icons.search,
-      title: 'Library',
+      title: 'Search',
     ),
     const TabItem(
       icon: Icons.games,
-      title: 'Resources',
+      title: 'Games',
     ),
     const TabItem(
       icon: Icons.download,
-      title: 'Account',
+      title: 'Downloads',
     ),
     const TabItem(
       icon: Icons.list,
