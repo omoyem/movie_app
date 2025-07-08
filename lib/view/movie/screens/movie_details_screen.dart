@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:godly_seed_app/constants/color_palette.dart';
+import 'package:godly_seed_app/constants/endpoints.dart';
 import 'package:godly_seed_app/data/models/movie.dart';
+import 'package:godly_seed_app/data/models/movie_list_response.dart';
 import 'package:godly_seed_app/view/movie/controller/movie_controller.dart';
 
 class MovieDetailsScreen extends GetView<MovieController> {
@@ -13,7 +15,7 @@ class MovieDetailsScreen extends GetView<MovieController> {
         child: Obx(() {
           final movie = controller.currentMovie.value;
           if (movie == null) return Center(child: CircularProgressIndicator());
-          
+
           return Column(
             children: [
               _buildHeader(movie),
@@ -25,13 +27,13 @@ class MovieDetailsScreen extends GetView<MovieController> {
                       _buildMovieInfo(movie),
                       _buildActionButtons(),
                       _buildAboutSection(movie),
-                      _buildEpisodesSection(movie),
+                      // _buildEpisodesSection(movie),
                       _buildSimilarMoviesSection(),
                     ],
                   ),
                 ),
               ),
-              _buildBottomNavigation(),
+              // _buildBottomNavigation(),
             ],
           );
         }),
@@ -39,24 +41,24 @@ class MovieDetailsScreen extends GetView<MovieController> {
     );
   }
 
-  Widget _buildHeader(MovieModel movie) {
+  Widget _buildHeader(Movies movie) {
     return Container(
       height: 250,
       child: Stack(
         children: [
           Container(
             width: double.infinity,
-            height: 200,
+            height: 250,
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage(movie.imageUrl),
+                image: NetworkImage(Endpoints.imageBaseUrl + movie.coverPhotoPath!),
                 fit: BoxFit.cover,
               ),
             ),
           ),
           Container(
             width: double.infinity,
-            height: 200,
+            height: 250,
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
@@ -65,6 +67,25 @@ class MovieDetailsScreen extends GetView<MovieController> {
                   Colors.black.withOpacity(0.3),
                   Colors.black.withOpacity(0.7),
                 ],
+              ),
+            ),
+            child: Center(
+              child: Container(
+                padding: EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.9),
+                  shape: BoxShape.circle,
+                ),
+                child: IconButton(
+                  icon: const Icon(
+                    Icons.play_arrow,
+                    size: 32,
+                  ),
+                  onPressed: () {
+
+                  },
+                  color: Colors.black,
+                ),
               ),
             ),
           ),
@@ -86,38 +107,19 @@ class MovieDetailsScreen extends GetView<MovieController> {
               ),
             ),
           ),
-          Positioned(
-            bottom: 60,
-            left: 0,
-            right: 0,
-            child: Center(
-              child: Container(
-                padding: EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.9),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.play_arrow,
-                  size: 32,
-                  color: Colors.black,
-                ),
-              ),
-            ),
-          ),
         ],
       ),
     );
   }
 
-  Widget _buildMovieInfo(MovieModel movie) {
+  Widget _buildMovieInfo(Movies movie) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            movie.title,
+            movie.title ?? "No title",
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
@@ -125,7 +127,7 @@ class MovieDetailsScreen extends GetView<MovieController> {
           ),
           SizedBox(height: 4),
           Text(
-            '${movie.year} | ${movie.seasons}',
+            '${"2005"} | ${"2"}',
             style: TextStyle(
               color: Colors.grey[600],
               fontSize: 14,
@@ -165,23 +167,25 @@ class MovieDetailsScreen extends GetView<MovieController> {
           SizedBox(width: 12),
           Expanded(
             child: Obx(() => OutlinedButton(
-              onPressed: controller.toggleMyList,
-              style: OutlinedButton.styleFrom(
-                foregroundColor: Colors.grey[700],
-                padding: EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(controller.isInMyList.value ? Icons.check : Icons.add),
-                  SizedBox(width: 8),
-                  Text('My List'),
-                ],
-              ),
-            )),
+                  onPressed: controller.toggleMyList,
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.grey[700],
+                    padding: EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(controller.isInMyList.value
+                          ? Icons.check
+                          : Icons.add),
+                      SizedBox(width: 8),
+                      Text('My List'),
+                    ],
+                  ),
+                )),
           ),
           SizedBox(width: 12),
           Container(
@@ -200,7 +204,7 @@ class MovieDetailsScreen extends GetView<MovieController> {
     );
   }
 
-  Widget _buildAboutSection(MovieModel movie) {
+  Widget _buildAboutSection(Movies movie) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -215,9 +219,7 @@ class MovieDetailsScreen extends GetView<MovieController> {
           ),
           SizedBox(height: 8),
           Text(
-            movie.description.isNotEmpty 
-                ? movie.description 
-                : 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam commodo elit molestibus nec ex. Lorem urna cursus maximus urna vitae porta viverra turpis venenatis vitae. Ut et ultrices efficitur massa ipsum porta nec. In consectetur facilisis. Morbi ex.',
+            movie.description ?? 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam commodo elit molestibus nec ex. Lorem urna cursus maximus urna vitae porta viverra turpis venenatis vitae. Ut et ultrices efficitur massa ipsum porta nec. In consectetur facilisis. Morbi ex.',
             style: TextStyle(
               color: Colors.grey[600],
               height: 1.5,
@@ -230,7 +232,7 @@ class MovieDetailsScreen extends GetView<MovieController> {
 
   Widget _buildEpisodesSection(MovieModel movie) {
     if (movie.episodes.isEmpty) return SizedBox.shrink();
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -260,7 +262,9 @@ class MovieDetailsScreen extends GetView<MovieController> {
         Container(
           padding: EdgeInsets.symmetric(horizontal: 16),
           child: Column(
-            children: movie.episodes.map((episode) => _buildEpisodeItem(episode)).toList(),
+            children: movie.episodes
+                .map((episode) => _buildEpisodeItem(episode))
+                .toList(),
           ),
         ),
       ],
@@ -353,20 +357,20 @@ class MovieDetailsScreen extends GetView<MovieController> {
         Container(
           height: 200,
           child: Obx(() => GridView.builder(
-            scrollDirection: Axis.horizontal,
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              childAspectRatio: 0.8,
-              crossAxisSpacing: 8,
-              mainAxisSpacing: 8,
-            ),
-            itemCount: controller.similarMovies.length,
-            itemBuilder: (context, index) {
-              final movie = controller.similarMovies[index];
-              return _buildSimilarMovieCard(movie);
-            },
-          )),
+                scrollDirection: Axis.horizontal,
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  childAspectRatio: 0.8,
+                  crossAxisSpacing: 8,
+                  mainAxisSpacing: 8,
+                ),
+                itemCount: controller.similarMovies.length,
+                itemBuilder: (context, index) {
+                  final movie = controller.similarMovies[index];
+                  return _buildSimilarMovieCard(movie);
+                },
+              )),
         ),
         SizedBox(height: 20),
       ],
@@ -376,14 +380,14 @@ class MovieDetailsScreen extends GetView<MovieController> {
   Widget _buildSimilarMovieCard(MovieModel movie) {
     return GestureDetector(
       onTap: () {
-        controller.currentMovie.value = movie;
+        // controller.currentMovie.value = movie;
         controller.loadSimilarMovies();
       },
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
           image: DecorationImage(
-            image: AssetImage(movie.imageUrl),
+            image: AssetImage(movie.imageUrl!),
             fit: BoxFit.cover,
           ),
         ),
@@ -405,7 +409,7 @@ class MovieDetailsScreen extends GetView<MovieController> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                movie.title,
+                movie.title ?? "No title",
                 style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
@@ -425,7 +429,7 @@ class MovieDetailsScreen extends GetView<MovieController> {
     return Container(
       height: 70,
       decoration: BoxDecoration(
-        color:primaryColor,
+        color: primaryColor,
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(20),
           topRight: Radius.circular(20),

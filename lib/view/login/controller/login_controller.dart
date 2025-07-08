@@ -4,14 +4,27 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:godly_seed_app/constants/endpoints.dart';
+import 'package:godly_seed_app/data/models/base_response.dart';
 import 'package:godly_seed_app/data/models/user.dart';
+import 'package:godly_seed_app/utils/helpers.dart';
 import 'package:godly_seed_app/utils/local_storage_service.dart';
+import 'package:godly_seed_app/view/login/models/forgot_password_request.dart';
+import 'package:godly_seed_app/view/login/models/forgot_password_request.dart';
+import 'package:godly_seed_app/view/login/models/login_request.dart';
+import 'package:godly_seed_app/view/login/models/login_response.dart';
 import 'package:godly_seed_app/view/profile_setup/screens/profile_setup_screen.dart';
 import 'package:godly_seed_app/view/sign_up/controller/signup_controller.dart';
+import 'package:http/http.dart' as http;
+
+import '../../../data/local/secure_storage_helper.dart';
+import '../../../network/api_client.dart';
+import '../../sign_up/screens/otp_verification_screen.dart';
 
 class LoginController extends GetxController {
   
   SignupController get _signupController => Get.find<SignupController>();
+
+  ApiClient apiClient = ApiClient(appbaseurl: Endpoints.baseUrl);
 
   final RxBool isLoading = false.obs;
 
@@ -34,45 +47,45 @@ class LoginController extends GetxController {
         print('URL: ${Endpoints.baseUrl}${Endpoints.login}');
       }
 
-      final response = await _signupController.makeHttpRequest(
-        'POST',
-        Endpoints.login,
-        body: {
-          'username': email,
-          'password': password,
-        },
+      LoginRequest request = LoginRequest(
+        username: email,
+        password: password
       );
 
-      final responseBody = json.decode(response.body);
-      _signupController.logResponse(Endpoints.login, response.statusCode, responseBody);
+      final response = await apiClient.postRequest(url: Endpoints.login, data: request.toJson());
 
-      if (response.statusCode == 200 && responseBody['response_code'] == "200") {
-        final responseMessage = responseBody['response_message'] ?? 'Login successful';
+      var loginResult = LoginResponse.fromJson(json.decode(response.body));
+
+      if (loginResult.responseCode.toString() == "200") {
+        logItem("login success");
+
+        final responseMessage = loginResult.responseMessage ?? 'Login successful';
         
-        Map<String, dynamic>? userData;
-        if (responseBody['data'] != null) {
+        if (loginResult.data != null) {
           try {
-            userData = responseBody['data'];
-            if (userData != null) {
-              _signupController.user.value = User.fromJson(userData);
-              
-              if (userData['access_token'] != null) {
-                _signupController.accessToken.value = userData['access_token'];
-                await StorageService.saveAccessToken(userData['access_token']);
-                
-                if (kDebugMode) {
-                  print('Access token saved: ${userData['access_token'].substring(0, 20)}...');
-                }
-              }
+            var user = loginResult.data!;
+            var token = loginResult.data!.accessToken;
+            String userString = jsonEncode(user);
+            logItem("about to save Ussesr and token");
 
-              await StorageService.saveUser(_signupController.user.value!);
-              await StorageService.saveRememberMe(_signupController.isRememberMe.value);
-              await StorageService.saveLoginStatus(true);
+            LocalStorageHelper localStorageHelper = LocalStorageHelper();
+            await localStorageHelper.storeItem(key: "user", value: userString);
+            await localStorageHelper.storeItem(key: "token", value: token!);
+
+            logItem("Ussesr and token saved successsfully");
+
+            if (loginResult.data?.accessToken != null) {
+              _signupController.accessToken.value = loginResult.data!.accessToken!;
+              await StorageService.saveAccessToken(loginResult.data!.accessToken!);
+              
+                logItem('Access token saved: ${loginResult.data?.accessToken!.substring(0, 20)}...');
             }
+
+            // await StorageService.saveUser(_signupController.user.value!);
+            // await StorageService.saveRememberMe(_signupController.isRememberMe.value);
+            await StorageService.saveLoginStatus(true);
+
           } catch (e) {
-            _signupController.logResponse(Endpoints.login, response.statusCode, responseBody, 
-              error: 'User data parsing failed: ${e.toString()}');
-            
             Get.snackbar(
               'Error',
               'Failed to parse user data: ${e.toString()}',
@@ -99,10 +112,8 @@ class LoginController extends GetxController {
           'token': accessToken,
         });
       } else {
-        final errorMessage = responseBody['response_message'] ?? 'Login failed';
-        _signupController.logResponse(Endpoints.login, response.statusCode, responseBody, 
-          error: 'Login failed: $errorMessage');
-        
+        final errorMessage = loginResult.responseMessage ?? 'Login failed';
+
         Get.snackbar(
           'Error',
           errorMessage,
@@ -128,43 +139,44 @@ class LoginController extends GetxController {
         print('URL: ${Endpoints.baseUrl}${Endpoints.forgotPassword}');
       }
 
-      final response = await _signupController.makeHttpRequest(
-        'POST',
-        Endpoints.forgotPassword,
-        body: {
-          'email': email,
-        },
+      ForgotPasswordRequest request = ForgotPasswordRequest(
+          username: email
       );
 
-      final responseBody = json.decode(response.body);
-      _signupController.logResponse(Endpoints.forgotPassword, response.statusCode, responseBody);
+      http.Response response = await apiClient.postRequest(url: Endpoints.forgotPassword, data: request.toJson());
 
-      if (response.statusCode == 200 && responseBody['response_code'] == "200") {
-        final responseMessage = responseBody['response_message'] ?? 'Password reset link sent successfully';
-        
-        Get.snackbar(
-          'Success',
-          responseMessage,
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.green,
-          colorText: Colors.white,
-          duration: Duration(seconds: 4),
-        );
-        
+      // if(response.body == null){
+      //   showSnackBar(title: "Error", message: "Network Error. Kindly check your internet connection", type: 'error');
+      //   return;
+      // }
+
+      logItem("I am jer again");
+      logItem(response.body);
+      var result = BaseResponse.fromJson(json.decode(response.body));
+      logItem("hiiiiiiii helo");
+      Get.back();
+
+      if(result.responseCode == 200){
+        final responseMessage = result.responseMessage ?? 'Password reset link sent successfully';
+
+        await Future.delayed(Duration(milliseconds: 100), (){
+          showSnackBar(title: "Success", message: responseMessage, type: "success");
+        });
+
+        await Future.delayed(Duration(milliseconds: 500), (){
+          Get.to(() => OtpVerificationScreen(email: email), arguments: [{'type': 'forgot_password'}]);
+        });
+
+
       } else {
-        final errorMessage = responseBody['response_message'] ?? 'Failed to send password reset link';
-        _signupController.logResponse(Endpoints.forgotPassword, response.statusCode, responseBody, 
-          error: 'Forgot password failed: $errorMessage');
-        
-        Get.snackbar(
-          'Error',
-          errorMessage,
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
-        );
+        final responseMessage = result.responseMessage ?? 'Failed to send password reset link';
+
+        showSnackBar(title: "Error", message: responseMessage, type: "error");
       }
     } catch (e) {
+
+      logItem(e.toString());
+
       _signupController.handleNetworkError(e, Endpoints.forgotPassword);
     } finally {
       isLoading.value = false;

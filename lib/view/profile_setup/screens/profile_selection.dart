@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:godly_seed_app/constants/app_router.dart';
+import 'package:godly_seed_app/view/login/models/login_response.dart';
 import 'package:godly_seed_app/view/profile_setup/controller/profile_controller.dart';
 import 'package:godly_seed_app/view/profile_setup/model/profile_model.dart';
 
 class ProfileSelectionScreen extends GetView<ProfileController> {
   const ProfileSelectionScreen({super.key});
 
-  Widget _buildExistingProfile(UserProfile profile) {
+  Widget _buildExistingProfile(Profiles profile) {
     return GestureDetector(
       onTap: () => controller.selectProfile(profile),
       child: Container(
@@ -20,18 +21,18 @@ class ProfileSelectionScreen extends GetView<ProfileController> {
               width: 80,
               height: 80,
               decoration: BoxDecoration(
-                color: profile.ageGroup.toLowerCase() == 'adult' 
+                color: profile.ageGroup?.toLowerCase() == 'adult'
                     ? Colors.blue[100] 
                     : Colors.pink[100],
                 shape: BoxShape.circle,
                 border: Border.all(color: Colors.grey[300]!, width: 2),
               ),
               child: Icon(
-                profile.ageGroup.toLowerCase() == 'adult' 
+                profile.ageGroup?.toLowerCase() == 'adult'
                     ? Icons.person 
                     : Icons.child_care,
                 size: 40,
-                color: profile.ageGroup.toLowerCase() == 'adult' 
+                color: profile.ageGroup?.toLowerCase() == 'adult'
                     ? Colors.blue[600] 
                     : Colors.pink[600],
               ),
@@ -108,11 +109,11 @@ class ProfileSelectionScreen extends GetView<ProfileController> {
 
   Widget _buildProfileGrid() {
     return Obx(() {
-      if (controller.isLoading.value) {
-        return const Center(
-          child: CircularProgressIndicator(),
-        );
-      }
+      // if (controller.isLoading.value) {
+      //   return const Center(
+      //     child: CircularProgressIndicator(),
+      //   );
+      // }
 
       if (controller.errorMessage.value.isNotEmpty) {
         return Center(

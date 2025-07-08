@@ -1,9 +1,15 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:godly_seed_app/constants/app_router.dart';
 
+import 'network/http_fix.dart';
+
 
 void main() {
+  HttpOverrides.global = MyHttpOverrides(); // ⛔️ Do not use in production
+
   runApp(MyApp());
 }
 

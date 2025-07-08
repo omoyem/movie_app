@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:godly_seed_app/constants/images.dart';
+import 'package:godly_seed_app/view/reset_password/screen/reset_password_screen.dart';
 import 'package:godly_seed_app/view/sign_up/controller/signup_controller.dart';
 import 'package:godly_seed_app/view/sign_up/screens/signup_screen.dart';
 import 'package:godly_seed_app/view/widgets/app_logo_widget.dart';
@@ -12,24 +13,33 @@ import 'package:godly_seed_app/view/widgets/custom_button.dart';
 class OtpVerificationScreen extends StatefulWidget {
   final String email;
 
-  const OtpVerificationScreen({Key? key, required this.email}) : super(key: key);
+  const OtpVerificationScreen({Key? key, required this.email})
+      : super(key: key);
 
   @override
   _OtpVerificationScreenState createState() => _OtpVerificationScreenState();
 }
 
 class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
-  final List<TextEditingController> _otpControllers = List.generate(6, (index) => TextEditingController());
+  final List<TextEditingController> _otpControllers =
+      List.generate(6, (index) => TextEditingController());
   final List<FocusNode> _focusNodes = List.generate(6, (index) => FocusNode());
   final SignupController _signupController = Get.find<SignupController>();
-  
+
   Timer? _timer;
-  int _remainingTime = 300; 
+  int _remainingTime = 300;
   bool _canResend = false;
+
+  var argumentData = Get.arguments;
+  String? type = "signup";
 
   @override
   void initState() {
     super.initState();
+
+    if (argumentData != null) {
+      type = argumentData[0]['type'];
+    }
     _startTimer();
   }
 
@@ -80,13 +90,12 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                     ),
                   ],
                 ),
-                
+
                 Expanded(
                   child: SingleChildScrollView(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-
                         SizedBox(height: 20),
                         Text(
                           'VERIFY CODE',
@@ -99,7 +108,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                           textAlign: TextAlign.center,
                         ),
                         SizedBox(height: 16),
-                        
+
                         // Subtitle
                         RichText(
                           textAlign: TextAlign.center,
@@ -122,18 +131,20 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                           ),
                         ),
                         SizedBox(height: 30),
-                        
+
                         // OTP Input Fields
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: List.generate(6, (index) => _buildOtpField(index)),
+                          children: List.generate(
+                              6, (index) => _buildOtpField(index)),
                         ),
                         SizedBox(height: 20),
-                        
+
                         // Timer
                         if (!_canResend)
                           Container(
-                            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 12),
                             decoration: BoxDecoration(
                               color: Colors.orange.shade50,
                               borderRadius: BorderRadius.circular(8),
@@ -159,33 +170,32 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                             ),
                           ),
                         SizedBox(height: 40),
-                        
-                      
+
                         Obx(() => CustomButton(
-                          text: _signupController.isLoading.value 
-                              ? 'Verifying...' 
-                              : 'Verify Code',
-                          onPressed: 
-                              
-                          _handleVerifyOtp,
-                          label: '',
-                        )),
+                              text: _signupController.isLoading.value
+                                  ? 'Verifying...'
+                                  : 'Verify Code',
+                              onPressed: _handleVerifyOtp,
+                              label: '',
+                            )),
                         SizedBox(height: 24),
-                        
-                        
                         TextButton(
                           onPressed: _canResend ? _handleResendCode : null,
                           child: Text(
-                            _canResend ? 'Resend Code' : 'Resend Code ($_formattedTime)',
+                            _canResend
+                                ? 'Resend Code'
+                                : 'Resend Code ($_formattedTime)',
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
-                              color: _canResend ? Colors.blue.shade600 : Colors.grey,
+                              color: _canResend
+                                  ? Colors.blue.shade600
+                                  : Colors.grey,
                             ),
                           ),
                         ),
                         SizedBox(height: 32),
-                        
+
                         // Help Text
                         Container(
                           padding: EdgeInsets.all(16),
@@ -251,8 +261,8 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: _otpControllers[index].text.isNotEmpty 
-              ? Colors.blue.shade300 
+          color: _otpControllers[index].text.isNotEmpty
+              ? Colors.blue.shade300
               : Colors.grey.shade300,
           width: 2,
         ),
@@ -308,7 +318,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
 
   void _handleVerifyOtp() async {
     final otp = _otpControllers.map((controller) => controller.text).join();
-    
+
     if (otp.length != 6) {
       Get.snackbar(
         'Invalid Code',
@@ -318,31 +328,31 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
       );
       return;
     }
-    
+
     final success = await _signupController.verifyOtp(widget.email, otp);
-    
+
     if (success) {
-     Get.off(
-          () => SignupScreen(),
-          arguments: {'email': widget.email}
-        );
+      if(type == "signup") {
+        Get.off(() => SignupScreen(), arguments: {'email': widget.email});
+      }else{  
+        Get.off(() => ResetPasswordScreen(email: widget.email));
+      }
     }
   }
 
   void _handleResendCode() async {
     final success = await _signupController.sendOtp(widget.email);
-    
+
     if (success) {
-    
       for (var controller in _otpControllers) {
         controller.clear();
       }
-     
+
       _focusNodes[0].requestFocus();
 
       _timer?.cancel();
       _startTimer();
-      
+
       Get.snackbar(
         'Code Sent',
         'A new verification code has been sent to your email',

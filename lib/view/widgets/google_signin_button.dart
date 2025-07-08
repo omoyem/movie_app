@@ -31,7 +31,6 @@ class GoogleSignInButton extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              
               Image.asset(
                 googleLogo,
                 width: 24,
@@ -41,7 +40,7 @@ class GoogleSignInButton extends StatelessWidget {
               Text(
                 'Sign Up with Google',
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 14,
                   fontWeight: FontWeight.w500,
                   color: Colors.grey[700],
                 ),

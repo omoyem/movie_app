@@ -19,14 +19,14 @@ class OnboardingCard extends StatelessWidget {
          
             Container(
               width: 250,
-              height: 250,
+              height: 200,
               child: data.image,
             ),
             SizedBox(height: 48),
             Text(
               data.title,
               style: TextStyle(
-                fontSize: 36,
+                fontSize: 34,
                 fontFamily: 'FunkySmile',
                 fontWeight: FontWeight.bold,
                 color: data.titleColor ?? Colors.black12,
@@ -39,7 +39,7 @@ class OnboardingCard extends StatelessWidget {
               style: TextStyle(
                 fontFamily: 'Lexend',
                 fontWeight: FontWeight.w300,
-                fontSize: 16,
+                fontSize: 14,
                 color: data.descriptionColor ?? primaryColor,
                 height: 1.5,
               ),
