@@ -9,12 +9,24 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="be5037f8-8eed-40e7-8087-92ce1d406a93" name="Changes" comment="bug fixes and updates for login, forgot password and fetch movies">
+    <list default="true" id="be5037f8-8eed-40e7-8087-92ce1d406a93" name="Changes" comment="Play Movie working">
+      <change afterPath="$PROJECT_DIR$/lib/view/favourites/controllers/favourite_list_controller.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/view/favourites/controllers/get_favourite_controller.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/view/favourites/models/get_favourite_response.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/view/favourites/models/get_favourites_request.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/view/favourites/models/reset_password_request.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/view/favourites/screen/favourites_screen.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/view/movie/bindings/favourite_binding.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/view/movie/controller/add_favourite_controller.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/view/movie/models/add_favourite_request.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/constants/app_router.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/constants/app_router.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/constants/endpoints.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/constants/endpoints.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/view/bottom_nav/bottom_dart.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/view/bottom_nav/bottom_dart.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/view/movie/controller/movie_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/view/movie/controller/movie_controller.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/view/movie/screens/movie_details_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/view/movie/screens/movie_details_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/view/movie/screens/play_movie.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/view/movie/screens/play_movie.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/view/profile_setup/controller/profile_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/view/profile_setup/controller/profile_controller.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -47,7 +59,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="main" />
+        <entry key="$PROJECT_DIR$" value="nandom-branch" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -70,30 +82,32 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
-    "Flutter.main.dart.executor": "Debug",
+    "Flutter.main.dart.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.cidr.known.project.marker": "true",
     "RunOnceActivity.readMode.enableVisualFormatting": "true",
     "cf.first.check.clang-format": "false",
     "cidr.known.project.marker": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "nandom-branch",
+    "git-widget-placeholder": "main",
     "io.flutter.reload.alreadyRun": "true",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "/Users/test/AndroidStudioProjects/godly_seed_app/lib/view/bottom_nav",
+    "last_opened_file_path": "/Users/test/AndroidStudioProjects/godly_seed_app/lib/view/movie/bindings",
     "settings.editor.selected.configurable": "AndroidSdkUpdater",
     "show.migrate.to.gradle.popup": "false"
   }
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/lib/view/movie/bindings" />
+      <recent name="$PROJECT_DIR$/lib/view" />
+      <recent name="$PROJECT_DIR$/lib/view/movie/controller" />
       <recent name="$PROJECT_DIR$/lib/view/bottom_nav" />
       <recent name="$PROJECT_DIR$/lib/utils" />
-      <recent name="$PROJECT_DIR$/lib/view" />
-      <recent name="$PROJECT_DIR$/lib/view/reset_password" />
-      <recent name="$PROJECT_DIR$/lib/view/profile_setup/screens" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/lib/view/favourites/models" />
+      <recent name="$PROJECT_DIR$/lib/view/favourites/controllers" />
       <recent name="$PROJECT_DIR$/lib/view/reset_password/controllers" />
       <recent name="$PROJECT_DIR$/lib/view/reset_password/screen" />
       <recent name="$PROJECT_DIR$/lib/view/reset_password/models" />
@@ -124,7 +138,15 @@
       <option name="project" value="LOCAL" />
       <updated>1751902872972</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="Play Movie working">
+      <option name="closed" value="true" />
+      <created>1751946860038</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1751946860038</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -147,19 +169,20 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Nandom updates" />
     <MESSAGE value="bug fixes and updates for login, forgot password and fetch movies" />
-    <option name="LAST_COMMIT_MESSAGE" value="bug fixes and updates for login, forgot password and fetch movies" />
+    <MESSAGE value="Play Movie working" />
+    <option name="LAST_COMMIT_MESSAGE" value="Play Movie working" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="Dart">
           <url>file://$PROJECT_DIR$/lib/view/home/controller/home_controller.dart</url>
-          <line>128</line>
+          <line>135</line>
           <option name="timeStamp" value="9" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="Dart">
           <url>file://$PROJECT_DIR$/lib/view/home/controller/home_controller.dart</url>
-          <line>133</line>
+          <line>140</line>
           <option name="timeStamp" value="10" />
         </line-breakpoint>
       </breakpoints>

@@ -2,6 +2,7 @@ import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/get_navigation.dart';
 import 'package:get/get_navigation/src/routes/get_route.dart';
 import 'package:get/get_navigation/src/routes/transitions_type.dart';
+import 'package:godly_seed_app/view/favourites/screen/favourites_screen.dart';
 import 'package:godly_seed_app/view/home/binding/home_binding.dart';
 import 'package:godly_seed_app/view/home/screens/home_screen.dart';
 import 'package:godly_seed_app/view/login/binding/login_binding.dart';
@@ -21,6 +22,8 @@ import 'package:godly_seed_app/view/sign_up/screens/signup_screen.dart';
 
 import 'package:godly_seed_app/view/splash/splash_screen.dart';
 
+import '../view/movie/bindings/favourite_binding.dart';
+
 class AppRouter {
   static const String splash = '/splash';
   static const String onboarding = '/onboarding';
@@ -28,6 +31,7 @@ class AppRouter {
   static const String otpVerification = '/otpVerification';
   static const String signup = '/signup';
   static const String signin = '/login';
+  static const String favourite = '/favourites';
   static const String home = '/home';
   static const String profileSelection = '/profileSelection';
   
@@ -81,6 +85,14 @@ class AppRouter {
       binding: LoginBinding(),
     ),
 
+    GetPage(
+      name: favourite,
+      page: () => FavouritesScreen(),
+      transition: Transition.leftToRight,
+      transitionDuration: Duration(milliseconds: 300),
+      binding: FavouriteBinding(),
+    ),
+
       GetPage(
       name: forgot,
       page: () => ForgotPasswordScreen(),
@@ -126,7 +138,7 @@ class AppRouter {
   static void toSignup() => Get.toNamed(signup);
   static void toLogin() => Get.toNamed(signin);
   static void toProfile() => Get.offAllNamed(profileSelection);
-  static void toProfileSetup() => Get.offAllNamed(profileSetup);
+  static void toProfileSetup() => Get.toNamed(profileSetup);
   static void goBack() => Get.back();
   static void toForgotPassword() => Get.toNamed(forgot);
   static void toHome() => Get.toNamed(home);

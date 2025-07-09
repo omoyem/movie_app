@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 
 import '../../constants/color_palette.dart';
+import '../favourites/screen/favourites_screen.dart';
 import '../home/screens/home_screen.dart';
 
 class BottomNav extends StatefulWidget {
@@ -26,10 +27,6 @@ class _BottomNavState extends State<BottomNav> {
       title: 'Search',
     ),
     const TabItem(
-      icon: Icons.games,
-      title: 'Games',
-    ),
-    const TabItem(
       icon: Icons.download,
       title: 'Downloads',
     ),
@@ -45,7 +42,7 @@ class _BottomNavState extends State<BottomNav> {
 
   @override
   void initState() {
-    profile = argumentData[0]['profile'];
+    // profile = argumentData[0]['profile'];
 
     super.initState();
   }
@@ -54,8 +51,7 @@ class _BottomNavState extends State<BottomNav> {
     HomeScreen(),
     HomeScreen(),
     HomeScreen(),
-    HomeScreen(),
-    HomeScreen(),
+    FavouritesScreen(),
   ];
 
   @override

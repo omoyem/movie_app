@@ -20,7 +20,7 @@ class MovieController extends GetxController {
   }
 
   void loadSimilarMovies() {
-    
+
     similarMovies.value = [
       MovieModel(
         id: 8,
@@ -86,7 +86,10 @@ class MovieController extends GetxController {
   }
 
   void toggleMyList() {
+
     isInMyList.value = !isInMyList.value;
+
+
   }
 
   void playMovie() {

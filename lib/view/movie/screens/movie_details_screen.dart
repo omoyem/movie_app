@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:godly_seed_app/constants/color_palette.dart';
 import 'package:godly_seed_app/constants/endpoints.dart';
 import 'package:godly_seed_app/data/models/movie.dart';
 import 'package:godly_seed_app/data/models/movie_list_response.dart';
+import 'package:godly_seed_app/view/movie/controller/add_favourite_controller.dart';
 import 'package:godly_seed_app/view/movie/controller/movie_controller.dart';
 
 class MovieDetailsScreen extends GetView<MovieController> {
+
+
+  final AddFavouriteController addFavouriteController = Get.put(AddFavouriteController());
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -154,7 +160,7 @@ class MovieDetailsScreen extends GetView<MovieController> {
                   borderRadius: BorderRadius.circular(8),
                 ),
               ),
-              child: Row(
+              child: const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(Icons.play_arrow),
@@ -167,7 +173,7 @@ class MovieDetailsScreen extends GetView<MovieController> {
           SizedBox(width: 12),
           Expanded(
             child: Obx(() => OutlinedButton(
-                  onPressed: controller.toggleMyList,
+                  onPressed: () => addFavouriteController.addToFavourite(controller.currentMovie.value!.id!.toString()),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: Colors.grey[700],
                     padding: EdgeInsets.symmetric(vertical: 12),
@@ -178,11 +184,18 @@ class MovieDetailsScreen extends GetView<MovieController> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(controller.isInMyList.value
+                      addFavouriteController.isLoading.value ?
+                          const SpinKitCircle(color: primaryColor, size: 25,) :
+                      Icon(addFavouriteController.isAdded.value
                           ? Icons.check
                           : Icons.add),
                       SizedBox(width: 8),
-                      Text('My List'),
+                      Row(
+                        children: [
+                          addFavouriteController.isLoading.value ?
+                          Text('Adding...') : Text('My List'),
+                        ],
+                      ),
                     ],
                   ),
                 )),
