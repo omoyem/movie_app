@@ -1,15 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:godly_seed_app/constants/app_router.dart';
-import 'package:godly_seed_app/constants/images.dart';
 import 'package:godly_seed_app/data/local/secure_storage_helper.dart';
 import 'package:godly_seed_app/data/models/movie.dart';
 import 'package:godly_seed_app/data/models/movie_list_response.dart' as ml;
-import 'package:godly_seed_app/data/models/user.dart';
 import 'package:godly_seed_app/network/api_client.dart';
 import 'package:godly_seed_app/utils/helpers.dart';
 import 'package:godly_seed_app/utils/httpClient_helper.dart';
-import 'package:godly_seed_app/utils/local_storage_service.dart';
 import 'package:godly_seed_app/view/home/movie_request.dart';
 import 'package:godly_seed_app/view/home/screens/home_screen.dart';
 import 'package:godly_seed_app/view/login/models/login_response.dart';
@@ -62,9 +59,19 @@ class HomeController extends GetxController {
     }
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      user.value = (await _storageHelper.getUser())!;
-      profile.value = (await _storageHelper.getProfile())!;
-      username.value = profile.value.name!;
+      final fetchedUser = await _storageHelper.getUser();
+      final fetchedProfile = await _storageHelper.getProfile();
+
+      if (fetchedUser == null || fetchedProfile == null) {
+        errorMessage.value = 'User or profile not found. Please log in again.';
+        // Optionally, navigate to login screen
+        // Get.offAllNamed(AppRouter.login);
+        return;
+      }
+
+      user.value = fetchedUser;
+      profile.value = fetchedProfile; 
+      username.value = profile.value.name ?? '';
       await loadMoviesFromApi();
     });
 

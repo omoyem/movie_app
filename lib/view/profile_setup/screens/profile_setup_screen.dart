@@ -4,7 +4,37 @@ import 'package:godly_seed_app/constants/color_palette.dart';
 import 'package:godly_seed_app/view/profile_setup/controller/profile_controller.dart';
 import 'package:godly_seed_app/view/profile_setup/model/profile_model.dart';
 
-class ProfileSetupScreen extends GetView<ProfileController> {
+class ProfileSetupScreen extends StatefulWidget {
+  @override
+  _ProfileSetupScreenState createState() => _ProfileSetupScreenState();
+}
+
+class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
+  final ProfileController controller = Get.find<ProfileController>();
+  late TextEditingController nameController;
+  late TextEditingController dateController;
+  late TextEditingController screenTimeController;
+
+  @override
+  void initState() {
+    super.initState();
+    nameController = TextEditingController(text: controller.profile.value.name);
+    dateController = TextEditingController(
+      text: controller.profile.value.dateOfBirth != null
+          ? "${controller.profile.value.dateOfBirth!.day.toString().padLeft(2, '0')}-${controller.profile.value.dateOfBirth!.month.toString().padLeft(2, '0')}-${controller.profile.value.dateOfBirth!.year}"
+          : '',
+    );
+    screenTimeController = TextEditingController(text: controller.profile.value.screenTime ?? '3pm - 7pm');
+  }
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    dateController.dispose();
+    screenTimeController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,8 +54,6 @@ class ProfileSetupScreen extends GetView<ProfileController> {
             fontWeight: FontWeight.w600,
           ),
         ),
-       
-       
       ),
       body: Obx(() {
         final isKidsProfile = controller.profile.value.type == ProfileType.kids;
@@ -34,7 +62,6 @@ class ProfileSetupScreen extends GetView<ProfileController> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-
               Center(
                 child: Stack(
                   children: [
@@ -49,14 +76,11 @@ class ProfileSetupScreen extends GetView<ProfileController> {
                           width: 2,
                         ),
                       ),
-                     
                     ),
-                  
                   ],
                 ),
               ),
               const SizedBox(height: 12),
-              
               Center(
                 child: Text(
                   isKidsProfile ? 'Kids Profile' : 'Adult Profile',
@@ -68,25 +92,24 @@ class ProfileSetupScreen extends GetView<ProfileController> {
                 ),
               ),
               const SizedBox(height: 32),
-           
               _buildFormField(
                 label: 'Profile Name',
                 child: TextField(
-                  controller: controller.nameController,
-                  onChanged: controller.updateName,
+                  controller: nameController,
+                  onChanged: (value) {
+                    controller.updateName(value);
+                  },
                   decoration: _getInputDecoration(
                     hintText: 'FullName',
                   ),
                 ),
                 isRequired: true,
               ),
-              
-            
               if (isKidsProfile) ...[
                 _buildFormField(
                   label: 'Date of Birth',
                   child: TextField(
-                    controller: controller.dateController,
+                    controller: dateController,
                     readOnly: true,
                     onTap: () => _selectDate(context),
                     decoration: _getInputDecoration(
@@ -96,7 +119,6 @@ class ProfileSetupScreen extends GetView<ProfileController> {
                   ),
                   isRequired: true,
                 ),
-                
                 _buildFormField(
                   label: 'Gender',
                   child: DropdownButtonFormField<Gender>(
@@ -119,28 +141,23 @@ class ProfileSetupScreen extends GetView<ProfileController> {
                   ),
                   isRequired: true,
                 ),
-                
                 _buildFormField(
                   label: 'Screen Limit',
                   child: TextField(
-                    controller: controller.screenTimeController,
-                    onChanged: controller.updateScreenTime,
+                    controller: screenTimeController,
+                    onChanged: (value) {
+                      controller.updateScreenTime(value);
+                    },
                     decoration: _getInputDecoration(
                       hintText: '3pm - 7pm',
                       suffixIcon: const Icon(Icons.access_time, size: 20),
                     ),
                   ),
                   isRequired: true,
-                
                 ),
               ],
-              
               const SizedBox(height: 40),
-            
-              
               const SizedBox(height: 24),
-              
-      
               Obx(() => SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -261,7 +278,7 @@ class ProfileSetupScreen extends GetView<ProfileController> {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: Colors.brown[400]!, width: 2),
+        borderSide: BorderSide(color:primaryColor, width: 2),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
@@ -303,6 +320,7 @@ class ProfileSetupScreen extends GetView<ProfileController> {
     );
     if (picked != null) {
       controller.selectDateOfBirth(picked);
+      dateController.text = "${picked.day.toString().padLeft(2, '0')}-${picked.month.toString().padLeft(2, '0')}-${picked.year}";
     }
   }
 }

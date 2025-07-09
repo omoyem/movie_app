@@ -9,33 +9,27 @@ import 'package:godly_seed_app/constants/color_palette.dart';
 import 'package:godly_seed_app/constants/endpoints.dart';
 import 'package:godly_seed_app/data/local/secure_storage_helper.dart';
 import 'package:godly_seed_app/utils/httpClient_helper.dart';
-import 'package:godly_seed_app/view/home/screens/home_screen.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/io_client.dart';
 import 'package:godly_seed_app/utils/local_storage_service.dart';
-
-import '../../bottom_nav/bottom_dart.dart';
-import '../../login/models/login_response.dart';
 import '../model/profile_model.dart';
 
 class ProfileController extends GetxController {
   final Rx<ProfileModel> profile = ProfileModel(type: ProfileType.kids).obs;
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController dateController = TextEditingController();
-  final TextEditingController screenTimeController = TextEditingController();
 
-  final RxList<Profiles> userProfiles = <Profiles>[].obs;
+  final RxList<UserProfile> userProfiles = <UserProfile>[].obs;
   final RxString errorMessage = ''.obs;
-
   final RxBool isLoading = false.obs;
   final RxBool isFormValid = false.obs;
   String? userEmail;
   String? _authToken;
   final LocalStorageHelper _storageHelper = LocalStorageHelper();
 
+  
   http.Client? _httpClient;
+  bool _isClientClosed = false;
   static const Duration _timeoutDuration = Duration(seconds: 30);
-  bool _isDisposed = false;
+  static const int _maxRetries = 3;
 
   @override
   void onInit() {
@@ -46,7 +40,6 @@ class ProfileController extends GetxController {
     _initializeForm();
     _setupValidation();
 
-    // Always fetch profiles from server on profile selection screen
     if (Get.currentRoute.contains('profileSelection')) {
       fetchUserProfiles();
     }
@@ -54,45 +47,64 @@ class ProfileController extends GetxController {
 
   @override
   void onClose() {
-    _isDisposed = true;
-    
-    // Close HTTP client first
-    _httpClient?.close();
-    
-    // Dispose controllers safely
-    try {
-      // nameController.dispose();
-      // dateController.dispose();
-      // screenTimeController.dispose();
-    } catch (e) {
-      if (kDebugMode) {
-        print('Warning: Error disposing controllers: $e');
-      }
-    }
-    
+    _safeCloseHttpClient();
+
     super.onClose();
   }
 
   void _initializeHttpClient() {
     try {
-      if (kDebugMode) {
-        print('🔧 Initializing HTTP client in debug mode (allowing self-signed certificates)');
-        _httpClient = IOClient(InsecureHttpClientHelper.createInsecureHttpClient());
-        print('DEBUG: Using INSECURE HTTP client (self-signed certificates allowed)');
-      } else {
-        print('🔧 Initializing HTTP client in release mode (strict SSL)');
-        _httpClient = http.Client();
-        print('DEBUG: Using SECURE HTTP client (strict SSL)');
-      }
+    
+      _safeCloseHttpClient();
+  
+      Future.delayed(Duration(milliseconds: 100), () {
+        if (kDebugMode) {
+          print('🔧 Initializing HTTP client in debug mode (allowing self-signed certificates)');
+          _httpClient = IOClient(InsecureHttpClientHelper.createInsecureHttpClient());
+          print('DEBUG: Using INSECURE HTTP client (self-signed certificates allowed)');
+        } else {
+          print('🔧 Initializing HTTP client in release mode (strict SSL)');
+          _httpClient = http.Client();
+          print('DEBUG: Using SECURE HTTP client (strict SSL)');
+        }
+        
+        _isClientClosed = false;
+      });
     } catch (e) {
       print('❌ Error initializing HTTP client: $e');
       _httpClient = http.Client();
+      _isClientClosed = false;
     }
   }
 
-  void _handleNetworkError(dynamic error, String endpoint) {
-    if (_isDisposed) return;
+  void _safeCloseHttpClient() {
+    if (_httpClient != null && !_isClientClosed) {
+      try {
+        _httpClient!.close();
+        print('🔒 HTTP client closed safely');
+      } catch (e) {
+        print('⚠️ Error closing HTTP client: $e');
+      }
+    }
+    _isClientClosed = true;
+    _httpClient = null;
+  }
 
+  http.Client _getOrCreateHttpClient() {
+    if (_httpClient == null || _isClientClosed) {
+      print('🔄 Creating new HTTP client (existing was null or closed)');
+ 
+      if (kDebugMode) {
+        _httpClient = IOClient(InsecureHttpClientHelper.createInsecureHttpClient());
+      } else {
+        _httpClient = http.Client();
+      }
+      _isClientClosed = false;
+    }
+    return _httpClient!;
+  }
+
+  void _handleNetworkError(dynamic error, String endpoint) {
     String errorMessage = 'Network error occurred';
     String technicalDetails = error.toString();
 
@@ -104,11 +116,8 @@ class ProfileController extends GetxController {
 
         _clearAuthData();
         
-        // Navigate to login after clearing auth data
         Future.delayed(Duration(seconds: 2), () {
-          if (!_isDisposed) {
-            AppRouter.toLogin();
-          }
+          AppRouter.toLogin();
         });
       } else {
         errorMessage = 'Server error occurred. Please try again later.';
@@ -122,7 +131,6 @@ class ProfileController extends GetxController {
             : 'Secure connection failed. Please contact support.';
         technicalDetails = 'SSL handshake failed: ${error.toString()}';
         
-        // Reinitialize HTTP client for SSL issues
         if (kDebugMode) {
           print('🔄 Reinitializing HTTP client due to SSL error...');
           _initializeHttpClient();
@@ -132,38 +140,42 @@ class ProfileController extends GetxController {
         technicalDetails = 'SSL handshake error: ${error.toString()}';
       }
     } else if (error is SocketException) {
-      if (error.osError?.errorCode == 7) {
-        errorMessage =
-            'Cannot connect to server. Please check your internet connection.';
+      if (error.toString().contains('Connection attempt cancelled')) {
+        errorMessage = 'Connection was cancelled. Please try again.';
+        technicalDetails = 'Connection cancelled: ${error.toString()}';
+      
+        _initializeHttpClient();
+      } else if (error.osError?.errorCode == 7) {
+        errorMessage = 'Cannot connect to server. Please check your internet connection.';
         technicalDetails = 'DNS resolution failed';
       } else if (error.osError?.errorCode == 111) {
         errorMessage = 'Server is not responding. Please try again later.';
         technicalDetails = 'Connection refused';
       } else {
-        errorMessage =
-            'Network connection failed. Please check your internet connection.';
+        errorMessage = 'Network connection failed. Please check your internet connection.';
       }
     } else if (error is FormatException) {
       errorMessage = 'Invalid response from server. Please try again.';
     } else if (error.toString().contains('TimeoutException')) {
-      errorMessage =
-          'Request timed out. Please check your connection and try again.';
+      errorMessage = 'Request timed out. Please check your connection and try again.';
+    } else if (error.toString().contains('Client is already closed')) {
+      errorMessage = 'Connection was interrupted. Please try again.';
+      technicalDetails = 'HTTP client was closed prematurely';
+     
+      _initializeHttpClient();
     }
 
     this.errorMessage.value = errorMessage;
-
     _logResponse(endpoint, 0, {}, error: technicalDetails);
 
-    if (!_isDisposed) {
-      Get.snackbar(
-        'Connection Error',
-        errorMessage,
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-        duration: Duration(seconds: 5),
-      );
-    }
+    Get.snackbar(
+      'Connection Error',
+      errorMessage,
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.red,
+      colorText: Colors.white,
+      duration: Duration(seconds: 5),
+    );
   }
 
   Future<void> _clearAuthData() async {
@@ -171,7 +183,7 @@ class ProfileController extends GetxController {
       await _storageHelper.deleteItem(key: 'auth_token');
       await _storageHelper.deleteItem(key: 'access_token');
       await _storageHelper.deleteItem(key: 'user_token');
-      await StorageService.clearAll(); // Clear all auth data
+      await StorageService.clearAll();
       _authToken = null;
       print('🗑️ Auth data cleared');
     } catch (e) {
@@ -188,6 +200,7 @@ class ProfileController extends GetxController {
     Response: ${jsonEncode(responseBody)}
     ${error != null ? 'Error: $error' : ''}
     HTTP Client Type: ${kDebugMode ? 'Insecure (Development)' : 'Secure (Production)'}
+    Client State: ${_isClientClosed ? 'Closed' : 'Open'}
     Timestamp: ${DateTime.now().toIso8601String()}
     Debug Mode: $kDebugMode
     ===========================================
@@ -198,138 +211,166 @@ class ProfileController extends GetxController {
     }
   }
 
+
   Future<http.Response> makeHttpRequest(String method, String endpoint,
       {Map<String, dynamic>? body,
       Map<String, String>? headers,
-      bool requiresAuth = true}) async {
-    if (_httpClient == null) {
-      print('⚠️ HTTP client is null, reinitializing...');
-      _initializeHttpClient();
-    }
-
+      bool requiresAuth = true,
+      int retryCount = 0}) async {
+    
     if (requiresAuth && (_authToken == null || _authToken!.isEmpty)) {
       print('⚠️ Auth token required but not available, attempting to reload...');
-      await _loadAuthToken(); // Make this async
+      await _loadAuthToken(); 
       
       if (_authToken == null || _authToken!.isEmpty) {
-        throw HttpException(
-            'Authorization token not found. Please login again.');
+        throw HttpException('Authorization token not found. Please login again.');
       }
     }
 
-    final client = _httpClient ?? http.Client();
     final uri = Uri.parse('${Endpoints.baseUrl}$endpoint');
-    
-    // Base headers
+  
     final requestHeaders = <String, String>{
       'Content-Type': 'application/json',
       'Accept': 'application/json',
     };
 
-    // Add auth header if required and available
     if (requiresAuth && _authToken != null && _authToken!.isNotEmpty) {
       requestHeaders['Authorization'] = 'Bearer $_authToken';
     }
 
-    // Add custom headers
     if (headers != null) {
       requestHeaders.addAll(headers);
     }
 
-    try {
-      if (kDebugMode) {
-        print('🌐 Making $method request to: $uri');
-        print('🔧 Using ${kDebugMode ? 'insecure' : 'secure'} HTTP client');
-        print('🔐 Auth required: $requiresAuth');
-        print(
-            '🔐 Token available: ${_authToken != null && _authToken!.isNotEmpty}');
-        print('📋 Headers: ${requestHeaders.keys.join(', ')}');
-        if (_authToken != null) {
-          print(
-              '🔐 Auth header: Authorization: Bearer ${_authToken!.substring(0, math.min(10, _authToken!.length))}...');
+    for (int attempt = 0; attempt <= _maxRetries; attempt++) {
+      http.Client? client;
+      
+      try {
+    
+        client = _getOrCreateHttpClient();
+
+        if (kDebugMode) {
+          print('🌐 Making $method request to: $uri (Attempt ${attempt + 1}/${_maxRetries + 1})');
+          print('🔧 Using ${kDebugMode ? 'insecure' : 'secure'} HTTP client');
+          print('🔧 Client state: ${_isClientClosed ? 'Closed' : 'Open'}');
+          print('🔐 Auth required: $requiresAuth');
+          print('🔐 Token available: ${_authToken != null && _authToken!.isNotEmpty}');
+          print('📋 Headers: ${requestHeaders.keys.join(', ')}');
+          if (_authToken != null) {
+            print('🔐 Auth header: Authorization: Bearer ${_authToken!.substring(0, math.min(10, _authToken!.length))}...');
+          }
+          if (body != null) print('📤 Request body: ${jsonEncode(body)}');
         }
-        if (body != null) print('📤 Request body: ${jsonEncode(body)}');
-      }
 
-      http.Response response;
+        http.Response response;
 
-      switch (method.toUpperCase()) {
-        case 'POST':
-          response = await client
-              .post(
-                uri,
-                headers: requestHeaders,
-                body: body != null ? jsonEncode(body) : null,
-              )
-              .timeout(_timeoutDuration);
-          break;
-        case 'GET':
-          response = await client
-              .get(uri, headers: requestHeaders)
-              .timeout(_timeoutDuration);
-          break;
-        case 'PUT':
-          response = await client
-              .put(
-                uri,
-                headers: requestHeaders,
-                body: body != null ? jsonEncode(body) : null,
-              )
-              .timeout(_timeoutDuration);
-          break;
-        case 'DELETE':
-          response = await client
-              .delete(uri, headers: requestHeaders)
-              .timeout(_timeoutDuration);
-          break;
-        default:
-          throw UnsupportedError('HTTP method $method not supported');
-      }
+        switch (method.toUpperCase()) {
+          case 'POST':
+            response = await client
+                .post(
+                  uri,
+                  headers: requestHeaders,
+                  body: body != null ? jsonEncode(body) : null,
+                )
+                .timeout(_timeoutDuration);
+            break;
+          case 'GET':
+            response = await client
+                .get(uri, headers: requestHeaders)
+                .timeout(_timeoutDuration);
+            break;
+          case 'PUT':
+            response = await client
+                .put(
+                  uri,
+                  headers: requestHeaders,
+                  body: body != null ? jsonEncode(body) : null,
+                )
+                .timeout(_timeoutDuration);
+            break;
+          case 'DELETE':
+            response = await client
+                .delete(uri, headers: requestHeaders)
+                .timeout(_timeoutDuration);
+            break;
+          default:
+            throw UnsupportedError('HTTP method $method not supported');
+        }
 
-      if (kDebugMode) {
-        print('📥 Response status: ${response.statusCode}');
-        print('📥 Response headers: ${response.headers}');
-        print('📥 Response body: ${response.body}');
-      }
+        if (kDebugMode) {
+          print('📥 Response status: ${response.statusCode}');
+          print('📥 Response headers: ${response.headers}');
+          print('📥 Response body: ${response.body}');
+        }
+        
+        if (response.statusCode == 401) {
+          print('🚫 Unauthorized (401) - Token may be expired or invalid');
+          throw HttpException('Authorization failed. Please login again.');
+        }
 
-      // Handle unauthorized responses
-      if (response.statusCode == 401) {
-        print('🚫 Unauthorized (401) - Token may be expired or invalid');
-        throw HttpException('Authorization failed. Please login again.');
+        return response;
+        
+      } catch (e) {
+        if (kDebugMode) {
+          print('❌ HTTP Request failed (attempt ${attempt + 1}): $e');
+          print('🔍 Error type: ${e.runtimeType}');
+        }
+        
+        bool shouldRetry = false;
+        
+        if (e is SocketException) {
+          if (e.toString().contains('Connection attempt cancelled') || 
+              e.toString().contains('Connection refused') ||
+              e.toString().contains('Connection reset')) {
+            shouldRetry = true;
+          }
+        } else if (e.toString().contains('Client is already closed') || 
+                   e.toString().contains('TimeoutException') ||
+                   e is HandshakeException) {
+          shouldRetry = true;
+        }
+        
+        if (shouldRetry && attempt < _maxRetries) {
+          print('🔄 Retrying request (attempt ${attempt + 2}/${_maxRetries + 1})...');
+          
+          // Close and reinitialize client before retry
+          _safeCloseHttpClient();
+          await Future.delayed(Duration(milliseconds: 500 * (attempt + 1))); // Progressive delay
+          _initializeHttpClient();
+          await Future.delayed(Duration(milliseconds: 100)); // Wait for client initialization
+          
+          continue; 
+        }
+        
+        rethrow;
       }
-
-      return response;
-    } catch (e) {
-      if (kDebugMode) {
-        print('❌ HTTP Request failed: $e');
-        print('🔍 Error type: ${e.runtimeType}');
-      }
-      rethrow;
     }
+    
+    
+    throw HttpException('Maximum retry attempts exceeded');
   }
 
   void _loadUserEmail() async {
     final args = Get.arguments;
     if (args != null && args is Map && args['email'] != null) {
       userEmail = args['email'];
-      if (kDebugMode)
-        print(
-            'ProfileController: Loaded userEmail from Get.arguments: $userEmail');
+      if (kDebugMode) {
+        print('ProfileController: Loaded userEmail from Get.arguments: $userEmail');
+      }
       await _storageHelper.storeItem(key: 'user_email', value: userEmail!);
     } else {
-      // Try to get from stored user data
       final user = await StorageService.getUser();
       if (user != null && user.email.isNotEmpty) {
         userEmail = user.email;
-        if (kDebugMode)
-          print(
-              'ProfileController: Loaded userEmail from StorageService.getUser(): $userEmail');
+        if (kDebugMode) {
+          print('ProfileController: Loaded userEmail from StorageService.getUser(): $userEmail');
+        }
         await _storageHelper.storeItem(key: 'user_email', value: userEmail!);
       } else {
         userEmail = await _storageHelper.retrieveItem(key: 'user_email');
-        if (kDebugMode)
-          print(
-              'ProfileController: Loaded userEmail from LocalStorageHelper: $userEmail');
+        if (kDebugMode) {
+          print('ProfileController: Loaded userEmail from LocalStorageHelper: $userEmail');
+        }
       }
     }
 
@@ -340,12 +381,10 @@ class ProfileController extends GetxController {
     }
   }
 
-  // Make this method async and improve token loading
   Future<void> _loadAuthToken() async {
     try {
       final args = Get.arguments;
-      
-      // First, try to get from navigation arguments
+    
       if (args != null && args is Map && args['token'] != null) {
         _authToken = args['token'];
         await StorageService.saveAccessToken(_authToken!);
@@ -353,25 +392,19 @@ class ProfileController extends GetxController {
         return;
       }
 
-      // Then try to get from StorageService
       _authToken = await StorageService.getAccessToken();
       if (_authToken != null && _authToken!.isNotEmpty) {
         print('✅ Auth token loaded from StorageService');
         return;
       }
 
-  
       _authToken = await _storageHelper.retrieveItem(key: 'auth_token');
       if (_authToken != null && _authToken!.isNotEmpty) {
         print('✅ Auth token loaded from secure storage');
         return;
       }
 
-      _authToken = await _storageHelper.retrieveItem(key: 'access_token');
-      if (_authToken != null && _authToken!.isNotEmpty) {
-        print('✅ Auth token loaded from secure storage (access_token key)');
-        return;
-      }
+    
 
       print('⚠️ Warning: Auth token not found in any storage');
     } catch (e) {
@@ -387,18 +420,13 @@ class ProfileController extends GetxController {
   }
 
   void _initializeForm() {
-    // Check if disposed before accessing controllers
-    if (_isDisposed) return;
-    
     if (profile.value.type == ProfileType.kids) {
-      nameController.text = 'Name'; 
-      screenTimeController.text = '3pm - 7pm';
+      // Removed nameController.text, dateController.text, screenTimeController.text assignments
     } else {
-      nameController.text = 'Name';
-      nameController.text = 'Name';
+      // Removed nameController.text, dateController.text, screenTimeController.text assignments
     }
-    updateName(nameController.text);
-    updateScreenTime(screenTimeController.text);
+    updateName(profile.value.name);
+    updateScreenTime(profile.value.screenTime ?? '');
   }
 
   void _setupValidation() {
@@ -406,8 +434,6 @@ class ProfileController extends GetxController {
   }
 
   void _validateForm() {
-    if (_isDisposed) return;
-    
     final name = profile.value.name.trim();
 
     if (profile.value.type == ProfileType.kids) {
@@ -420,14 +446,11 @@ class ProfileController extends GetxController {
       isFormValid.value = name.isNotEmpty;
     }
   }
-
   Future<void> fetchUserProfiles({int retryCount = 0}) async {
     print('DEBUG: fetchUserProfiles called');
-    if (_isDisposed) return;
 
-   
     if (userEmail == null || userEmail!.isEmpty) {
-       _loadUserEmail();
+      _loadUserEmail();
     }
 
     if (userEmail == null || userEmail!.isEmpty) {
@@ -435,6 +458,7 @@ class ProfileController extends GetxController {
       errorMessage.value = 'User not found. Please login again.';
       return;
     }
+    
     if (_authToken == null || _authToken!.isEmpty) {
       await _loadAuthToken();
     }
@@ -451,11 +475,12 @@ class ProfileController extends GetxController {
       errorMessage.value = '';
 
       if (kDebugMode) {
-        print('=== FETCH USER PROFILES (Attempt ${retryCount + 1}) ===');
+        print('=== FETCH USER PROFILES ===');
         print('User email: $userEmail');
         print('Auth token available: ${_authToken != null && _authToken!.isNotEmpty}');
         print('URL: ${Endpoints.baseUrl}${Endpoints.profileSelection}');
       }
+      
       final requestBody = {
         'user_id': userEmail!,
       };
@@ -481,17 +506,13 @@ class ProfileController extends GetxController {
             print('✅ Successfully loaded ${userProfiles.length} profiles');
           }
 
-          // Save profiles to storage
           if (responseBody['data'] != null) {
             final profiles = responseBody['data'];
             await StorageService.saveProfiles(profiles);
           }
         } else if (profileResponse.responseMessage != null && profileResponse.responseMessage.toLowerCase().contains('no profile found')) {
-
           userProfiles.clear();
-          isLoading.value = false;
-          print('DEBUG: No profiles found. Stopping loading.');
-          return;
+          print('DEBUG: No profiles found.');
         } else {
           errorMessage.value = profileResponse.responseMessage;
           print('DEBUG: API returned error: ${profileResponse.responseMessage}');
@@ -510,75 +531,56 @@ class ProfileController extends GetxController {
         print('❌ Exception in fetchUserProfiles: $e');
       }
       
-      if (e is HandshakeException && kDebugMode && retryCount < 2) {
-        print('🔄 Retrying due to SSL handshake error... (${retryCount + 1}/3)');
-        _initializeHttpClient(); 
-        await Future.delayed(Duration(seconds: 1));
-        return fetchUserProfiles(retryCount: retryCount + 1);
-      }
-      
       _handleNetworkError(e, Endpoints.profileSelection);
     } finally {
-      if (!_isDisposed) {
-        isLoading.value = false;
-      }
+      isLoading.value = false;
     }
   }
 
-  Future<void> saveProfile({int retryCount = 0}) async {
+  
+  Future<void> saveProfile() async {
     print('DEBUG: saveProfile called');
-    if (_isDisposed) return;
 
     if (!isFormValid.value) {
       print('DEBUG: Form is not valid. Fields: name="${profile.value.name}", dob="${profile.value.dateOfBirth}", gender="${profile.value.gender}", screenTime="${profile.value.screenTime}"');
-      if (!_isDisposed) {
-        Get.snackbar(
-          'Validation Error',
-          'Please fill in all required fields correctly',
-          backgroundColor: primaryColor,
-          colorText: Colors.white,
-          snackPosition: SnackPosition.TOP,
-        );
-      }
+      Get.snackbar(
+        'Validation Error',
+        'Please fill in all required fields correctly',
+        backgroundColor: primaryColor,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.TOP,
+      );
       return;
     }
 
     if (userEmail == null || userEmail!.isEmpty) {
       print('DEBUG: User email is missing');
-      if (!_isDisposed) {
-        Get.snackbar(
-          'Error',
-          'User email not found. Please login again.',
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
-          snackPosition: SnackPosition.TOP,
-        );
-      }
+      Get.snackbar(
+        'Error',
+        'User email not found. Please login again.',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.TOP,
+      );
       return;
     }
 
-    // Ensure we have auth token
     if (_authToken == null || _authToken!.isEmpty) {
       await _loadAuthToken();
     }
 
     if (_authToken == null || _authToken!.isEmpty) {
       print('DEBUG: Auth token missing for saveProfile');
-      if (!_isDisposed) {
-        Get.snackbar(
-          'Error',
-          'Authorization token not found. Please login again.',
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
-          snackPosition: SnackPosition.TOP,
-        );
-      }
+      Get.snackbar(
+        'Error',
+        'Authorization token not found. Please login again.',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.TOP,
+      );
       return;
     }
 
-    try {
-      isLoading.value = true;
-      errorMessage.value = '';
     try {
       isLoading.value = true;
       errorMessage.value = '';
@@ -592,7 +594,7 @@ class ProfileController extends GetxController {
       };
 
       if (kDebugMode) {
-        print('=== SAVE PROFILE (Attempt ${retryCount + 1}) ===');
+        print('=== SAVE PROFILE ===');
         print('User email: $userEmail');
         print('Auth token available: ${_authToken != null && _authToken!.isNotEmpty}');
         print('Request body: $requestBody');
@@ -608,20 +610,15 @@ class ProfileController extends GetxController {
 
       final responseBody = json.decode(response.body);
       _logResponse(Endpoints.profileSetup, response.statusCode, responseBody);
-      final responseBody = json.decode(response.body);
-      _logResponse(Endpoints.profileSetup, response.statusCode, responseBody);
 
       if (response.statusCode >= 200 && response.statusCode < 300) {
-
         bool isSuccess = false;
         String successMessage = 'Profile created successfully!';
         
         if (responseBody != null) {
-          
           final responseCode = responseBody['response_code'];
           final responseMessage = responseBody['response_message'];
           
-      
           if (responseCode == 200 || responseCode == 201 || 
               (responseMessage != null && responseMessage.toString().toLowerCase().contains('success')) ||
               responseCode == null) {
@@ -629,7 +626,6 @@ class ProfileController extends GetxController {
             successMessage = responseMessage ?? successMessage;
           }
         } else {
-   
           isSuccess = true;
         }
 
@@ -640,33 +636,32 @@ class ProfileController extends GetxController {
             print('✅ Profile saved successfully');
             print('Success message: $successMessage');
           }
-          if (kDebugMode) {
-            print('✅ Profile saved successfully');
-            print('Success message: $successMessage');
-          }
 
-          if (!_isDisposed) { 
-            Get.snackbar(
-              'Success',
-              successMessage,
-              backgroundColor: Colors.green,
-              colorText: Colors.white,
-              snackPosition: SnackPosition.TOP,
-              duration: const Duration(seconds: 3),
-            );
+          Get.snackbar(
+            'Success',
+            successMessage,
+            backgroundColor: Colors.green,
+            colorText: Colors.white,
+            snackPosition: SnackPosition.TOP,
+            duration: const Duration(seconds: 3),
+          );
 
-            await StorageService.saveUserProfile(requestBody);
-            
-     
-            Get.offAllNamed('/profileSelection', arguments: {'profile_id': profile});
-          }
+          await StorageService.saveUserProfile(requestBody);
+          
+          
+          await Future.delayed(Duration(milliseconds: 500));
+          _initializeHttpClient(); 
+          
+          Get.offAllNamed('/profileSelection', arguments: {
+            'profile_id': profile.value,
+            'email': userEmail,
+            'token': _authToken,
+          });
         } else {
-          // Server returned error message
           String errorMsg = responseBody?['response_message'] ?? 'Failed to create profile';
           throw HttpException(errorMsg);
         }
       } else {
-        // Non-success status code
         String errorMsg = 'Server returned status ${response.statusCode}';
         if (responseBody != null && responseBody['response_message'] != null) {
           errorMsg = responseBody['response_message'];
@@ -679,72 +674,50 @@ class ProfileController extends GetxController {
         print('❌ Exception in saveProfile: $e');
       }
       
-      if (e is HandshakeException && kDebugMode && retryCount < 2) {
-        print('🔄 Retrying due to SSL handshake error... (${retryCount + 1}/3)');
-        _initializeHttpClient(); 
-        await Future.delayed(Duration(seconds: 1));
-        return saveProfile(retryCount: retryCount + 1);
-      }
-      
       _handleNetworkError(e, Endpoints.profileSetup);
     } finally {
-      if (!_isDisposed) {
-        isLoading.value = false;
-      }
+      isLoading.value = false;
     }
   }
 
   void selectProfileType(ProfileType type) {
-    if (_isDisposed) return;
     profile.value = profile.value.copyWith(type: type);
     _initializeForm();
   }
 
   void updateName(String name) {
-    if (_isDisposed) return;
     profile.value = profile.value.copyWith(name: name);
     _validateForm();
   }
 
   void updateEmail(String email) {
-    if (_isDisposed) return;
     _validateForm();
   }
 
   void selectGender(Gender gender) {
-    if (_isDisposed) return;
     profile.value = profile.value.copyWith(gender: gender);
     _validateForm();
   }
 
   void updateScreenTime(String screenTime) {
-    if (_isDisposed) return;
     profile.value = profile.value.copyWith(screenTime: screenTime);
     _validateForm();
   }
 
   void selectDateOfBirth(DateTime date) {
-    if (_isDisposed) return;
     profile.value = profile.value.copyWith(dateOfBirth: date);
-    
-    // Safely update controller if not disposed
-    if (!_isDisposed) {
-      dateController.text = "${date.day.toString().padLeft(2, '0')}-${date.month.toString().padLeft(2, '0')}-${date.year}";
-    }
+    final formattedDate = "${date.day.toString().padLeft(2, '0')}-${date.month.toString().padLeft(2, '0')}-${date.year}";
+    // dateController.text = formattedDate; // Removed
     _validateForm();
   }
 
-  // Check if user can add more profiles (max 5)
   bool get canAddMoreProfiles => userProfiles.length < 5;
 
   void navigateToProfileSetup() {
-    if (_isDisposed) return;
     AppRouter.toProfileSetup();
   }
 
   void selectProfile(UserProfile selectedProfile) {
-    if (_isDisposed) return;
-    
     Get.snackbar(
       'Profile Selected',
       'Switched to ${selectedProfile.name} profile',
@@ -757,13 +730,13 @@ class ProfileController extends GetxController {
   }
 
   Future<void> refreshProfiles() async {
-    if (_isDisposed) return;
+   
+    _initializeHttpClient();
+    await Future.delayed(Duration(milliseconds: 100));
     await fetchUserProfiles();
   }
 
   Future<void> _saveToStorage() async {
-    if (_isDisposed) return;
-    
     final profileData = {
       'type': profile.value.type.toString(),
       'name': profile.value.name,
@@ -789,23 +762,18 @@ class ProfileController extends GetxController {
   }
 
   void resetForm() {
-    if (_isDisposed) return;
-    
     profile.value = ProfileModel(type: ProfileType.kids);
-    
-    // Safely clear controllers if not disposed
-    if (!_isDisposed) {
-      nameController.clear();
-      dateController.clear();
-      screenTimeController.clear();
-    }
-    
+    // nameController.clear(); // Removed
+    // dateController.clear(); // Removed
+    // screenTimeController.clear(); // Removed
     _initializeForm();
   }
 
   Future<void> loadAuthTokenAndFetchProfiles() async {
-    if (_isDisposed) return;
     await _loadAuthToken();
+   
+    _initializeHttpClient();
+    await Future.delayed(Duration(milliseconds: 100));
     await fetchUserProfiles();
   }
 }

@@ -10,7 +10,7 @@ class ProfileSelectionScreen extends GetView<ProfileController> {
 
   Widget _buildExistingProfile(Profiles profile) {
     return GestureDetector(
-      onTap: () => controller.selectProfile(profile),
+      onTap: () => controller.selectProfile(profile as UserProfile),
       child: Container(
         width: 120,
         height: 140,
@@ -38,15 +38,15 @@ class ProfileSelectionScreen extends GetView<ProfileController> {
               ),
             ),
             const SizedBox(height: 8),
-            Text(
-              profile.name.isNotEmpty ? profile.name : 'No Name',
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
-              ),
-              textAlign: TextAlign.center,
-            ),
+            // Text(
+            //   profile.name!.isNotEmpty ? profile.name : 'No Name',
+            //   style: const TextStyle(
+            //     fontSize: 16,
+            //     fontWeight: FontWeight.bold,
+            //     color: Colors.black87,
+            //   ),
+            //   textAlign: TextAlign.center,
+            // ),
             
           ],
         ),
@@ -155,7 +155,7 @@ class ProfileSelectionScreen extends GetView<ProfileController> {
       
   
       for (var profile in controller.userProfiles) {
-        profileWidgets.add(_buildExistingProfile(profile));
+        profileWidgets.add(_buildExistingProfile(profile as Profiles));
       }
       
      

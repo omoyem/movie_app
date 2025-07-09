@@ -104,8 +104,8 @@ class LoginController extends GetxController {
           colorText: Colors.white,
         );
         // Always fetch profiles and navigate to profile selection
-        final profiles = responseBody['data']?['profiles'] ?? [];
-        final accessToken = userData != null ? userData['access_token'] : null;
+        final profiles = loginResult.data?.profiles ?? [];
+        final accessToken = loginResult.data?.accessToken;
         Get.offAllNamed('/profileSelection', arguments: {
           'email': email,
           'profiles': profiles,

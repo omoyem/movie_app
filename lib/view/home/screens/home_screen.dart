@@ -4,7 +4,6 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:godly_seed_app/constants/color_palette.dart';
 import 'package:godly_seed_app/constants/endpoints.dart';
 import 'package:godly_seed_app/constants/images.dart' as Images;
-import 'package:godly_seed_app/data/models/movie.dart';
 import 'package:godly_seed_app/data/models/movie_list_response.dart';
 import 'package:godly_seed_app/view/home/controller/home_controller.dart';
 import 'package:godly_seed_app/view/widgets/app_logo_widget.dart';
@@ -23,8 +22,6 @@ class CategoryType {
 }
 
 class HomeScreen extends GetView<HomeController> {
-
-
 
 
   @override
@@ -54,7 +51,7 @@ class HomeScreen extends GetView<HomeController> {
                 ),
               ),
             ),
-            // _buildBottomNavigation(),
+      
           ],
         ),
       ),
@@ -86,8 +83,6 @@ class HomeScreen extends GetView<HomeController> {
       ),
     );
   }
-
-
 
   Widget _buildSearchBar() {
     return Padding(
@@ -132,7 +127,11 @@ class HomeScreen extends GetView<HomeController> {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
                 image: DecorationImage(
-                  image: NetworkImage(getImageUrl(movie.coverPhotoPath!)),
+                  image: NetworkImage(
+                    movie.coverPhotoPath != null && movie.coverPhotoPath!.isNotEmpty
+                      ? getImageUrl(movie.coverPhotoPath!)
+                      : 'https://via.placeholder.com/300x450?text=No+Image',
+                  ),
                   fit: BoxFit.cover,
                 ),
               ),
@@ -173,14 +172,12 @@ Widget _buildCategoryTabs() {
         itemCount: controller.categories.length,
         itemBuilder: (BuildContext context, int index) {
           var category = controller.categories[index];
-          return _buildCategoryItem(category); // ✅ Return the widget
+          return _buildCategoryItem(category); 
         },
       ),
     ),
   );
 }
-
-
   Widget _buildCategoryItem(CategoryType category) {
     return Obx(()=> Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8),
@@ -227,18 +224,16 @@ Widget _buildCategoryTabs() {
         SizedBox(
           height: 160,
           width: double.infinity,
-          child: Obx(() => Expanded(
-            child: Skeletonizer(
-              enabled: controller.isLoading.value,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                padding: EdgeInsets.only(left: 16),
-                itemCount: controller.topMovies.length,
-                itemBuilder: (context, index) {
-                  final movie = controller.isLoading.value ? null : controller.topMovies[index];
-                  return _buildMovieCard(movie: movie);
-                },
-              ),
+          child: Obx(() => Skeletonizer(
+            enabled: controller.isLoading.value,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              padding: EdgeInsets.only(left: 16),
+              itemCount: controller.topMovies.length,
+              itemBuilder: (context, index) {
+                final movie = controller.isLoading.value ? null : controller.topMovies[index];
+                return _buildMovieCard(movie: movie);
+              },
             ),
           )),
         ),
@@ -296,7 +291,7 @@ Widget _buildCategoryTabs() {
                   decoration: BoxDecoration(
                     color: movie == null ? kLightTextColor : null,
                     borderRadius: BorderRadius.circular(8),
-                    image: movie == null ? null : DecorationImage(
+                    image: movie == null || movie.coverPhotoPath == null || movie.coverPhotoPath!.isEmpty ? null : DecorationImage(
                       image: NetworkImage(Endpoints.imageBaseUrl + movie.coverPhotoPath!),
                       fit: BoxFit.cover,
                     ),
@@ -331,6 +326,13 @@ Widget _buildCategoryTabs() {
                     ),
                   ),
                 ),
+                if (movie == null || movie.coverPhotoPath == null || movie.coverPhotoPath!.isEmpty)
+                  Positioned.fill(
+                    child: Container(
+                      alignment: Alignment.center,
+                      child: Icon(Icons.broken_image, size: 40, color: Colors.grey[400]),
+                    ),
+                  ),
               ],
             ),
             SizedBox(height: 8),
@@ -349,47 +351,47 @@ Widget _buildCategoryTabs() {
     );
   }
 
-  Widget _buildBottomNavigation() {
-    return Container(
-      height: 70,
-      decoration: BoxDecoration(
-        color: primaryColor,
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(20),
-          topRight: Radius.circular(20),
-        ),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _buildNavItem(Icons.home, 'Home', true),
-          _buildNavItem(Icons.search, 'Search', false),
-          _buildNavItem(Icons.games, 'Games', false),
-          _buildNavItem(Icons.download, 'Downloads', false),
-          _buildNavItem(Icons.list, 'My List', false),
-        ],
-      ),
-    );
-  }
+  // Widget _buildBottomNavigation() {
+  //   return Container(
+  //     height: 70,
+  //     decoration: BoxDecoration(
+  //       color: primaryColor,
+  //       borderRadius: BorderRadius.only(
+  //         topLeft: Radius.circular(20),
+  //         topRight: Radius.circular(20),
+  //       ),
+  //     ),
+  //     child: Row(
+  //       mainAxisAlignment: MainAxisAlignment.spaceAround,
+  //       children: [
+  //         _buildNavItem(Icons.home, 'Home', true),
+  //         _buildNavItem(Icons.search, 'Search', false),
+  //         _buildNavItem(Icons.games, 'Games', false),
+  //         _buildNavItem(Icons.download, 'Downloads', false),
+  //         _buildNavItem(Icons.list, 'My List', false),
+  //       ],
+  //     ),
+  //   );
+  // }
 
-  Widget _buildNavItem(IconData icon, String label, bool isSelected) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(
-          icon,
-          color: isSelected ? Colors.white : Colors.white70,
-          size: 24,
-        ),
-        SizedBox(height: 4),
-        Text(
-          label,
-          style: TextStyle(
-            color: isSelected ? Colors.white : Colors.white70,
-            fontSize: 10,
-          ),
-        ),
-      ],
-    );
-  }
+  // Widget _buildNavItem(IconData icon, String label, bool isSelected) {
+  //   return Column(
+  //     mainAxisAlignment: MainAxisAlignment.center,
+  //     children: [
+  //       Icon(
+  //         icon,
+  //         color: isSelected ? Colors.white : Colors.white70,
+  //         size: 24,
+  //       ),
+  //       SizedBox(height: 4),
+  //       Text(
+  //         label,
+  //         style: TextStyle(
+  //           color: isSelected ? Colors.white : Colors.white70,
+  //           fontSize: 10,
+  //         ),
+  //       ),
+  //     ],
+  //   );
+  // }
 }

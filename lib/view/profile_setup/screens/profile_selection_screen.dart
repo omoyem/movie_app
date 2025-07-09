@@ -20,7 +20,6 @@ class _ProfileSetupIntroScreenState extends State<ProfileSetupIntroScreen> {
   ];
   int _currentBg = 0;
   Timer? _timer;
-  final ProfileController controller = Get.put(ProfileController());
 
   @override
   void initState() {
@@ -30,7 +29,8 @@ class _ProfileSetupIntroScreenState extends State<ProfileSetupIntroScreen> {
         _currentBg = (_currentBg + 1) % _backgrounds.length;
       });
     });
-    controller.loadAuthTokenAndFetchProfiles();
+    // Use the controller from Get.find (provided by binding)
+    Get.find<ProfileController>().loadAuthTokenAndFetchProfiles();
   }
 
   @override
@@ -41,7 +41,7 @@ class _ProfileSetupIntroScreenState extends State<ProfileSetupIntroScreen> {
 
   Widget _buildExistingProfile(UserProfile profile) {
     return GestureDetector(
-      onTap: () => controller.selectProfile(profile),
+       onTap: () => Get.find<ProfileController>().selectProfile(profile),
       child: Container(
         width: 90,
         margin: const EdgeInsets.symmetric(horizontal: 8),
@@ -87,7 +87,7 @@ class _ProfileSetupIntroScreenState extends State<ProfileSetupIntroScreen> {
 
   Widget _buildAddProfileCard() {
     return GestureDetector(
-     onTap: () => controller.navigateToProfileSetup(),
+     onTap: () => Get.find<ProfileController>().navigateToProfileSetup(),
       child: Container(
         width: 90,
         margin: const EdgeInsets.symmetric(horizontal: 8),
@@ -129,16 +129,16 @@ class _ProfileSetupIntroScreenState extends State<ProfileSetupIntroScreen> {
 
   Widget _buildProfileList() {
     return Obx(() {
-      if (controller.isLoading.value) {
+      if (Get.find<ProfileController>().isLoading.value) {
         return const Center(child: CircularProgressIndicator());
       }
-      if (controller.errorMessage.value.isNotEmpty) {
-        return Center(child: Text(controller.errorMessage.value));
+      if (Get.find<ProfileController>().errorMessage.value.isNotEmpty) {
+        return Center(child: Text(Get.find<ProfileController>().errorMessage.value));
       }
-      List<Widget> widgets = controller.userProfiles
+      List<Widget> widgets = Get.find<ProfileController>().userProfiles
           .map((profile) => _buildExistingProfile(profile))
           .toList();
-      if (controller.canAddMoreProfiles) {
+      if (Get.find<ProfileController>().canAddMoreProfiles) {
         widgets.add(_buildAddProfileCard());
       }
       if (widgets.isEmpty) {
