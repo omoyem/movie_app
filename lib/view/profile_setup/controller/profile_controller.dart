@@ -149,21 +149,40 @@ class ProfileController extends GetxController {
 
         _initializeHttpClient();
       } else if (error.osError?.errorCode == 7) {
-        errorMessage =
-            'Cannot connect to server. Please check your internet connection.';
-        technicalDetails = 'DNS resolution failed';
+        errorMessage = 'Cannot connect to server. Please check your internet connection and try again.';
+        technicalDetails = 'DNS resolution failed - hostname not found';
+        
+       
+        Get.snackbar(
+          'Connection Error',
+          'Unable to reach the server. Please check your internet connection.',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.orange,
+          colorText: Colors.white,
+          duration: Duration(seconds: 8),
+          mainButton: TextButton(
+            onPressed: () {
+              // Retry the operation
+              if (endpoint == Endpoints.profileSetup) {
+                saveProfile();
+              } else if (endpoint == Endpoints.profileSelection) {
+                fetchUserProfiles();
+              }
+            },
+            child: Text('Retry', style: TextStyle(color: Colors.white)),
+          ),
+        );
+        return;
       } else if (error.osError?.errorCode == 111) {
         errorMessage = 'Server is not responding. Please try again later.';
         technicalDetails = 'Connection refused';
       } else {
-        errorMessage =
-            'Network connection failed. Please check your internet connection.';
+        errorMessage = 'Network connection failed. Please check your internet connection.';
       }
     } else if (error is FormatException) {
       errorMessage = 'Invalid response from server. Please try again.';
     } else if (error.toString().contains('TimeoutException')) {
-      errorMessage =
-          'Request timed out. Please check your connection and try again.';
+      errorMessage = 'Request timed out. Please check your connection and try again.';
     } else if (error.toString().contains('Client is already closed')) {
       errorMessage = 'Connection was interrupted. Please try again.';
       technicalDetails = 'HTTP client was closed prematurely';
@@ -343,13 +362,13 @@ class ProfileController extends GetxController {
           print(
               '🔄 Retrying request (attempt ${attempt + 2}/${_maxRetries + 1})...');
 
-          // Close and reinitialize client before retry
+          
           _safeCloseHttpClient();
           await Future.delayed(
-              Duration(milliseconds: 500 * (attempt + 1))); // Progressive delay
+              Duration(milliseconds: 500 * (attempt + 1))); 
           _initializeHttpClient();
           await Future.delayed(
-              Duration(milliseconds: 100)); // Wait for client initialization
+              Duration(milliseconds: 100));
 
           continue;
         }
@@ -433,9 +452,8 @@ class ProfileController extends GetxController {
 
   void _initializeForm() {
     if (profile.value.ageGroup == ProfileType.kids.toString()) {
-      // Removed nameController.text, dateController.text, screenTimeController.text assignments
     } else {
-      // Removed nameController.text, dateController.text, screenTimeController.text assignments
+     
     }
     if(profile.value.name != null) {
       updateName(profile.value.name!);
@@ -731,10 +749,9 @@ class ProfileController extends GetxController {
   }
 
   void selectDateOfBirth(DateTime date) {
-    profile.value = profile.value.copyWith(dob: date.toString());
-    final formattedDate =
-        "${date.day.toString().padLeft(2, '0')}-${date.month.toString().padLeft(2, '0')}-${date.year}";
-    // dateController.text = formattedDate; // Removed
+   
+    final formattedDate = "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
+    profile.value = profile.value.copyWith(dob: formattedDate);
     _validateForm();
   }
 
@@ -790,13 +807,6 @@ class ProfileController extends GetxController {
     }
   }
 
-  // void resetForm() {
-  //   profile.value = ProfileModel(type: ProfileType.kids);
-  //   // nameController.clear(); // Removed
-  //   // dateController.clear(); // Removed
-  //   // screenTimeController.clear(); // Removed
-  //   _initializeForm();
-  // }
 
   Future<void> loadAuthTokenAndFetchProfiles() async {
     await _loadAuthToken();

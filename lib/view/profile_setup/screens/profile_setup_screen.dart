@@ -21,9 +21,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     super.initState();
     nameController = TextEditingController(text: controller.profile.value.name);
     dateController = TextEditingController(
-      text: controller.profile.value.dob != null
-          ? "${controller.profile.value.dob}"
-          : '',
+      text: controller.profile.value.dob ?? '',
     );
     screenTimeController = TextEditingController(text: controller.profile.value.screenTime ?? '3pm - 7pm');
   }
@@ -123,7 +121,9 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                 _buildFormField(
                   label: 'Gender',
                   child: DropdownButtonFormField<Gender>(
-                    value: controller.profile.value.gender as Gender,
+                    value: controller.profile.value.gender != null 
+                        ? (controller.profile.value.gender == 'Gender.female' ? Gender.female : Gender.male)
+                        : null,
                     onChanged: (Gender? value) {
                       if (value != null) {
                         controller.selectGender(value);
@@ -297,6 +297,19 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       filled: true,
       fillColor: Colors.grey[50],
     );
+  }
+
+  String _formatDateForDisplay(String dateString) {
+    try {
+      // Parse the YYYY-MM-DD format and convert to DD-MM-YYYY for display
+      final parts = dateString.split('-');
+      if (parts.length == 3) {
+        return "${parts[2]}-${parts[1]}-${parts[0]}"; // DD-MM-YYYY
+      }
+    } catch (e) {
+      print('Error formatting date: $e');
+    }
+    return dateString; // Return original if parsing fails
   }
 
   void _selectDate(BuildContext context) async {

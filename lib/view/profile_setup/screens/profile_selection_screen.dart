@@ -132,19 +132,30 @@ class _ProfileSetupIntroScreenState extends State<ProfileSetupIntroScreen> {
 
   Widget _buildProfileList() {
     return Obx(() {
-      if (Get.find<ProfileController>().isLoading.value) {
+      final controller = Get.find<ProfileController>();
+      final isLoading = controller.isLoading.value;
+      final error = controller.errorMessage.value;
+      final profiles = controller.userProfiles;
+
+      if (isLoading) {
         return const Center(child: CircularProgressIndicator());
       }
-      if (Get.find<ProfileController>().errorMessage.value.isNotEmpty) {
-        return Center(child: Text(Get.find<ProfileController>().errorMessage.value));
+
+      // Always show Add card if no profiles, even if error
+      if (profiles.isEmpty) {
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _buildAddProfileCard(),
+          ],
+        );
       }
-      List<Widget> widgets = Get.find<ProfileController>().userProfiles
+
+      // If there are profiles, show them and add card if allowed
+      List<Widget> widgets = profiles
           .map((profile) => _buildExistingProfile(profile))
           .toList();
-      if (Get.find<ProfileController>().canAddMoreProfiles) {
-        widgets.add(_buildAddProfileCard());
-      }
-      if (widgets.isEmpty) {
+      if (controller.canAddMoreProfiles) {
         widgets.add(_buildAddProfileCard());
       }
       return SingleChildScrollView(
