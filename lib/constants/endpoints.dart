@@ -12,6 +12,7 @@ class Endpoints {
   static const String forgotPassword = "forgot_password";
   static const String favourite = "favorite";
   static const String getFavourites = "get_favorites";
+  static const String deleteFavourite = "delete_favorite";
   static const String resetPassword = "reset_password";
   static const String resendOtp = "resend-otp";
      // Profile

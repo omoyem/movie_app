@@ -18,16 +18,19 @@ import 'package:http/http.dart' as http;
 
 import '../../../data/local/secure_storage_helper.dart';
 import '../../../network/api_client.dart';
+import '../../movie/models/add_favourite_request.dart';
 import '../../profile_setup/model/profile_response.dart';
 import '../../sign_up/screens/otp_verification_screen.dart';
-import '../models/add_favourite_request.dart';
+import 'get_favourite_controller.dart';
 
-class AddFavouriteController extends GetxController {
-  
-  SignupController get _signupController => Get.find<SignupController>();
+class DeleteFavouriteController extends GetxController {
+
+  GetFavouriteController _signupController = Get.put(GetFavouriteController());
 
   ApiClient apiClient = ApiClient(appbaseurl: Endpoints.baseUrl);
   LocalStorageHelper _storageHelper = LocalStorageHelper();
+
+
 
   final RxBool isLoading = false.obs;
   final RxBool isAdded = false.obs;
@@ -63,15 +66,9 @@ class AddFavouriteController extends GetxController {
 
 
 
-  Future<void> addToFavourite(String movieId) async {
+  Future<void> deleteFromFavourite(String movieId) async {
     try {
       isLoading.value = true;
-      
-      if (kDebugMode) {
-        print('=== FORGOT PASSWORD REQUEST ===');
-        print('Email: $movieId');
-        print('URL: ${Endpoints.baseUrl}${Endpoints.forgotPassword}');
-      }
 
       AddFavouriteRequest request = AddFavouriteRequest(
         profileId: profile.value.id,
@@ -79,7 +76,7 @@ class AddFavouriteController extends GetxController {
         movieId:movieId
       );
 
-      http.Response response = await apiClient.postRequest(url: Endpoints.favourite, data: request.toJson());
+      http.Response response = await apiClient.postRequest(url: Endpoints.deleteFavourite, data: request.toJson());
 
       // if(response.body == null){
       //   showSnackBar(title: "Error", message: "Network Error. Kindly check your internet connection", type: 'error');
@@ -90,12 +87,14 @@ class AddFavouriteController extends GetxController {
       logItem(response.body);
       var result = BaseResponse.fromJson(json.decode(response.body));
 
-      if(result.responseCode == 201){
+      if(result.responseCode == 200){
         final responseMessage = result.responseMessage ?? 'Add to my list successfully';
 
         await Future.delayed(Duration(milliseconds: 100), (){
           showSnackBar(title: "Success", message: responseMessage, type: "success");
         });
+
+        await _signupController.getFavourites();
 
       } else {
         final responseMessage = result.responseMessage ?? 'Failed to send password reset link';
@@ -106,7 +105,7 @@ class AddFavouriteController extends GetxController {
 
       logItem(e.toString());
 
-      _signupController.handleNetworkError(e, Endpoints.forgotPassword);
+      // _signupController.handleNetworkError(e, Endpoints.forgotPassword);
     } finally {
       isLoading.value = false;
     }
@@ -116,23 +115,5 @@ class AddFavouriteController extends GetxController {
     _signupController.toggleRememberMe(value);
   }
 
-  Future<void> logout() async {
-    try {
-      await StorageService.clearAll();
-      _signupController.user.value = null;
-      _signupController.accessToken.value = '';
-      _signupController.isRememberMe.value = false;
-      
-      if (kDebugMode) {
-        print('Logout successful');
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print('Logout error: ${e.toString()}');
-      }
-    }
-  }
-
-  bool get isRememberMe => _signupController.isRememberMe.value;
   bool get isLoggedIn => _signupController.isLoggedIn;
 }

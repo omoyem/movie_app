@@ -16,6 +16,8 @@ import 'package:http/io_client.dart';
 import 'package:flutter/foundation.dart';
 import 'package:godly_seed_app/constants/endpoints.dart';
 
+import '../../profile_setup/model/profile_response.dart';
+
 class HomeController extends GetxController {
   final RxList<ml.Movies> featuredMovies = <ml.Movies>[].obs;
   final RxList<ml.Movies> topMovies = <ml.Movies>[].obs;
@@ -33,7 +35,7 @@ class HomeController extends GetxController {
   Rx<CategoryType> currentCategory = CategoryType(title: "", id: 0).obs;
 
   final RxString userId = ''.obs;
-  final Rx<Profiles> profile = Profiles().obs;
+  final Rx<UserProfile> profile = UserProfile().obs;
   final Rx<Data> user = Data().obs;
 
   List<CategoryType> categories = [

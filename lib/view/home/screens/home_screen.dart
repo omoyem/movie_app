@@ -110,11 +110,11 @@ class HomeScreen extends GetView<HomeController> {
     children: [
       CarouselSlider(
         options: CarouselOptions(
-          height: 300,
-          viewportFraction: 0.7, 
+          height: 250,
+          viewportFraction: 0.6,
           autoPlay: true,
           enlargeCenterPage: true,
-          enlargeFactor: 0.3, 
+          enlargeFactor: 0.3,
           onPageChanged: (index, reason) {
             controller.updateCarouselIndex(index);
           },
@@ -139,7 +139,7 @@ class HomeScreen extends GetView<HomeController> {
           );
         }).toList(),
       ),
-      SizedBox(height: 8),
+      SizedBox(height: 15),
       Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: controller.featuredMovies.asMap().entries.map((entry) {
@@ -215,14 +215,15 @@ Widget _buildCategoryTabs() {
           child: Text(
             'Top Movies',
             style: TextStyle(
-              fontSize: 18,
+              fontSize: 16,
               fontWeight: FontWeight.bold,
+
             ),
           ),
         ),
         SizedBox(height: 12),
         SizedBox(
-          height: 160,
+          height: 180,
           width: double.infinity,
           child: Obx(() => Skeletonizer(
             enabled: controller.isLoading.value,
@@ -245,18 +246,18 @@ Widget _buildCategoryTabs() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.all(16.0),
+        const Padding(
+          padding: EdgeInsets.all(16.0),
           child: Text(
             'Continue Watching',
             style: TextStyle(
-              fontSize: 18,
+              fontSize: 16,
               fontWeight: FontWeight.bold,
             ),
           ),
         ),
         SizedBox(
-          height: 160,
+          height: 180,
           child: Obx(() => ListView.builder(
             scrollDirection: Axis.horizontal,
             padding: EdgeInsets.only(left: 16),
@@ -267,7 +268,6 @@ Widget _buildCategoryTabs() {
             },
           )),
         ),
-        SizedBox(height: 20),
       ],
     );
   }
@@ -287,7 +287,7 @@ Widget _buildCategoryTabs() {
             Stack(
               children: [
                 Container(
-                  height: 100,
+                  height: 130,
                   decoration: BoxDecoration(
                     color: movie == null ? kLightTextColor : null,
                     borderRadius: BorderRadius.circular(8),

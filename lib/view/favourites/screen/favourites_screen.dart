@@ -2,12 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:godly_seed_app/constants/color_palette.dart';
 import 'package:godly_seed_app/constants/endpoints.dart';
+import 'package:godly_seed_app/view/favourites/controllers/delete_favourite_controller.dart';
 import 'package:godly_seed_app/view/favourites/controllers/get_favourite_controller.dart';
+import 'package:godly_seed_app/view/home/controller/home_controller.dart';
+import 'package:godly_seed_app/view/widgets/no_result_widget.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 import '../../../data/local/secure_storage_helper.dart';
 import '../../sign_up/controller/signup_controller.dart';
 import '../models/get_favourite_response.dart' as gf;
+import 'package:godly_seed_app/data/models/movie_list_response.dart' as ml;
+
 
 
 class CategoryType {
@@ -28,16 +33,16 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
 
 
   GetFavouriteController _favouriteController = Get.put(GetFavouriteController());
+  DeleteFavouriteController _deleteFavouriteController = Get.put(DeleteFavouriteController());
+  HomeController _homeController = Get.put(HomeController());
   LocalStorageHelper _storageHelper = LocalStorageHelper();
 
   @override
   void initState() {
     super.initState();
 
+    _favouriteController.isLoading.value = true;
 
-    if (!Get.isRegistered<SignupController>()) {
-      Get.put(SignupController());
-    }
 
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -85,35 +90,38 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
   }
 
   Widget _buildContinueWatchingSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Text(
-            'My List',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
+    return Obx(()=> Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text(
+              'My List',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
-        ),
-        Obx(() => Skeletonizer(
-          enabled: _favouriteController.isLoading.value,
-          child: ListView.separated(
-            padding: EdgeInsets.only(left: 16),
-            shrinkWrap: true,
-            itemCount: _favouriteController.isLoading.value ? 5 : _favouriteController.favourites.length,
-            itemBuilder: (context, index) {
-              final movie = _favouriteController.isLoading.value ? null : _favouriteController.favourites[index];
-              return _buildMovieCard(movie: movie, showProgress: true);
-            }, separatorBuilder: (BuildContext context, int index) {
-              return SizedBox(height: 10);
-          },
+           Skeletonizer(
+            enabled: _favouriteController.isLoading.value,
+            child: ListView.separated(
+              padding: EdgeInsets.only(left: 16),
+              shrinkWrap: true,
+              itemCount: _favouriteController.isLoading.value ? 5 : _favouriteController.favourites.length,
+              itemBuilder: (context, index) {
+                final movie = _favouriteController.isLoading.value ? null : _favouriteController.favourites[index];
+                return _buildMovieCard(movie: movie, showProgress: true);
+              }, separatorBuilder: (BuildContext context, int index) {
+                return SizedBox(height: 10);
+            },
+            ),
           ),
-        )),
-        SizedBox(height: 20),
-      ],
+          if(!_favouriteController.isLoading.value && _favouriteController.favourites.isEmpty)
+            Center(child: NoResultWidget(title: "No items found")),
+          SizedBox(height: 20),
+        ],
+      ),
     );
   }
 
@@ -121,13 +129,26 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
     return GestureDetector(
       onTap: () {
         if(movie != null) {
-          // controller.navigateToMovieDetails(movie);
+          ml.Movies myMovie = ml.Movies(
+            title: movie.title,
+            id: movie.id,
+            duration: movie.duration,
+            description: movie.description,
+            ageGroup: movie.ageGroup,
+            categoryId: movie.categoryId,
+            coverPhotoPath: movie.coverPhotoPath,
+            filePath: movie.filePath,
+            releaseDate: movie.releaseDate,
+            tags: movie.tags,
+            uploadedAt: movie.uploadedAt,
+          );
+          _homeController.navigateToMovieDetails(myMovie);
         }},
       child: Row(
         children: [
           Container(
             height: 80,
-            width: 130,
+            width: 120,
             decoration: BoxDecoration(
               color: movie == null ? kLightTextColor.withOpacity(0.3) : null,
               borderRadius: BorderRadius.circular(8),
@@ -144,14 +165,18 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
               style: TextStyle(
                 fontWeight: FontWeight.w500,
                 color: primaryColor,
-                fontSize: 12,
-              ),
+                fontSize: 13,
+              ), 
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
           ),
           SizedBox(width: 8),
-          IconButton(onPressed: (){}, icon: Icon(Icons.play_circle_outline, color: primaryColor,))
+          IconButton(onPressed: (){
+            if(movie != null) {
+              _deleteFavouriteController.deleteFromFavourite(movie!.id!);
+            }
+          }, icon: Icon(Icons.delete_forever_outlined, color: primaryColor,))
         ],
       ),
     );

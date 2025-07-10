@@ -13,10 +13,10 @@ import 'package:godly_seed_app/view/bottom_nav/bottom_dart.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/io_client.dart';
 import 'package:godly_seed_app/utils/local_storage_service.dart';
-import '../model/profile_model.dart';
+import '../model/profile_response.dart';
 
 class ProfileController extends GetxController {
-  final Rx<ProfileModel> profile = ProfileModel(type: ProfileType.kids).obs;
+  final Rx<UserProfile> profile = UserProfile(ageGroup: ProfileType.kids.toString()).obs;
 
   final RxList<UserProfile> userProfiles = <UserProfile>[].obs;
   final RxString errorMessage = ''.obs;
@@ -432,13 +432,15 @@ class ProfileController extends GetxController {
   }
 
   void _initializeForm() {
-    if (profile.value.type == ProfileType.kids) {
+    if (profile.value.ageGroup == ProfileType.kids.toString()) {
       // Removed nameController.text, dateController.text, screenTimeController.text assignments
     } else {
       // Removed nameController.text, dateController.text, screenTimeController.text assignments
     }
-    updateName(profile.value.name);
-    updateScreenTime(profile.value.screenTime ?? '');
+    if(profile.value.name != null) {
+      updateName(profile.value.name!);
+      updateScreenTime(profile.value.screenTime ?? '');
+    }
   }
 
   void _setupValidation() {
@@ -446,11 +448,11 @@ class ProfileController extends GetxController {
   }
 
   void _validateForm() {
-    final name = profile.value.name.trim();
+    final name = profile.value.name!.trim();
 
-    if (profile.value.type == ProfileType.kids) {
+    if (profile.value.ageGroup == ProfileType.kids.toString()) {
       isFormValid.value = name.isNotEmpty &&
-          profile.value.dateOfBirth != null &&
+          profile.value.dob != null &&
           profile.value.gender != null &&
           profile.value.screenTime != null &&
           profile.value.screenTime!.isNotEmpty;
@@ -514,11 +516,9 @@ class ProfileController extends GetxController {
 
       if (response.statusCode == 200) {
         final profileResponse = ProfileResponse.fromJson(responseBody);
-        print(
-            'DEBUG: Parsed profileResponse: responseCode=${profileResponse.responseCode}, message=${profileResponse.responseMessage}, profiles=${profileResponse.data.length}');
 
         if (profileResponse.responseCode == 200) {
-          userProfiles.value = profileResponse.data;
+          userProfiles.value = profileResponse.data!;
           print('DEBUG: userProfiles updated, count=${userProfiles.length}');
           if (kDebugMode) {
             print('✅ Successfully loaded ${userProfiles.length} profiles');
@@ -529,13 +529,13 @@ class ProfileController extends GetxController {
             await StorageService.saveProfiles(profiles);
           }
         } else if (profileResponse.responseMessage != null &&
-            profileResponse.responseMessage
+            profileResponse.responseMessage!
                 .toLowerCase()
                 .contains('no profile found')) {
           userProfiles.clear();
           print('DEBUG: No profiles found.');
         } else {
-          errorMessage.value = profileResponse.responseMessage;
+          errorMessage.value = profileResponse.responseMessage!;
           print(
               'DEBUG: API returned error: ${profileResponse.responseMessage}');
           if (kDebugMode) {
@@ -563,7 +563,7 @@ class ProfileController extends GetxController {
 
     if (!isFormValid.value) {
       print(
-          'DEBUG: Form is not valid. Fields: name="${profile.value.name}", dob="${profile.value.dateOfBirth}", gender="${profile.value.gender}", screenTime="${profile.value.screenTime}"');
+          'DEBUG: Form is not valid. Fields: name="${profile.value.name}", dob="${profile.value.dob}", gender="${profile.value.gender}", screenTime="${profile.value.screenTime}"');
       Get.snackbar(
         'Validation Error',
         'Please fill in all required fields correctly',
@@ -611,7 +611,7 @@ class ProfileController extends GetxController {
         "name": profile.value.name,
         "gender": profile.value.gender?.toString().split('.').last ?? "Male",
         "screen_time": profile.value.screenTime ?? "3pm-6pm",
-        "dob": profile.value.dateOfBirth!.toIso8601String().split('T')[0],
+        "dob": profile.value.dob,
       };
 
       if (kDebugMode) {
@@ -707,7 +707,7 @@ class ProfileController extends GetxController {
   }
 
   void selectProfileType(ProfileType type) {
-    profile.value = profile.value.copyWith(type: type);
+    profile.value = profile.value.copyWith(ageGroup: type.toString());
     _initializeForm();
   }
 
@@ -721,7 +721,7 @@ class ProfileController extends GetxController {
   }
 
   void selectGender(Gender gender) {
-    profile.value = profile.value.copyWith(gender: gender);
+    profile.value = profile.value.copyWith(gender: gender.toString());
     _validateForm();
   }
 
@@ -731,7 +731,7 @@ class ProfileController extends GetxController {
   }
 
   void selectDateOfBirth(DateTime date) {
-    profile.value = profile.value.copyWith(dateOfBirth: date);
+    profile.value = profile.value.copyWith(dob: date.toString());
     final formattedDate =
         "${date.day.toString().padLeft(2, '0')}-${date.month.toString().padLeft(2, '0')}-${date.year}";
     // dateController.text = formattedDate; // Removed
@@ -744,7 +744,7 @@ class ProfileController extends GetxController {
     AppRouter.toProfileSetup();
   }
 
-  void selectProfile(UserProfile selectedProfile) {
+  Future<void> selectProfile(UserProfile selectedProfile) async {
     Get.snackbar(
       'Profile Selected',
       'Switched to ${selectedProfile.name} profile',
@@ -752,8 +752,11 @@ class ProfileController extends GetxController {
       backgroundColor: Colors.green,
       colorText: Colors.white,
     );
-    Get.to(() => const BottomNav());
-    // Get.toNamed('/home', arguments: {'profile_id': selectedProfile.id});
+    String userString = jsonEncode(selectedProfile);
+
+    await _storageHelper.storeItem(key: "current_profile", value: userString);
+
+    Get.to(() => BottomNav(), arguments: [{'profile': selectedProfile}]);    // Get.toNamed('/home', arguments: {'profile_id': selectedProfile.id});
   }
 
   Future<void> refreshProfiles() async {
@@ -764,10 +767,10 @@ class ProfileController extends GetxController {
 
   Future<void> _saveToStorage() async {
     final profileData = {
-      'type': profile.value.type.toString(),
+      'type': profile.value.profileType,
       'name': profile.value.name,
       'email': userEmail,
-      'dateOfBirth': profile.value.dateOfBirth?.toIso8601String(),
+      'dateOfBirth': profile.value.dob,
       'gender': profile.value.gender?.toString(),
       'screenTime': profile.value.screenTime,
       'createdAt': DateTime.now().toIso8601String(),
@@ -787,13 +790,13 @@ class ProfileController extends GetxController {
     }
   }
 
-  void resetForm() {
-    profile.value = ProfileModel(type: ProfileType.kids);
-    // nameController.clear(); // Removed
-    // dateController.clear(); // Removed
-    // screenTimeController.clear(); // Removed
-    _initializeForm();
-  }
+  // void resetForm() {
+  //   profile.value = ProfileModel(type: ProfileType.kids);
+  //   // nameController.clear(); // Removed
+  //   // dateController.clear(); // Removed
+  //   // screenTimeController.clear(); // Removed
+  //   _initializeForm();
+  // }
 
   Future<void> loadAuthTokenAndFetchProfiles() async {
     await _loadAuthToken();

@@ -6,6 +6,7 @@ import 'package:godly_seed_app/data/models/user.dart';
 import 'package:godly_seed_app/view/login/models/login_response.dart';
 
 import '../../utils/helpers.dart';
+import '../../view/profile_setup/model/profile_response.dart';
 
 class LocalStorageHelper {
   final storage = const FlutterSecureStorage();
@@ -70,10 +71,10 @@ class LocalStorageHelper {
     }
     return null;
   }
-  Future<Profiles?> getProfile() async {
+  Future<UserProfile?> getProfile() async {
     try {
       var userString = await storage.read(key: "current_profile");
-      Profiles? newThing = Profiles.fromJson(jsonDecode(userString!.trim()));
+      UserProfile? newThing = UserProfile.fromJson(jsonDecode(userString!.trim()));
 
       logItem(newThing.toJson(), title: "Profile selected");
 

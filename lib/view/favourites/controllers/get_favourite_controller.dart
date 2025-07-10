@@ -13,6 +13,7 @@ import 'package:http/http.dart' as http;
 
 import '../../../data/local/secure_storage_helper.dart';
 import '../../../network/api_client.dart';
+import '../../profile_setup/model/profile_response.dart';
 import '../models/get_favourite_response.dart' as gf;
 
 class GetFavouriteController extends GetxController {
@@ -27,7 +28,7 @@ class GetFavouriteController extends GetxController {
 
   RxList<gf.Data> favourites = <gf.Data>[].obs;
 
-  final Rx<Profiles> profile = Profiles().obs;
+  final Rx<UserProfile> profile = UserProfile().obs;
   final Rx<Data> user = Data().obs;
 
   @override
@@ -56,6 +57,7 @@ class GetFavouriteController extends GetxController {
       );
 
       http.Response response = await apiClient.postRequest(url: Endpoints.getFavourites, data: request.toJson());
+      isLoading.value = false;
 
       // if(response.body == null){
       //   showSnackBar(title: "Error", message: "Network Error. Kindly check your internet connection", type: 'error');
@@ -78,6 +80,7 @@ class GetFavouriteController extends GetxController {
     } catch (e) {
 
       logItem(e.toString());
+      isLoading.value = false;
 
       // _signupController.handleNetworkError(e, Endpoints.forgotPassword);
     } finally {

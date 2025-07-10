@@ -41,7 +41,8 @@ class SignupController extends GetxController {
 
   void _initializeHttpClient() {
     if (kDebugMode) {
-      _httpClient = IOClient(InsecureHttpClientHelper.createInsecureHttpClient());
+      _httpClient =
+          IOClient(InsecureHttpClientHelper.createInsecureHttpClient());
     } else {
       _httpClient = http.Client();
     }
@@ -50,12 +51,12 @@ class SignupController extends GetxController {
   void _handleNetworkError(dynamic error, String endpoint) {
     String errorMessage = 'Network error occurred';
     String technicalDetails = error.toString();
-    
+
     if (error is HandshakeException) {
       if (error.toString().contains('CERTIFICATE_VERIFY_FAILED')) {
-        errorMessage = kDebugMode 
-          ? 'SSL Certificate verification failed. Check server certificate.'
-          : 'Secure connection failed. Please contact support.';
+        errorMessage = kDebugMode
+            ? 'SSL Certificate verification failed. Check server certificate.'
+            : 'Secure connection failed. Please contact support.';
         technicalDetails = 'SSL handshake failed: ${error.toString()}';
       } else {
         errorMessage = 'Secure connection failed. Please try again.';
@@ -63,27 +64,29 @@ class SignupController extends GetxController {
       }
     } else if (error is SocketException) {
       if (error.osError?.errorCode == 7) {
-        errorMessage = 'Cannot connect to server. Please check your internet connection.';
+        errorMessage =
+            'Cannot connect to server. Please check your internet connection.';
         technicalDetails = 'DNS resolution failed';
       } else if (error.osError?.errorCode == 111) {
         errorMessage = 'Server is not responding. Please try again later.';
         technicalDetails = 'Connection refused';
       } else {
-        errorMessage = 'Network connection failed. Please check your internet connection.';
+        errorMessage =
+            'Network connection failed. Please check your internet connection.';
       }
     } else if (error is HttpException) {
       errorMessage = 'Server error occurred. Please try again later.';
     } else if (error is FormatException) {
       errorMessage = 'Invalid response from server. Please try again.';
     } else if (error.toString().contains('TimeoutException')) {
-      errorMessage = 'Request timed out. Please check your connection and try again.';
+      errorMessage =
+          'Request timed out. Please check your connection and try again.';
     }
 
-    
     this.errorMessage.value = errorMessage;
-    
+
     _logResponse(endpoint, 0, {}, error: technicalDetails);
-    
+
     Get.snackbar(
       'Connection Error',
       errorMessage,
@@ -94,7 +97,9 @@ class SignupController extends GetxController {
     );
   }
 
-  void _logResponse(String endpoint, int statusCode, Map<String, dynamic> responseBody, {String? error}) {
+  void _logResponse(
+      String endpoint, int statusCode, Map<String, dynamic> responseBody,
+      {String? error}) {
     final logMessage = '''
     ===========================================
     API Call: $endpoint
@@ -106,28 +111,24 @@ class SignupController extends GetxController {
     Debug Mode: $kDebugMode
     ===========================================
     ''';
-    
+
     if (kDebugMode) {
       print(logMessage);
     }
-    
+
     developer.log(
       'API Response',
-      name: 'SignupController', 
+      name: 'SignupController',
       error: error,
       stackTrace: error != null ? StackTrace.current : null,
     );
   }
 
-  Future<http.Response> makeHttpRequest(
-    String method,
-    String endpoint,
-    {Map<String, dynamic>? body,
-    Map<String, String>? headers}
-  ) async {
+  Future<http.Response> makeHttpRequest(String method, String endpoint,
+      {Map<String, dynamic>? body, Map<String, String>? headers}) async {
     final client = _httpClient ?? http.Client();
     final uri = Uri.parse('${Endpoints.baseUrl}$endpoint');
-    
+
     try {
       if (kDebugMode) {
         print('Making $method request to: $uri');
@@ -136,35 +137,46 @@ class SignupController extends GetxController {
       }
 
       http.Response response;
-      
+
       switch (method.toUpperCase()) {
         case 'POST':
-          if (headers != null && headers['Content-Type'] == 'application/json') {
-            response = await client.post(
-              uri,
-              headers: headers,
-              body: body != null ? jsonEncode(body) : null,
-            ).timeout(_timeoutDuration);
+          if (headers != null &&
+              headers['Content-Type'] == 'application/json') {
+            response = await client
+                .post(
+                  uri,
+                  headers: headers,
+                  body: body != null ? jsonEncode(body) : null,
+                )
+                .timeout(_timeoutDuration);
           } else {
-            response = await client.post(
-              uri,
-              headers: headers,
-              body: body?.map((key, value) => MapEntry(key, value.toString())),
-            ).timeout(_timeoutDuration);
+            response = await client
+                .post(
+                  uri,
+                  headers: headers,
+                  body: body
+                      ?.map((key, value) => MapEntry(key, value.toString())),
+                )
+                .timeout(_timeoutDuration);
           }
           break;
         case 'GET':
-          response = await client.get(uri, headers: headers).timeout(_timeoutDuration);
+          response =
+              await client.get(uri, headers: headers).timeout(_timeoutDuration);
           break;
         case 'PUT':
-          response = await client.put(
-            uri,
-            headers: headers,
-            body: body != null ? jsonEncode(body) : null,
-          ).timeout(_timeoutDuration);
+          response = await client
+              .put(
+                uri,
+                headers: headers,
+                body: body != null ? jsonEncode(body) : null,
+              )
+              .timeout(_timeoutDuration);
           break;
         case 'DELETE':
-          response = await client.delete(uri, headers: headers).timeout(_timeoutDuration);
+          response = await client
+              .delete(uri, headers: headers)
+              .timeout(_timeoutDuration);
           break;
         default:
           throw UnsupportedError('HTTP method $method not supported');
@@ -184,7 +196,7 @@ class SignupController extends GetxController {
       isLoading.value = true;
       errorMessage.value = '';
       isOtpSent.value = false;
-      
+
       if (kDebugMode) {
         print('=== SEND OTP REQUEST ===');
         print('Email: $email');
@@ -204,7 +216,7 @@ class SignupController extends GetxController {
       bool isSuccess = false;
       if (response.statusCode == 200) {
         final responseCode = responseBody['response_code'];
-        if (responseCode == 200 || responseCode == "200") {
+        if (responseCode == 200 || responseCode == 204) {
           isSuccess = true;
           isOtpSent.value = true;
         }
@@ -214,7 +226,7 @@ class SignupController extends GetxController {
         if (kDebugMode) {
           print('✅ OTP sent successfully');
         }
-        
+
         Get.snackbar(
           'Success',
           responseBody['response_message'] ?? 'OTP sent successfully',
@@ -229,12 +241,13 @@ class SignupController extends GetxController {
           print('Response code: ${responseBody['response_code']}');
           print('Response message: ${responseBody['response_message']}');
         }
-        
-        errorMessage.value = responseBody['response_message'] ?? 'Failed to send OTP';
-        
-        _logResponse(Endpoints.getstarted, response.statusCode, responseBody, 
-          error: 'OTP send failed: ${responseBody['response_message']}');
-        
+
+        errorMessage.value =
+            responseBody['response_message'] ?? 'Failed to send OTP';
+
+        _logResponse(Endpoints.getstarted, response.statusCode, responseBody,
+            error: 'OTP send failed: ${responseBody['response_message']}');
+
         Get.snackbar(
           'Error',
           errorMessage.value,
@@ -260,7 +273,7 @@ class SignupController extends GetxController {
       isLoading.value = true;
       errorMessage.value = '';
       isOtpVerified.value = false;
-      
+
       if (kDebugMode) {
         print('=== VERIFY OTP REQUEST ===');
         print('Email: $email');
@@ -284,7 +297,7 @@ class SignupController extends GetxController {
       bool isSuccess = false;
       if (response.statusCode == 200) {
         final responseCode = responseBody['response_code'];
-        if (responseCode == 200 || responseCode == "200") {
+        if (responseCode == 200 || responseCode == 204) {
           isSuccess = true;
           isOtpVerified.value = true;
         }
@@ -295,7 +308,7 @@ class SignupController extends GetxController {
           print('✅ OTP verified successfully');
           print('Response: ${responseBody['response_message']}');
         }
-        
+
         Get.snackbar(
           'Success',
           responseBody['response_message'] ?? 'OTP verified successfully',
@@ -310,12 +323,13 @@ class SignupController extends GetxController {
           print('Response code: ${responseBody['response_code']}');
           print('Response message: ${responseBody['response_message']}');
         }
-        
+
         errorMessage.value = responseBody['response_message'] ?? 'Invalid OTP';
-        
-        _logResponse(Endpoints.verifyOtp, response.statusCode, responseBody, 
-          error: 'OTP verification failed: ${responseBody['response_message']}');
-        
+
+        _logResponse(Endpoints.verifyOtp, response.statusCode, responseBody,
+            error:
+                'OTP verification failed: ${responseBody['response_message']}');
+
         Get.snackbar(
           'Error',
           errorMessage.value,
@@ -336,91 +350,91 @@ class SignupController extends GetxController {
     }
   }
 
- Future<bool> register({
-  required String fullName,
-  required String email,
-  required String password, 
-  required String passwordConfirmation,
-}) async {
-  try {
-    isLoading.value = true;
-    errorMessage.value = '';
-    
-    if (kDebugMode) {
-      print('=== REGISTER REQUEST ===');
-      print('Name: $fullName');
-      print('Email: $email');
-      print('URL: ${Endpoints.baseUrl}${Endpoints.signup}');
-    }
+  Future<bool> register({
+    required String fullName,
+    required String email,
+    required String password,
+    required String passwordConfirmation,
+  }) async {
+    try {
+      isLoading.value = true;
+      errorMessage.value = '';
 
-    final response = await makeHttpRequest(
-      'POST',
-      Endpoints.signup,
-      headers: {'Content-Type': 'application/json'},
-      body: {
-        'fullname': fullName, 
-        'email': email,
-        'password': password,
-        'password_confirmation': passwordConfirmation,
-      },
-    );
-
-    final responseBody = json.decode(response.body);
-    _logResponse(Endpoints.signup, response.statusCode, responseBody);
-
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      final responseMessage = responseBody['response_message'] ?? 'Registration successful';
-      
       if (kDebugMode) {
-        print('✅ Registration successful');
-        print('Response: $responseMessage');
+        print('=== REGISTER REQUEST ===');
+        print('Name: $fullName');
+        print('Email: $email');
+        print('URL: ${Endpoints.baseUrl}${Endpoints.signup}');
       }
-      
-      Get.snackbar(
-        'Success',
-        responseMessage,
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.green,
-        colorText: Colors.white,
+
+      final response = await makeHttpRequest(
+        'POST',
+        Endpoints.signup,
+        headers: {'Content-Type': 'application/json'},
+        body: {
+          'fullname': fullName,
+          'email': email,
+          'password': password,
+          'password_confirmation': passwordConfirmation,
+        },
       );
-      
-      // Don't call Get.back() here - let the UI handle navigation
-      return true;
-    } else {
-      final errorMsg = responseBody['response_message'] ?? 'Registration failed';
-      errorMessage.value = errorMsg;
-      
+
+      final responseBody = json.decode(response.body);
+      _logResponse(Endpoints.signup, response.statusCode, responseBody);
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final responseMessage =
+            responseBody['response_message'] ?? 'Registration successful';
+
+        if (kDebugMode) {
+          print('✅ Registration successful');
+          print('Response: $responseMessage');
+        }
+
+        Get.snackbar(
+          'Success',
+          responseMessage,
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+        );
+
+        // Don't call Get.back() here - let the UI handle navigation
+        return true;
+      } else {
+        final errorMsg =
+            responseBody['response_message'] ?? 'Registration failed';
+        errorMessage.value = errorMsg;
+
+        if (kDebugMode) {
+          print('❌ Registration failed');
+          print('Status: ${response.statusCode}');
+          print('Error: $errorMsg');
+        }
+
+        _logResponse(Endpoints.signup, response.statusCode, responseBody,
+            error: 'Registration failed: $errorMsg');
+
+        Get.snackbar(
+          'Error',
+          errorMsg,
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+        return false;
+      }
+    } catch (e) {
       if (kDebugMode) {
-        print('❌ Registration failed');
-        print('Status: ${response.statusCode}');
-        print('Error: $errorMsg');
+        print('❌ Exception in register: $e');
       }
-      
-      _logResponse(Endpoints.signup, response.statusCode, responseBody, 
-        error: 'Registration failed: $errorMsg');
-      
-      Get.snackbar(
-        'Error',
-        errorMsg,
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
+      _handleNetworkError(e, Endpoints.signup);
       return false;
+    } finally {
+      isLoading.value = false;
     }
-  } catch (e) {
-    if (kDebugMode) {
-      print('❌ Exception in register: $e');
-    }
-    _handleNetworkError(e, Endpoints.signup);
-    return false;
-  } finally {
-    isLoading.value = false;
   }
-}
 
-
-  
   Future<bool> resendOtp(String email) async {
     if (kDebugMode) {
       print('Resending OTP for: $email');
@@ -428,11 +442,9 @@ class SignupController extends GetxController {
     return await sendOtp(email);
   }
 
- 
   void clearError() {
     errorMessage.value = '';
   }
-
 
   void resetOtpStates() {
     isOtpSent.value = false;
@@ -453,7 +465,7 @@ class SignupController extends GetxController {
         print('=== LOGOUT ===');
         print('Current user: ${user.value?.email ?? 'No user'}');
       }
-      
+
       user.value = null;
       accessToken.value = '';
       isRememberMe.value = false;
@@ -470,12 +482,12 @@ class SignupController extends GetxController {
         colorText: Colors.white,
       );
 
-      Get.offAllNamed('/login'); 
+      Get.offAllNamed('/login');
     } catch (e) {
       if (kDebugMode) {
         print('Logout error: ${e.toString()}');
       }
-      
+
       Get.snackbar(
         'Error',
         'Logout failed: ${e.toString()}',
@@ -491,7 +503,7 @@ class SignupController extends GetxController {
       if (kDebugMode) {
         print('=== LOADING USER FROM STORAGE ===');
       }
-      
+
       final storedUser = await StorageService.getUser();
       final storedToken = await StorageService.getAccessToken();
       final rememberMe = await StorageService.getRememberMe();
@@ -513,14 +525,13 @@ class SignupController extends GetxController {
           if (kDebugMode) {
             print('Auto-navigating to profile selection screen');
           }
-         
         }
       }
     } catch (e) {
       if (kDebugMode) {
         print('Error loading user from storage: ${e.toString()}');
       }
-      
+
       await StorageService.clearUserData();
     }
   }
@@ -530,24 +541,27 @@ class SignupController extends GetxController {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer ${accessToken.value}',
     };
-    
+
     if (kDebugMode) {
       print('Auth headers: $headers');
     }
-    
+
     return headers;
   }
 
   bool get isLoggedIn => user.value != null && accessToken.value.isNotEmpty;
-  bool get hasError => errorMessage.value.isNotEmpty;
-  bool get canProceed => isOtpSent.value && isOtpVerified.value;
 
+  bool get hasError => errorMessage.value.isNotEmpty;
+
+  bool get canProceed => isOtpSent.value && isOtpVerified.value;
 
   void handleNetworkError(dynamic error, String endpoint) {
     _handleNetworkError(error, endpoint);
   }
 
-  void logResponse(String endpoint, int statusCode, Map<String, dynamic> responseBody, {String? error}) {
+  void logResponse(
+      String endpoint, int statusCode, Map<String, dynamic> responseBody,
+      {String? error}) {
     _logResponse(endpoint, statusCode, responseBody, error: error);
   }
 }

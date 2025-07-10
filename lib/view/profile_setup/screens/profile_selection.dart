@@ -3,7 +3,8 @@ import 'package:get/get.dart';
 import 'package:godly_seed_app/constants/app_router.dart';
 import 'package:godly_seed_app/view/login/models/login_response.dart';
 import 'package:godly_seed_app/view/profile_setup/controller/profile_controller.dart';
-import 'package:godly_seed_app/view/profile_setup/model/profile_model.dart';
+
+import '../model/profile_response.dart';
 
 class ProfileSelectionScreen extends GetView<ProfileController> {
   const ProfileSelectionScreen({super.key});

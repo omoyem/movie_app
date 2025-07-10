@@ -120,6 +120,14 @@ Future<dynamic> customDialog({required List<Widget> children}) {
 //       );
 // }
 
+String extractYear(String date) {
+  try {
+    final parsedDate = DateTime.parse(date);
+    return parsedDate.year.toString();
+  } catch (e) {
+    return 'Invalid date';
+  }
+}
 String? validatePhoneInput(String email) {
   if (email.isEmpty) return "Phone number is required";
 

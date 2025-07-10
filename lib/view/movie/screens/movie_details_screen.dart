@@ -8,6 +8,8 @@ import 'package:godly_seed_app/data/models/movie_list_response.dart';
 import 'package:godly_seed_app/view/movie/controller/add_favourite_controller.dart';
 import 'package:godly_seed_app/view/movie/controller/movie_controller.dart';
 
+import '../../../utils/helpers.dart';
+
 class MovieDetailsScreen extends GetView<MovieController> {
 
 
@@ -127,16 +129,16 @@ class MovieDetailsScreen extends GetView<MovieController> {
           Text(
             movie.title ?? "No title",
             style: TextStyle(
-              fontSize: 24,
+              fontSize: 20,
               fontWeight: FontWeight.bold,
             ),
           ),
           SizedBox(height: 4),
           Text(
-            '${"2005"} | ${"2"}',
+            'Release Date: ${extractYear(movie.releaseDate!)}',
             style: TextStyle(
               color: Colors.grey[600],
-              fontSize: 14,
+              fontSize: 13,
             ),
           ),
         ],

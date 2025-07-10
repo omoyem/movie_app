@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:godly_seed_app/constants/color_palette.dart';
 import 'package:godly_seed_app/view/profile_setup/controller/profile_controller.dart';
-import 'package:godly_seed_app/view/profile_setup/model/profile_model.dart';
+
+import '../model/profile_response.dart';
 
 class ProfileSetupScreen extends StatefulWidget {
   @override
@@ -20,8 +21,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     super.initState();
     nameController = TextEditingController(text: controller.profile.value.name);
     dateController = TextEditingController(
-      text: controller.profile.value.dateOfBirth != null
-          ? "${controller.profile.value.dateOfBirth!.day.toString().padLeft(2, '0')}-${controller.profile.value.dateOfBirth!.month.toString().padLeft(2, '0')}-${controller.profile.value.dateOfBirth!.year}"
+      text: controller.profile.value.dob != null
+          ? "${controller.profile.value.dob}"
           : '',
     );
     screenTimeController = TextEditingController(text: controller.profile.value.screenTime ?? '3pm - 7pm');
@@ -56,7 +57,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         ),
       ),
       body: Obx(() {
-        final isKidsProfile = controller.profile.value.type == ProfileType.kids;
+        final isKidsProfile = controller.profile.value.ageGroup == ProfileType.kids.toString();
         return SingleChildScrollView(
           padding: const EdgeInsets.all(24),
           child: Column(
@@ -122,7 +123,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                 _buildFormField(
                   label: 'Gender',
                   child: DropdownButtonFormField<Gender>(
-                    value: controller.profile.value.gender,
+                    value: controller.profile.value.gender as Gender,
                     onChanged: (Gender? value) {
                       if (value != null) {
                         controller.selectGender(value);
