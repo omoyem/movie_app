@@ -99,7 +99,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                     controller.updateName(value);
                   },
                   decoration: _getInputDecoration(
-                    hintText: 'FullName',
+                    hintText: 'Full Name',
                   ),
                 ),
                 isRequired: true,
@@ -121,7 +121,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                 _buildFormField(
                   label: 'Gender',
                   child: DropdownButtonFormField<Gender>(
-                    value: controller.profile.value.gender != null 
+                    value: controller.profile.value.gender != null
                         ? (controller.profile.value.gender == 'Gender.female' ? Gender.female : Gender.male)
                         : null,
                     onChanged: (Gender? value) {

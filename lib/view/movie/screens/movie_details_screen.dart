@@ -9,13 +9,13 @@ import 'package:godly_seed_app/data/models/movie.dart';
 import 'package:godly_seed_app/data/models/movie_list_response.dart';
 import 'package:godly_seed_app/view/movie/controller/add_favourite_controller.dart';
 import 'package:godly_seed_app/view/movie/controller/movie_controller.dart';
+import 'package:godly_seed_app/view/widgets/big_app_text.dart';
 
 import '../../../utils/helpers.dart';
 
 class MovieDetailsScreen extends GetView<MovieController> {
-
-
-  final AddFavouriteController addFavouriteController = Get.put(AddFavouriteController());
+  final AddFavouriteController addFavouriteController =
+      Get.put(AddFavouriteController());
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +61,8 @@ class MovieDetailsScreen extends GetView<MovieController> {
             height: 250,
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: NetworkImage(Endpoints.imageBaseUrl + movie.coverPhotoPath!),
+                image: NetworkImage(
+                    Endpoints.imageBaseUrl + movie.coverPhotoPath!),
                 fit: BoxFit.cover,
               ),
             ),
@@ -91,9 +92,7 @@ class MovieDetailsScreen extends GetView<MovieController> {
                     Icons.play_arrow,
                     size: 32,
                   ),
-                  onPressed: () {
-
-                  },
+                  onPressed: () {},
                   color: Colors.black,
                 ),
               ),
@@ -136,12 +135,23 @@ class MovieDetailsScreen extends GetView<MovieController> {
             ),
           ),
           SizedBox(height: 4),
-          Text(
-            'Release Date: ${extractYear(movie.releaseDate!)}',
-            style: TextStyle(
-              color: Colors.grey[600],
-              fontSize: 13,
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Release Date: ${extractYear(movie.releaseDate!)}',
+                style: TextStyle(
+                  color: Colors.grey[600],
+                  fontSize: 13,
+                ),
+              ),
+              Row(
+                children: [
+                  Icon(Icons.star, size: 18, color: Colors.amber),
+                  BigAppText(text: "4", size: 13),
+                ],
+              ),
+            ],
           ),
         ],
       ),
@@ -176,8 +186,9 @@ class MovieDetailsScreen extends GetView<MovieController> {
           ),
           SizedBox(width: 12),
           Expanded(
-            child: Obx(() => OutlinedButton(
-                  onPressed: () => addFavouriteController.addToFavourite(controller.currentMovie.value!.id!.toString()),
+            child: OutlinedButton(
+                  onPressed: () => addFavouriteController.addToFavourite(
+                      controller.currentMovie.value!.id!.toString()),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: Colors.grey[700],
                     padding: EdgeInsets.symmetric(vertical: 12),
@@ -185,24 +196,29 @@ class MovieDetailsScreen extends GetView<MovieController> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      addFavouriteController.isLoading.value ?
-                          const SpinKitCircle(color: primaryColor, size: 25,) :
-                      Icon(addFavouriteController.isAdded.value
-                          ? Icons.check
-                          : Icons.add),
-                      SizedBox(width: 8),
-                      Row(
-                        children: [
-                          addFavouriteController.isLoading.value ?
-                          Text('Adding...') : Text('My List'),
-                        ],
-                      ),
-                    ],
+                  child: Obx(() => Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        addFavouriteController.isLoading.value
+                            ? const SpinKitCircle(
+                                color: primaryColor,
+                                size: 25,
+                              )
+                            : Icon(controller.currentMovie.value!.isFavourite ?? false
+                                ? Icons.check
+                                : Icons.add),
+                        SizedBox(width: 8),
+                        Row(
+                          children: [
+                            Text(addFavouriteController.isLoading.value
+                                ? 'Adding...'
+                                : 'My List')
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
-                )),
+                ),
           ),
           SizedBox(width: 12),
           Container(
@@ -236,7 +252,8 @@ class MovieDetailsScreen extends GetView<MovieController> {
           ),
           SizedBox(height: 8),
           Text(
-            movie.description ?? 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam commodo elit molestibus nec ex. Lorem urna cursus maximus urna vitae porta viverra turpis venenatis vitae. Ut et ultrices efficitur massa ipsum porta nec. In consectetur facilisis. Morbi ex.',
+            movie.description ??
+                'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam commodo elit molestibus nec ex. Lorem urna cursus maximus urna vitae porta viverra turpis venenatis vitae. Ut et ultrices efficitur massa ipsum porta nec. In consectetur facilisis. Morbi ex.',
             style: TextStyle(
               color: Colors.grey[600],
               height: 1.5,

@@ -11,7 +11,7 @@ class CustomContainer extends StatelessWidget {
   const CustomContainer(
       {super.key,
       this.padding = const EdgeInsets.symmetric(horizontal: 0.0, vertical: 0),
-      required this.child,
+       this.child,
       this.backgroundColor,
       this.borderRadius = 0,
       this.elevation = 0,
@@ -22,7 +22,7 @@ class CustomContainer extends StatelessWidget {
       this.height,
       this.backgroundImage, this.networkImage});
 
-  final Widget child;
+  final Widget? child;
   final double? borderRadius;
   final Color? backgroundColor;
   final Color? borderColor;

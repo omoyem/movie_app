@@ -75,7 +75,9 @@ class Data {
       String? views, 
       String? rating, 
       dynamic youtubeVideoId, 
-      String? uploadedAt,}){
+      String? uploadedAt,
+      bool? isLoading
+  }){
     _id = id;
     _username = username;
     _title = title;
@@ -101,6 +103,7 @@ class Data {
     _rating = rating;
     _youtubeVideoId = youtubeVideoId;
     _uploadedAt = uploadedAt;
+    _isLoading = isLoading;
 }
 
   Data.fromJson(dynamic json) {
@@ -128,7 +131,7 @@ class Data {
     _views = json['views'];
     _rating = json['rating'];
     _youtubeVideoId = json['youtube_video_id'];
-    _uploadedAt = json['uploaded_at'];
+    _isLoading = false;
   }
   String? _id;
   String? _username;
@@ -155,6 +158,7 @@ class Data {
   String? _rating;
   dynamic _youtubeVideoId;
   String? _uploadedAt;
+  bool? _isLoading;
 Data copyWith({  String? id,
   String? username,
   String? title,
@@ -180,6 +184,7 @@ Data copyWith({  String? id,
   String? rating,
   dynamic youtubeVideoId,
   String? uploadedAt,
+  bool? isLoading,
 }) => Data(  id: id ?? _id,
   username: username ?? _username,
   title: title ?? _title,
@@ -205,6 +210,7 @@ Data copyWith({  String? id,
   rating: rating ?? _rating,
   youtubeVideoId: youtubeVideoId ?? _youtubeVideoId,
   uploadedAt: uploadedAt ?? _uploadedAt,
+  isLoading: isLoading ?? _isLoading,
 );
   String? get id => _id;
   String? get username => _username;
@@ -231,6 +237,12 @@ Data copyWith({  String? id,
   String? get rating => _rating;
   dynamic get youtubeVideoId => _youtubeVideoId;
   String? get uploadedAt => _uploadedAt;
+  bool? get isLoading => _isLoading;
+
+
+  set isLoading(bool? value) {
+    _isLoading = value;
+  }
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};

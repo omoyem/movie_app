@@ -9,26 +9,23 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="be5037f8-8eed-40e7-8087-92ce1d406a93" name="Changes" comment="Add to favourites and list of favourites done">
-      <change afterPath="$PROJECT_DIR$/lib/view/favourites/controllers/delete_favourite_controller.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/view/profile_setup/model/profile_response.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/view/widgets/curved_top.dart" afterDir="false" />
+    <list default="true" id="be5037f8-8eed-40e7-8087-92ce1d406a93" name="Changes" comment="Favourite movies and app stable">
+      <change afterPath="$PROJECT_DIR$/lib/data/models/search.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/view/search/bindings/search_binding.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/view/search/controller/search_controller.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/view/search/screen/search_movies_screen.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/constants/app_router.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/constants/app_router.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/constants/endpoints.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/constants/endpoints.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/data/local/secure_storage_helper.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/data/local/secure_storage_helper.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/utils/helpers.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/utils/helpers.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/view/favourites/controllers/get_favourite_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/view/favourites/controllers/get_favourite_controller.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/view/favourites/screen/favourites_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/view/favourites/screen/favourites_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/view/home/controller/home_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/view/home/controller/home_controller.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/view/home/screens/home_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/view/home/screens/home_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/view/movie/controller/add_favourite_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/view/movie/controller/add_favourite_controller.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/view/movie/controller/movie_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/view/movie/controller/movie_controller.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/view/movie/screens/movie_details_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/view/movie/screens/movie_details_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/view/movie/screens/play_movie.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/view/movie/screens/play_movie.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/view/profile_setup/controller/profile_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/view/profile_setup/controller/profile_controller.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/view/profile_setup/model/profile_model.dart" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/view/profile_setup/screens/profile_selection.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/view/profile_setup/screens/profile_selection.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/view/profile_setup/screens/profile_selection_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/view/profile_setup/screens/profile_selection_screen.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/view/profile_setup/screens/profile_setup_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/view/profile_setup/screens/profile_setup_screen.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/view/sign_up/controller/signup_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/view/sign_up/controller/signup_controller.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -82,30 +79,31 @@
   <component name="ProjectViewState">
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Flutter.main.dart.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
-    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
-    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;io.flutter.reload.alreadyRun&quot;: &quot;true&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/Users/test/AndroidStudioProjects/godly_seed_app/lib/view/favourites/controllers&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;flutter.settings&quot;,
-    &quot;show.migrate.to.gradle.popup&quot;: &quot;false&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Flutter.main.dart.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.cidr.known.project.marker": "true",
+    "RunOnceActivity.readMode.enableVisualFormatting": "true",
+    "cf.first.check.clang-format": "false",
+    "cidr.known.project.marker": "true",
+    "dart.analysis.tool.window.visible": "false",
+    "git-widget-placeholder": "Merging main",
+    "io.flutter.reload.alreadyRun": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "/Users/test/AndroidStudioProjects/godly_seed_app/lib/utils",
+    "settings.editor.selected.configurable": "flutter.settings",
+    "show.migrate.to.gradle.popup": "false",
+    "structure.view.defaults.are.configured": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/lib/utils" />
+      <recent name="$PROJECT_DIR$/lib/view/home/controller" />
       <recent name="$PROJECT_DIR$/lib/view/favourites/controllers" />
       <recent name="$PROJECT_DIR$/lib/view/movie/bindings" />
       <recent name="$PROJECT_DIR$/lib/view" />
-      <recent name="$PROJECT_DIR$/lib/view/movie/controller" />
-      <recent name="$PROJECT_DIR$/lib/view/bottom_nav" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/lib/view/favourites/models" />
@@ -156,7 +154,23 @@
       <option name="project" value="LOCAL" />
       <updated>1752071613958</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="Stable App with Favourites added">
+      <option name="closed" value="true" />
+      <created>1752117217657</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1752117217657</updated>
+    </task>
+    <task id="LOCAL-00006" summary="Favourite movies and app stable">
+      <option name="closed" value="true" />
+      <created>1752242008582</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1752242008583</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -181,20 +195,42 @@
     <MESSAGE value="bug fixes and updates for login, forgot password and fetch movies" />
     <MESSAGE value="Play Movie working" />
     <MESSAGE value="Add to favourites and list of favourites done" />
-    <option name="LAST_COMMIT_MESSAGE" value="Add to favourites and list of favourites done" />
+    <MESSAGE value="Stable App with Favourites added" />
+    <MESSAGE value="Favourite movies and app stable" />
+    <option name="LAST_COMMIT_MESSAGE" value="Favourite movies and app stable" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="Dart">
           <url>file://$PROJECT_DIR$/lib/view/home/controller/home_controller.dart</url>
-          <line>137</line>
+          <line>138</line>
           <option name="timeStamp" value="9" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="Dart">
           <url>file://$PROJECT_DIR$/lib/view/home/controller/home_controller.dart</url>
-          <line>142</line>
+          <line>143</line>
           <option name="timeStamp" value="10" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="Dart">
+          <url>file://$PROJECT_DIR$/lib/view/profile_setup/controller/profile_controller.dart</url>
+          <line>587</line>
+          <option name="timeStamp" value="12" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="Dart">
+          <url>file://$PROJECT_DIR$/lib/view/profile_setup/controller/profile_controller.dart</url>
+          <line>600</line>
+          <option name="timeStamp" value="13" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="Dart">
+          <url>file://$PROJECT_DIR$/lib/view/profile_setup/controller/profile_controller.dart</url>
+          <line>612</line>
+          <option name="timeStamp" value="14" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="Dart">
+          <url>file://$PROJECT_DIR$/lib/view/profile_setup/controller/profile_controller.dart</url>
+          <line>616</line>
+          <option name="timeStamp" value="15" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

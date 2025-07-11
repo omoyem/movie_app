@@ -18,6 +18,7 @@ import 'package:http/http.dart' as http;
 
 import '../../../data/local/secure_storage_helper.dart';
 import '../../../network/api_client.dart';
+import '../../home/controller/home_controller.dart';
 import '../../profile_setup/model/profile_response.dart';
 import '../../sign_up/screens/otp_verification_screen.dart';
 import '../models/add_favourite_request.dart';
@@ -34,6 +35,8 @@ class AddFavouriteController extends GetxController {
 
   final Rx<UserProfile> profile = UserProfile().obs;
   final Rx<Data> user = Data().obs;
+
+  final HomeController _homeController = Get.put(HomeController());
 
   @override
   void onInit() {
@@ -60,8 +63,6 @@ class AddFavouriteController extends GetxController {
     });
 
   }
-
-
 
   Future<void> addToFavourite(String movieId) async {
     try {
@@ -92,6 +93,14 @@ class AddFavouriteController extends GetxController {
 
       if(result.responseCode == 201){
         final responseMessage = result.responseMessage ?? 'Add to my list successfully';
+
+        var selectedMovieIndex = _homeController.movies.indexWhere((element) => element.id == movieId);
+
+        var selectedMovie = _homeController.movies[selectedMovieIndex];
+
+        selectedMovie.isFavourite = true;
+
+        _homeController.movies[selectedMovieIndex] = selectedMovie;
 
         await Future.delayed(Duration(milliseconds: 100), (){
           showSnackBar(title: "Success", message: responseMessage, type: "success");

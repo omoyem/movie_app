@@ -10,24 +10,26 @@ import 'package:godly_seed_app/view/home/controller/home_controller.dart';
 import 'package:godly_seed_app/view/widgets/app_logo_widget.dart';
 import 'package:godly_seed_app/view/widgets/custom_container_widget.dart';
 import 'package:skeletonizer/skeletonizer.dart';
+import '../models/category_response.dart' as gf;
 
 import '../../../utils/helpers.dart';
-
+import '../controller/get_categories_controller.dart';
 
 class CategoryType {
   String title;
   int id;
   bool? isSelected;
 
-  CategoryType({required this.title, required this.id, this.isSelected = false});
+  CategoryType(
+      {required this.title, required this.id, this.isSelected = false});
 }
 
 class HomeScreen extends GetView<HomeController> {
-
+  GetCategoriesController _categoriesController =
+      Get.put(GetCategoriesController());
 
   @override
   Widget build(BuildContext context) {
-   
     if (!Get.isRegistered<HomeController>()) {
       Get.put(HomeController());
     }
@@ -40,19 +42,24 @@ class HomeScreen extends GetView<HomeController> {
             _buildHeader(),
             _buildSearchBar(),
             Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildFeaturedCarousel(),
-                    _buildCategoryTabs(),
-                    _buildTopMoviesSection(),
-                    _buildContinueWatchingSection(),
-                  ],
+              child: RefreshIndicator(
+                onRefresh: () async {
+                  await controller.loadMoviesFromApi();
+                  await _categoriesController.getCategories();
+                },
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildFeaturedCarousel(),
+                      _buildCategoryTabs(),
+                      _buildTopMoviesSection(),
+                      _buildContinueWatchingSection(),
+                    ],
+                  ),
                 ),
               ),
             ),
-      
           ],
         ),
       ),
@@ -70,16 +77,14 @@ class HomeScreen extends GetView<HomeController> {
           ),
           SizedBox(width: 12),
           Obx(() => Text(
-            'Hi ${controller.username.value},',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w500,
-            ),
-          )),
+                'Hi ${controller.username.value},',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w500,
+                ),
+              )),
           Spacer(),
-      
-        AppLogoWidget(size: 80),
-              
+          AppLogoWidget(size: 80),
         ],
       ),
     );
@@ -117,103 +122,124 @@ class HomeScreen extends GetView<HomeController> {
   );
 }
 
- Widget _buildFeaturedCarousel() {
-  return Obx(() => Column(
-    children: [
-      CarouselSlider(
-        options: CarouselOptions(
-          height: 250,
-          viewportFraction: 0.6,
-          autoPlay: true,
-          enlargeCenterPage: true,
-          enlargeFactor: 0.3,
-          onPageChanged: (index, reason) {
-            controller.updateCarouselIndex(index);
-          },
+  Widget _buildFeaturedCarousel() {
+    return Obx(() => Column(
+          children: [
+            CarouselSlider(
+              options: CarouselOptions(
+                height: 250,
+                viewportFraction: 0.6,
+                autoPlay: true,
+                enlargeCenterPage: true,
+                enlargeFactor: 0.3,
+                onPageChanged: (index, reason) {
+                  controller.updateCarouselIndex(index);
+                },
+              ),
+              items: controller.featuredMovies.map((movie) {
+                return GestureDetector(
+                  onTap: () => controller.navigateToMovieDetails(movie),
+                  child: Container(
+                    margin: EdgeInsets.symmetric(horizontal: 8),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      image: DecorationImage(
+                        image: NetworkImage(
+                          movie.coverPhotoPath != null &&
+                                  movie.coverPhotoPath!.isNotEmpty
+                              ? getImageUrl(movie.coverPhotoPath!)
+                              : 'https://via.placeholder.com/300x450?text=No+Image',
+                        ),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+            SizedBox(height: 15),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: controller.featuredMovies.asMap().entries.map((entry) {
+                return Container(
+                  width: 8.0,
+                  height: 8.0,
+                  margin: EdgeInsets.symmetric(horizontal: 4.0),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: controller.currentCarouselIndex.value == entry.key
+                        ? primaryColor
+                        : Colors.grey[300],
+                  ),
+                );
+              }).toList(),
+            ),
+          ],
+        ));
+  }
+
+  Widget _buildCategoryTabs() {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Obx(
+        () => CustomContainer(
+          height: 60,
+          width: double.infinity,
+          child: Skeletonizer(
+            enabled: _categoriesController.isLoading.value,
+            child: ListView.builder(
+              shrinkWrap: true,
+              physics: const AlwaysScrollableScrollPhysics(),
+              scrollDirection: Axis.horizontal,
+              itemCount: _categoriesController.isLoading.value
+                  ? 5
+                  : _categoriesController.categories.length,
+              itemBuilder: (BuildContext context, int index) {
+                var category = _categoriesController.isLoading.value
+                    ? null
+                    : _categoriesController.categories[index];
+                return _buildCategoryItem(category);
+              },
+            ),
+          ),
         ),
-        items: controller.featuredMovies.map((movie) {
-          return GestureDetector(
-            onTap: () => controller.navigateToMovieDetails(movie),
-            child: Container(
-              margin: EdgeInsets.symmetric(horizontal: 8), 
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                image: DecorationImage(
-                  image: NetworkImage(
-                    movie.coverPhotoPath != null && movie.coverPhotoPath!.isNotEmpty
-                      ? getImageUrl(movie.coverPhotoPath!)
-                      : 'https://via.placeholder.com/300x450?text=No+Image',
-                  ),
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
-          );
-        }).toList(),
       ),
-      SizedBox(height: 15),
-      Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: controller.featuredMovies.asMap().entries.map((entry) {
-          return Container(
-            width: 8.0,
-            height: 8.0,
-            margin: EdgeInsets.symmetric(horizontal: 4.0),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: controller.currentCarouselIndex.value == entry.key
-                  ? primaryColor
-                  : Colors.grey[300],
-            ),
-          );
-        }).toList(),
-      ),
-    ],
-  ));
-}
-Widget _buildCategoryTabs() {
-  return Padding(
-    padding: const EdgeInsets.all(16.0),
-    child: CustomContainer(
-      height: 60,
-      width: double.infinity,
-      child: ListView.builder(
-        shrinkWrap: true,
-        physics: const AlwaysScrollableScrollPhysics(),
-        scrollDirection: Axis.horizontal,
-        itemCount: controller.categories.length,
-        itemBuilder: (BuildContext context, int index) {
-          var category = controller.categories[index];
-          return _buildCategoryItem(category); 
-        },
-      ),
-    ),
-  );
-}
-  Widget _buildCategoryItem(CategoryType category) {
-    return Obx(()=> Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8),
-          child: InkWell(
-            onTap: () {
+    );
+  }
+
+  Widget _buildCategoryItem(gf.Data? category) {
+    return Obx(
+      () => Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8),
+        child: InkWell(
+          onTap: () {
+            if (category != null) {
               controller.currentCategory.value = category;
-            },
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                color: controller.currentCategory.value.id ==  category.id ? primaryColor : Colors.grey[200],
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Center(
-                child: Text(
-                  category.title,
-                  style: TextStyle(
-                    color: controller.currentCategory.value.id ==  category.id ? Colors.white : Colors.grey[600],
-                    fontWeight: FontWeight.w500,
-                  ),
+            }
+          },
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              color: category == null
+                  ? Colors.grey[200]
+                  : (controller.currentCategory.value.id == category?.id
+                      ? primaryColor
+                      : Colors.grey[200]),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Center(
+              child: Text(
+                category?.name ?? "Category Name",
+                style: TextStyle(
+                  color: controller.currentCategory.value.id == category?.id
+                      ? Colors.white
+                      : Colors.grey[600],
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ),
           ),
+        ),
       ),
     );
   }
@@ -222,14 +248,13 @@ Widget _buildCategoryTabs() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.0),
           child: Text(
             'Top Movies',
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
-
             ),
           ),
         ),
@@ -238,17 +263,19 @@ Widget _buildCategoryTabs() {
           height: 180,
           width: double.infinity,
           child: Obx(() => Skeletonizer(
-            enabled: controller.isLoading.value,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              padding: EdgeInsets.only(left: 16),
-              itemCount: controller.topMovies.length,
-              itemBuilder: (context, index) {
-                final movie = controller.isLoading.value ? null : controller.topMovies[index];
-                return _buildMovieCard(movie: movie);
-              },
-            ),
-          )),
+                enabled: controller.isLoading.value,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  padding: EdgeInsets.only(left: 16),
+                  itemCount: controller.topMovies.length,
+                  itemBuilder: (context, index) {
+                    final movie = controller.isLoading.value
+                        ? null
+                        : controller.topMovies[index];
+                    return _buildMovieCard(movie: movie);
+                  },
+                ),
+              )),
         ),
       ],
     );
@@ -271,14 +298,14 @@ Widget _buildCategoryTabs() {
         SizedBox(
           height: 180,
           child: Obx(() => ListView.builder(
-            scrollDirection: Axis.horizontal,
-            padding: EdgeInsets.only(left: 16),
-            itemCount: controller.continueWatching.length,
-            itemBuilder: (context, index) {
-              final movie = controller.continueWatching[index];
-              return _buildMovieCard(movie: movie, showProgress: true);
-            },
-          )),
+                scrollDirection: Axis.horizontal,
+                padding: EdgeInsets.only(left: 16),
+                itemCount: controller.continueWatching.length,
+                itemBuilder: (context, index) {
+                  final movie = controller.continueWatching[index];
+                  return _buildMovieCard(movie: movie, showProgress: true);
+                },
+              )),
         ),
       ],
     );
@@ -287,9 +314,10 @@ Widget _buildCategoryTabs() {
   Widget _buildMovieCard({Movies? movie, bool showProgress = false}) {
     return GestureDetector(
       onTap: () {
-        if(movie != null) {
+        if (movie != null) {
           controller.navigateToMovieDetails(movie);
-        }},
+        }
+      },
       child: Container(
         width: 120,
         margin: EdgeInsets.only(right: 12),
@@ -303,10 +331,15 @@ Widget _buildCategoryTabs() {
                   decoration: BoxDecoration(
                     color: movie == null ? kLightTextColor : null,
                     borderRadius: BorderRadius.circular(8),
-                    image: movie == null || movie.coverPhotoPath == null || movie.coverPhotoPath!.isEmpty ? null : DecorationImage(
-                      image: NetworkImage(Endpoints.imageBaseUrl + movie.coverPhotoPath!),
-                      fit: BoxFit.cover,
-                    ),
+                    image: movie == null ||
+                            movie.coverPhotoPath == null ||
+                            movie.coverPhotoPath!.isEmpty
+                        ? null
+                        : DecorationImage(
+                            image: NetworkImage(
+                                Endpoints.imageBaseUrl + movie.coverPhotoPath!),
+                            fit: BoxFit.cover,
+                          ),
                   ),
                 ),
                 if (showProgress)
@@ -338,11 +371,14 @@ Widget _buildCategoryTabs() {
                     ),
                   ),
                 ),
-                if (movie == null || movie.coverPhotoPath == null || movie.coverPhotoPath!.isEmpty)
+                if (movie == null ||
+                    movie.coverPhotoPath == null ||
+                    movie.coverPhotoPath!.isEmpty)
                   Positioned.fill(
                     child: Container(
                       alignment: Alignment.center,
-                      child: Icon(Icons.broken_image, size: 40, color: Colors.grey[400]),
+                      child: Icon(Icons.broken_image,
+                          size: 40, color: Colors.grey[400]),
                     ),
                   ),
               ],
@@ -363,47 +399,47 @@ Widget _buildCategoryTabs() {
     );
   }
 
-  // Widget _buildBottomNavigation() {
-  //   return Container(
-  //     height: 70,
-  //     decoration: BoxDecoration(
-  //       color: primaryColor,
-  //       borderRadius: BorderRadius.only(
-  //         topLeft: Radius.circular(20),
-  //         topRight: Radius.circular(20),
-  //       ),
-  //     ),
-  //     child: Row(
-  //       mainAxisAlignment: MainAxisAlignment.spaceAround,
-  //       children: [
-  //         _buildNavItem(Icons.home, 'Home', true),
-  //         _buildNavItem(Icons.search, 'Search', false),
-  //         _buildNavItem(Icons.games, 'Games', false),
-  //         _buildNavItem(Icons.download, 'Downloads', false),
-  //         _buildNavItem(Icons.list, 'My List', false),
-  //       ],
-  //     ),
-  //   );
-  // }
+// Widget _buildBottomNavigation() {
+//   return Container(
+//     height: 70,
+//     decoration: BoxDecoration(
+//       color: primaryColor,
+//       borderRadius: BorderRadius.only(
+//         topLeft: Radius.circular(20),
+//         topRight: Radius.circular(20),
+//       ),
+//     ),
+//     child: Row(
+//       mainAxisAlignment: MainAxisAlignment.spaceAround,
+//       children: [
+//         _buildNavItem(Icons.home, 'Home', true),
+//         _buildNavItem(Icons.search, 'Search', false),
+//         _buildNavItem(Icons.games, 'Games', false),
+//         _buildNavItem(Icons.download, 'Downloads', false),
+//         _buildNavItem(Icons.list, 'My List', false),
+//       ],
+//     ),
+//   );
+// }
 
-  // Widget _buildNavItem(IconData icon, String label, bool isSelected) {
-  //   return Column(
-  //     mainAxisAlignment: MainAxisAlignment.center,
-  //     children: [
-  //       Icon(
-  //         icon,
-  //         color: isSelected ? Colors.white : Colors.white70,
-  //         size: 24,
-  //       ),
-  //       SizedBox(height: 4),
-  //       Text(
-  //         label,
-  //         style: TextStyle(
-  //           color: isSelected ? Colors.white : Colors.white70,
-  //           fontSize: 10,
-  //         ),
-  //       ),
-  //     ],
-  //   );
-  // }
+// Widget _buildNavItem(IconData icon, String label, bool isSelected) {
+//   return Column(
+//     mainAxisAlignment: MainAxisAlignment.center,
+//     children: [
+//       Icon(
+//         icon,
+//         color: isSelected ? Colors.white : Colors.white70,
+//         size: 24,
+//       ),
+//       SizedBox(height: 4),
+//       Text(
+//         label,
+//         style: TextStyle(
+//           color: isSelected ? Colors.white : Colors.white70,
+//           fontSize: 10,
+//         ),
+//       ),
+//     ],
+//   );
+// }
 }
