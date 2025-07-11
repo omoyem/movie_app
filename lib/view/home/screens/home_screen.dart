@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:godly_seed_app/constants/app_router.dart';
 import 'package:godly_seed_app/constants/color_palette.dart';
 import 'package:godly_seed_app/constants/endpoints.dart';
 import 'package:godly_seed_app/constants/images.dart' as Images;
@@ -85,25 +86,36 @@ class HomeScreen extends GetView<HomeController> {
   }
 
   Widget _buildSearchBar() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16),
+  return Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16),
+    child: GestureDetector(
+      onTap: () {
+        // Navigate to search screen
+        Get.toNamed(AppRouter.searchMovies);
+      },
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 16),
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
           color: Colors.grey[200],
           borderRadius: BorderRadius.circular(15),
         ),
-        child: TextField(
-          onChanged: controller.updateSearchText,
-          decoration: InputDecoration(
-            hintText: 'Search for movies and lots more',
-            border: InputBorder.none,
-            icon: Icon(Icons.search, color: Colors.grey),
-          ),
+        child: Row(
+          children: [
+            Icon(Icons.search, color: Colors.grey),
+            SizedBox(width: 12),
+            Text(
+              'Search for movies and lots more',
+              style: TextStyle(
+                color: Colors.grey[600],
+                fontSize: 16,
+              ),
+            ),
+          ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
  Widget _buildFeaturedCarousel() {
   return Obx(() => Column(

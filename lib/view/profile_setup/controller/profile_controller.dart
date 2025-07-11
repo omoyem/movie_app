@@ -153,14 +153,14 @@ class ProfileController extends GetxController {
         technicalDetails = 'DNS resolution failed - hostname not found';
         
        
-        Get.snackbar(
-          'Connection Error',
-          'Unable to reach the server. Please check your internet connection.',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.orange,
-          colorText: Colors.white,
-          duration: Duration(seconds: 8),
-          mainButton: TextButton(
+      
+        // Get.snackbar(    // 'Connection Error',
+          // 'Unable to reach the server. Please check your internet connection.',
+          // snackPosition: SnackPosition.BOTTOM,
+          // backgroundColor: Colors.orange,
+          // colorText: Colors.white,
+          // duration: Duration(seconds: 8),
+          TextButton(
             onPressed: () {
               // Retry the operation
               if (endpoint == Endpoints.profileSetup) {
@@ -170,7 +170,6 @@ class ProfileController extends GetxController {
               }
             },
             child: Text('Retry', style: TextStyle(color: Colors.white)),
-          ),
         );
         return;
       } else if (error.osError?.errorCode == 111) {
@@ -193,14 +192,14 @@ class ProfileController extends GetxController {
     this.errorMessage.value = errorMessage;
     _logResponse(endpoint, 0, {}, error: technicalDetails);
 
-    Get.snackbar(
-      'Connection Error',
-      errorMessage,
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: Colors.red,
-      colorText: Colors.white,
-      duration: Duration(seconds: 5),
-    );
+    // Get.snackbar(
+    //   'Connection Error',
+    //   errorMessage,
+    //   snackPosition: SnackPosition.BOTTOM,
+    //   backgroundColor: Colors.red,
+    //   colorText: Colors.white,
+    //   duration: Duration(seconds: 5),
+    // );
   }
 
   Future<void> _clearAuthData() async {
