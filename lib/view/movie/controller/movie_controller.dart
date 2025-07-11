@@ -3,6 +3,10 @@ import 'package:get/get.dart';
 import 'package:godly_seed_app/constants/images.dart';
 import 'package:godly_seed_app/data/models/movie_list_response.dart';
 import 'package:godly_seed_app/utils/helpers.dart';
+import 'dart:convert';
+import 'package:godly_seed_app/constants/endpoints.dart';
+import 'package:godly_seed_app/network/api_client.dart';
+import 'package:http/http.dart' as http;
 
 import '../../../data/models/movie.dart';
 import '../screens/play_movie.dart';
@@ -12,6 +16,8 @@ class MovieController extends GetxController {
   final RxList<MovieModel> similarMovies = <MovieModel>[].obs;
   final RxBool isInMyList = false.obs;
 
+  ApiClient apiClient = ApiClient(appbaseurl: Endpoints.baseUrl);
+
   @override
   void onInit() {
     super.onInit();
@@ -19,70 +25,58 @@ class MovieController extends GetxController {
     loadSimilarMovies();
   }
 
-  void loadSimilarMovies() {
-
-    similarMovies.value = [
-      MovieModel(
-        id: 8,
-        title: 'Jesus for Kids',
-        year: '2021',
-        seasons: '2 seasons',
-        imageUrl: movie1,
-        description: 'Biblical stories for children',
-        categories: ['Kids', 'Bible Story'],
-        episodes: [], fileUrl: '',
-      ),
-      MovieModel(
-        id: 9,
-        title: 'Sunday School Musical',
-        year: '2020',
-        seasons: '1 season',
-        imageUrl: movie4,
-        description: 'Musical adventures in Sunday school',
-        categories: ['Kids', 'Music'],
-        episodes: [], fileUrl: '',
-      ),
-      MovieModel(
-        id: 10,
-        title: 'Evan Almighty',
-        year: '2007',
-        seasons: '1 season',
-        imageUrl: movie3,
-        description: 'Comedy about modern-day Noah',
-        categories: ['Comedy', 'Family'],
-        episodes: [], fileUrl: '',
-      ),
-      MovieModel(
-        id: 11,
-        title: 'Step Dogs',
-        year: '2013',
-        seasons: '1 season',
-        imageUrl: movie2,
-        description: 'Family comedy about dogs',
-        categories: ['Comedy', 'Family'],
-        episodes: [], fileUrl: '',
-      ),
-      MovieModel(
-        id: 12,
-        title: 'Letters to God',
-        year: '2010',
-        seasons: '1 season',
-        imageUrl: movie5,
-        description: 'Inspirational family drama',
-        categories: ['Drama', 'Family'],
-        episodes: [], fileUrl: '',
-      ),
-      MovieModel(
-        id: 13,
-        title: 'The Stray',
-        year: '2017',
-        seasons: '1 season',
-        imageUrl: movie1,
-        description: 'The story of a loyal dog',
-        categories: ['Family', 'Drama'],
-        episodes: [], fileUrl: '',
-      ),
-    ];
+  Future<void> loadSimilarMovies() async {
+    if (currentMovie.value == null) return;
+    try {
+      final requestBody = {"movie_id": currentMovie.value!.id};
+      http.Response response = await apiClient.postRequest(
+        url: Endpoints.getSimilarMovies,
+        data: requestBody,
+      );
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['response_code'] == 200 && data['data'] != null) {
+          final List<MovieModel> fetched = (data['data'] as List)
+              .map((json) {
+                final movie = Movies.fromJson(json);
+               
+                List<String> categories = [];
+                try {
+                  if (movie.tags != null && movie.tags!.isNotEmpty) {
+                    final tagsList = jsonDecode(movie.tags!) as List;
+                    categories = tagsList.map((tag) => tag['value'].toString()).toList();
+                  }
+                } catch (e) {
+                  categories = ['General'];
+                }
+             
+                String imageUrl = movie.coverPhotoPath != null && movie.coverPhotoPath!.startsWith('http')
+                  ? movie.coverPhotoPath!
+                  : Endpoints.imageBaseUrl + (movie.coverPhotoPath ?? '');
+                return MovieModel(
+                  id: int.tryParse(movie.id ?? '0') ?? 0,
+                  title: movie.title ?? '',
+                  year: (movie.releaseDate ?? '').split('-').first,
+                  seasons: '1 season',
+                  imageUrl: imageUrl,
+                  fileUrl: movie.filePath ?? '',
+                  description: movie.description ?? '',
+                  categories: categories,
+                  episodes: [],
+                );
+              })
+              .toList();
+          similarMovies.value = fetched;
+        } else {
+          similarMovies.clear();
+        }
+      } else {
+        similarMovies.clear();
+      }
+    } catch (e) {
+      similarMovies.clear();
+      print('Error loading similar movies: ' + e.toString());
+    }
   }
 
   void toggleMyList() {

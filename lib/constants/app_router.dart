@@ -15,6 +15,8 @@ import 'package:godly_seed_app/view/profile_setup/bindings/profile_binding.dart'
 import 'package:godly_seed_app/view/profile_setup/screens/profile_selection.dart';
 import 'package:godly_seed_app/view/profile_setup/screens/profile_selection_screen.dart';
 import 'package:godly_seed_app/view/profile_setup/screens/profile_setup_screen.dart';
+import 'package:godly_seed_app/view/search/bindings/search_binding.dart';
+import 'package:godly_seed_app/view/search/screen/search_movies_screen.dart';
 import 'package:godly_seed_app/view/sign_up/binding/signup_binding.dart';
 import 'package:godly_seed_app/view/sign_up/screens/get_started_screen.dart';
 import 'package:godly_seed_app/view/sign_up/screens/otp_verification_screen.dart';
@@ -39,6 +41,7 @@ class AppRouter {
   static const String forgot = '/forgot';
   static const String movie = '/movie';
   static const String movieDetails = '/movieDetails';
+  static const String searchMovies = '/search';
 
 
   static List<GetPage> routes = [
@@ -131,6 +134,14 @@ class AppRouter {
       transitionDuration: Duration(milliseconds: 300),
       binding: MovieBinding(),
     ),
+
+    GetPage(
+      name: searchMovies,
+      page: () => SearchMoviesScreen(),
+      transition: Transition.leftToRight,
+      transitionDuration: Duration(milliseconds: 300),
+      binding: SearchBinding(),
+    ),
     
   ];
 
@@ -142,6 +153,7 @@ class AppRouter {
   static void goBack() => Get.back();
   static void toForgotPassword() => Get.toNamed(forgot);
   static void toHome() => Get.toNamed(home);
+  static void toSearch() => Get.toNamed(searchMovies);
   static void toGetStarted() => Get.toNamed(getStarted);
   static void toOtpAuth() => Get.toNamed(otpVerification);
 

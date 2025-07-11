@@ -391,14 +391,6 @@ class SignupController extends GetxController {
           print('Response: $responseMessage');
         }
 
-        Get.snackbar(
-          'Success',
-          responseMessage,
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.green,
-          colorText: Colors.white,
-        );
-
         // Don't call Get.back() here - let the UI handle navigation
         return true;
       } else {

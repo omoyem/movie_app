@@ -26,6 +26,6 @@ class Endpoints {
   static const String getMovies = "get_movies";
   static const String getSimilarMovies = "get_similar_movies";
   static const String searchMovies = "search_movies_advanced";
-  static const String favourites = "favorite";
-
+  static const String saveWatchProgess = "save_watch_progress";
+  static const String continueWatching = "continue_watching";
 }

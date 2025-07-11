@@ -19,7 +19,7 @@ class VideoPlayerScreen extends StatefulWidget {
 }
 
 class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
-  // late final PodPlayerController controller;
+
 
   late PodPlayerController _controller;
 
@@ -28,7 +28,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   @override
   void initState() {
     super.initState();
-    // initializePlayer();
+   
 
     _controller = PodPlayerController(
         playVideoFrom: PlayVideoFrom.network(
@@ -112,7 +112,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
       ),
       body: Column(
         children: [
-          // Video Player
+         
           Expanded(
             flex: 3,
             child: Container(
@@ -131,16 +131,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Now Playing',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      fontFamily: 'Montserrat',
-                    ),
-                  ),
-                  SizedBox(height: 8),
+            
                   Text(
                     widget.movieTitle,
                     style: TextStyle(
