@@ -10,9 +10,6 @@ class Endpoints {
   static const String getstarted ='get-started';
   static const String verifyOtp = "verify-otp";
   static const String forgotPassword = "forgot_password";
-  static const String favourite = "favorite";
-  static const String getFavourites = "get_favorites";
-  static const String deleteFavourite = "delete_favorite";
   static const String resetPassword = "reset_password";
   static const String resendOtp = "resend-otp";
      // Profile
@@ -25,6 +22,9 @@ class Endpoints {
   static const String getMovies = "get_movies";
   static const String getSimilarMovies = "get_similar_movies";
   static const String searchMovies = "search_movies_advanced";
-  static const String favourites = "favorite";
-
+  static const String favourite = "favorite";
+  static const String getFavourites = "get_favorites";
+  static const String deleteFavourite = "delete_favorite";
+  static const String saveWatchProgess = "save_watch_progress";
+  static const String continueWatching = "continue_watching";
 }

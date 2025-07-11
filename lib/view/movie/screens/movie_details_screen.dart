@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
@@ -395,14 +397,30 @@ class MovieDetailsScreen extends GetView<MovieController> {
   Widget _buildSimilarMovieCard(MovieModel movie) {
     return GestureDetector(
       onTap: () {
-        // controller.currentMovie.value = movie;
-        controller.loadSimilarMovies();
+        // Navigate to MovieDetailsScreen with the selected movie's id and details
+        Get.to(
+          () => MovieDetailsScreen(),
+          arguments: Movies(
+            id: movie.id.toString(),
+            title: movie.title,
+            description: movie.description,
+            duration: '',
+            filePath: movie.fileUrl,
+            coverPhotoPath: movie.imageUrl,
+            tags: jsonEncode(movie.categories.map((e) => {'value': e}).toList()),
+            ageGroup: '',
+            categoryId: '',
+            releaseDate: movie.year,
+            uploadedAt: '',
+            uploadedBy: '',
+          ),
+        );
       },
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
           image: DecorationImage(
-            image: AssetImage(movie.imageUrl!),
+            image: NetworkImage(movie.imageUrl!),
             fit: BoxFit.cover,
           ),
         ),
