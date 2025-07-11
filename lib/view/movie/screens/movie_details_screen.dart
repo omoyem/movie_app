@@ -420,7 +420,7 @@ class MovieDetailsScreen extends GetView<MovieController> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
           image: DecorationImage(
-            image: NetworkImage(movie.imageUrl!),
+            image: NetworkImage(movie.imageUrl),
             fit: BoxFit.cover,
           ),
         ),
@@ -442,7 +442,7 @@ class MovieDetailsScreen extends GetView<MovieController> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                movie.title ?? "No title",
+                movie.title,
                 style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
