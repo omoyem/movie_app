@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:get/get.dart';
 import 'package:godly_seed_app/constants/color_palette.dart';
+import 'package:godly_seed_app/utils/helpers.dart';
 import 'package:godly_seed_app/view/profile_setup/screens/profile_setup_screen.dart';
 import 'package:godly_seed_app/view/profile_setup/controller/profile_controller.dart';
 
@@ -212,11 +213,17 @@ class _ProfileSetupIntroScreenState extends State<ProfileSetupIntroScreen> {
 
                           _buildProfileList(),
                           const SizedBox(height: 60),
-                          const Text(
-                            'Select to proceed',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.grey,
+                          InkWell(
+                            onTap: () {
+                              logout();
+                            },
+                            child:  const Text(
+                              'Logout',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: primaryColor,
+                              ),
                             ),
                           ),
                         ],

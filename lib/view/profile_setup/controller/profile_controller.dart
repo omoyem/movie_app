@@ -8,6 +8,7 @@ import 'package:godly_seed_app/constants/app_router.dart';
 import 'package:godly_seed_app/constants/color_palette.dart';
 import 'package:godly_seed_app/constants/endpoints.dart';
 import 'package:godly_seed_app/data/local/secure_storage_helper.dart';
+import 'package:godly_seed_app/utils/helpers.dart';
 import 'package:godly_seed_app/utils/httpClient_helper.dart';
 import 'package:godly_seed_app/view/bottom_nav/bottom_dart.dart';
 import 'package:http/http.dart' as http;
@@ -439,7 +440,7 @@ class ProfileController extends GetxController {
     }
     if(profile.value.name != null) {
       updateName(profile.value.name!);
-      updateScreenTime(profile.value.screenTime ?? '');
+      updateScreenTime(profile.value.screenTime ?? '3pm - 7pm');
     }
   }
 
@@ -449,6 +450,8 @@ class ProfileController extends GetxController {
 
   void _validateForm() {
     final name = profile.value.name!.trim();
+
+    logItem(name);
 
     if (profile.value.ageGroup == ProfileType.kids.toString()) {
       isFormValid.value = name.isNotEmpty &&
@@ -463,6 +466,8 @@ class ProfileController extends GetxController {
 
   Future<void> fetchUserProfiles({int retryCount = 0}) async {
     print('DEBUG: fetchUserProfiles called');
+    userProfiles.clear();
+    errorMessage("");
 
     if (userEmail == null || userEmail!.isEmpty) {
       _loadUserEmail();
@@ -517,6 +522,7 @@ class ProfileController extends GetxController {
       if (response.statusCode == 200) {
         final profileResponse = ProfileResponse.fromJson(responseBody);
 
+        logItem(profileResponse.responseCode);
         if (profileResponse.responseCode == 200) {
           userProfiles.value = profileResponse.data!;
           print('DEBUG: userProfiles updated, count=${userProfiles.length}');
@@ -528,11 +534,9 @@ class ProfileController extends GetxController {
             final profiles = responseBody['data'];
             await StorageService.saveProfiles(profiles);
           }
-        } else if (profileResponse.responseMessage != null &&
-            profileResponse.responseMessage!
-                .toLowerCase()
-                .contains('no profile found')) {
+        } else if (profileResponse.responseCode == 202) {
           userProfiles.clear();
+          errorMessage.value = "";
           print('DEBUG: No profiles found.');
         } else {
           errorMessage.value = profileResponse.responseMessage!;
@@ -560,6 +564,8 @@ class ProfileController extends GetxController {
 
   Future<void> saveProfile() async {
     print('DEBUG: saveProfile called');
+
+    _validateForm();
 
     if (!isFormValid.value) {
       print(
@@ -606,13 +612,17 @@ class ProfileController extends GetxController {
       isLoading.value = true;
       errorMessage.value = '';
 
+      logItem(profile.value.gender);
+
       final requestBody = {
         "user_id": userEmail!,
         "name": profile.value.name,
         "gender": profile.value.gender?.toString().split('.').last ?? "Male",
         "screen_time": profile.value.screenTime ?? "3pm-6pm",
-        "dob": profile.value.dob,
+        "dob": formatDateFromString(dateString: profile.value.dob!.toString().split(' ').first),
       };
+      
+      logItem(requestBody, title: "profile request");
 
       if (kDebugMode) {
         print('=== SAVE PROFILE ===');
@@ -713,6 +723,7 @@ class ProfileController extends GetxController {
 
   void updateName(String name) {
     profile.value = profile.value.copyWith(name: name);
+    logItem(name, title: "new namessss");
     _validateForm();
   }
 
@@ -726,6 +737,7 @@ class ProfileController extends GetxController {
   }
 
   void updateScreenTime(String screenTime) {
+    logItem(screenTime, title: "Title thingyssssss");
     profile.value = profile.value.copyWith(screenTime: screenTime);
     _validateForm();
   }

@@ -12,7 +12,10 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:godly_seed_app/constants/endpoints.dart';
 import 'package:godly_seed_app/data/local/secure_storage_helper.dart';
+import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+import '../view/login/screens/login_screen.dart';
 
 
 
@@ -40,8 +43,22 @@ double deviceWidth(BuildContext context) {
 logout() {
   LocalStorageHelper localStorageHelper = LocalStorageHelper();
  
-//  localStorageHelper.clearAll();
-  // Get.offAll(const LoginScreen());
+ localStorageHelper.clearAll();
+  Get.offAll( SignInScreen());
+}
+
+String specialFormatDate(DateTime date) {
+  final formatter = DateFormat('yyyy-MM-dd');
+  return formatter.format(date);
+}
+
+String formatDateFromString({
+  required String dateString
+}) {
+  final inputFormatter = DateFormat("yyyy-MM-dd");
+  final date = inputFormatter.parseStrict(dateString);
+  final outputFormatter = DateFormat('yyyy-MM-dd');
+  return outputFormatter.format(date);
 }
 
 logItem(dynamic item, {String? title = "Default Log Title"}) {

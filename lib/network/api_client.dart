@@ -27,11 +27,11 @@ class ApiClient extends GetConnect implements GetxService {
   }
 
 // POST METHOD
-  Future<Response> getRequest({
+  Future<http.Response> getRequest({
     required String url,
   }) async {
     try {
-      Response response;
+      http.Response response;
       // The below request is the same as above.
       var token = await localStorageHelper.retrieveItem(key: "token");
 
@@ -42,7 +42,19 @@ class ApiClient extends GetConnect implements GetxService {
         "Authorization": "Bearer $token",
         "Membership-code": "0000514121"
       };
-      response = await get(url, headers: _mainHeader);
+
+      final uri = Uri.parse(Endpoints.baseUrl + url);
+
+      final client =
+      IOClient(InsecureHttpClientHelper.createInsecureHttpClient());
+        response = await client.get(
+          uri,
+          headers: {
+            HttpHeaders.contentTypeHeader: 'application/json',
+            HttpHeaders.authorizationHeader: 'Bearer $token',
+          },
+        );
+
 
       if (response.statusCode == 401) {
         logout();

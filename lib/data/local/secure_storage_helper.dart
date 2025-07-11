@@ -1,8 +1,6 @@
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:godly_seed_app/data/models/user.dart';
 import 'package:godly_seed_app/view/login/models/login_response.dart';
 
 import '../../utils/helpers.dart';
@@ -11,11 +9,8 @@ import '../../view/profile_setup/model/profile_response.dart';
 class LocalStorageHelper {
   final storage = const FlutterSecureStorage();
     static const String _userKey = 'user';
-  static const String _accessTokenKey = 'access_token';
-  static const String _isRememberMeKey = 'isRememberMe';
-  static const String _isLoggedInKey = 'isLoggedIn';
+  static const String _accessTokenKey = 'token';
 
-  
   storeItem({required String key, required String value}) async {
     try {
       await storage
@@ -54,9 +49,6 @@ class LocalStorageHelper {
   }
   
 
-
-
-
   Future<Data?> getUser() async {
     try {
       var userString = await storage.read(key: "user");
@@ -89,7 +81,7 @@ class LocalStorageHelper {
 
   Future<String?> getAccessToken() async {
     try {
-      return await storage.read(key: "token");
+      return await storage.read(key: _accessTokenKey);
     } catch (e) {
       print("Error retrieving item: $e");
     }
@@ -105,7 +97,13 @@ class LocalStorageHelper {
     }
     return null;
   }
-
+  Future<void> clearAll() async {
+    try {
+      await storage.deleteAll();
+    } catch (e) {
+      logItem(e);
+    }
+  }
 
   static Future<void> clearTokens() async {}
 

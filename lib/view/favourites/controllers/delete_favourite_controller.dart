@@ -1,18 +1,11 @@
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:godly_seed_app/constants/endpoints.dart';
 import 'package:godly_seed_app/data/models/base_response.dart';
-import 'package:godly_seed_app/data/models/user.dart';
 import 'package:godly_seed_app/utils/helpers.dart';
-import 'package:godly_seed_app/utils/local_storage_service.dart';
-import 'package:godly_seed_app/view/login/models/forgot_password_request.dart';
-import 'package:godly_seed_app/view/login/models/forgot_password_request.dart';
-import 'package:godly_seed_app/view/login/models/login_request.dart';
 import 'package:godly_seed_app/view/login/models/login_response.dart';
-import 'package:godly_seed_app/view/profile_setup/screens/profile_setup_screen.dart';
 import 'package:godly_seed_app/view/sign_up/controller/signup_controller.dart';
 import 'package:http/http.dart' as http;
 
@@ -20,12 +13,11 @@ import '../../../data/local/secure_storage_helper.dart';
 import '../../../network/api_client.dart';
 import '../../movie/models/add_favourite_request.dart';
 import '../../profile_setup/model/profile_response.dart';
-import '../../sign_up/screens/otp_verification_screen.dart';
 import 'get_favourite_controller.dart';
 
 class DeleteFavouriteController extends GetxController {
 
-  GetFavouriteController _signupController = Get.put(GetFavouriteController());
+  final GetFavouriteController _getFavouritesController = Get.put(GetFavouriteController());
 
   ApiClient apiClient = ApiClient(appbaseurl: Endpoints.baseUrl);
   LocalStorageHelper _storageHelper = LocalStorageHelper();
@@ -75,6 +67,13 @@ class DeleteFavouriteController extends GetxController {
         userId: user.value.email,
         movieId:movieId
       );
+      var selectedFavouriteIndex = _getFavouritesController.favourites.indexWhere((element) => movieId == element.id);
+
+      var selectedFavourite = _getFavouritesController.favourites[selectedFavouriteIndex];
+
+      selectedFavourite.isLoading = true;
+
+      _getFavouritesController.favourites[selectedFavouriteIndex] = selectedFavourite;
 
       http.Response response = await apiClient.postRequest(url: Endpoints.deleteFavourite, data: request.toJson());
 
@@ -94,7 +93,7 @@ class DeleteFavouriteController extends GetxController {
           showSnackBar(title: "Success", message: responseMessage, type: "success");
         });
 
-        await _signupController.getFavourites();
+        await _getFavouritesController.getFavourites();
 
       } else {
         final responseMessage = result.responseMessage ?? 'Failed to send password reset link';
@@ -105,15 +104,15 @@ class DeleteFavouriteController extends GetxController {
 
       logItem(e.toString());
 
-      // _signupController.handleNetworkError(e, Endpoints.forgotPassword);
+      // _getFavouritesController.handleNetworkError(e, Endpoints.forgotPassword);
     } finally {
       isLoading.value = false;
     }
   }
 
   void toggleRememberMe(bool? value) {
-    _signupController.toggleRememberMe(value);
+    _getFavouritesController.toggleRememberMe(value);
   }
 
-  bool get isLoggedIn => _signupController.isLoggedIn;
+  bool get isLoggedIn => _getFavouritesController.isLoggedIn;
 }

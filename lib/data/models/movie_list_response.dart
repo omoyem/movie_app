@@ -148,7 +148,9 @@ class Movies {
       String? categoryId, 
       String? releaseDate, 
       String? uploadedAt, 
-      String? uploadedBy,}){
+      String? uploadedBy,
+      bool? isFavourite,
+  }){
     _id = id;
     _title = title;
     _description = description;
@@ -161,6 +163,7 @@ class Movies {
     _releaseDate = releaseDate;
     _uploadedAt = uploadedAt;
     _uploadedBy = uploadedBy;
+    _isFavourite = isFavourite;
 }
 
   Movies.fromJson(dynamic json) {
@@ -176,6 +179,7 @@ class Movies {
     _releaseDate = json['release_date'];
     _uploadedAt = json['uploaded_at'];
     _uploadedBy = json['uploaded_by'];
+    _isFavourite = json['is_favorite'];
   }
   String? _id;
   String? _title;
@@ -189,7 +193,14 @@ class Movies {
   String? _releaseDate;
   String? _uploadedAt;
   String? _uploadedBy;
-Movies copyWith({  String? id,
+  bool? _isFavourite;
+
+
+  set isFavourite(bool? value) {
+    _isFavourite = value;
+  }
+
+  Movies copyWith({  String? id,
   String? title,
   String? description,
   String? duration,
@@ -201,6 +212,7 @@ Movies copyWith({  String? id,
   String? releaseDate,
   String? uploadedAt,
   String? uploadedBy,
+  bool? isFavourite,
 }) => Movies(  id: id ?? _id,
   title: title ?? _title,
   description: description ?? _description,
@@ -213,6 +225,7 @@ Movies copyWith({  String? id,
   releaseDate: releaseDate ?? _releaseDate,
   uploadedAt: uploadedAt ?? _uploadedAt,
   uploadedBy: uploadedBy ?? _uploadedBy,
+  isFavourite: isFavourite ?? _isFavourite,
 );
   String? get id => _id;
   String? get title => _title;
@@ -226,6 +239,7 @@ Movies copyWith({  String? id,
   String? get releaseDate => _releaseDate;
   String? get uploadedAt => _uploadedAt;
   String? get uploadedBy => _uploadedBy;
+  bool? get isFavourite => _isFavourite;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
@@ -241,6 +255,7 @@ Movies copyWith({  String? id,
     map['release_date'] = _releaseDate;
     map['uploaded_at'] = _uploadedAt;
     map['uploaded_by'] = _uploadedBy;
+    map['is_favorite'] = _isFavourite;
     return map;
   }
 

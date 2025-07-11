@@ -17,6 +17,9 @@ import 'package:flutter/foundation.dart';
 import 'package:godly_seed_app/constants/endpoints.dart';
 
 import '../../profile_setup/model/profile_response.dart';
+import '../models/category_response.dart' as gf;
+import 'get_categories_controller.dart';
+
 
 class HomeController extends GetxController {
   final RxList<ml.Movies> featuredMovies = <ml.Movies>[].obs;
@@ -32,18 +35,14 @@ class HomeController extends GetxController {
   final RxBool isLoading = false.obs;
   final RxString errorMessage = ''.obs;
 
-  Rx<CategoryType> currentCategory = CategoryType(title: "", id: 0).obs;
+  Rx<gf.Data> currentCategory = gf.Data().obs;
 
   final RxString userId = ''.obs;
   final Rx<UserProfile> profile = UserProfile().obs;
   final Rx<Data> user = Data().obs;
 
-  List<CategoryType> categories = [
-    CategoryType(title: 'Movies', id: 1),
-    CategoryType(title: 'Cartoons', id: 2),
-    CategoryType(title: 'Bible Story', id: 3),
-    CategoryType(title: 'Talking Animals', id: 4)
-  ];
+  GetCategoriesController _categoriesController =
+  Get.put(GetCategoriesController());
 
   LocalStorageHelper _storageHelper = LocalStorageHelper();
 
@@ -70,6 +69,8 @@ class HomeController extends GetxController {
         // Get.offAllNamed(AppRouter.login);
         return;
       }
+
+      _categoriesController.getCategories();
 
       user.value = fetchedUser;
       profile.value = fetchedProfile; 

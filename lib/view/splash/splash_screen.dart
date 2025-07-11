@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:godly_seed_app/constants/app_router.dart';
 import 'package:godly_seed_app/constants/images.dart';
 import 'package:godly_seed_app/data/local/secure_storage_helper.dart';
+import 'package:godly_seed_app/utils/helpers.dart';
 import 'package:godly_seed_app/view/widgets/app_logo_widget.dart';
 import 'package:godly_seed_app/view/widgets/background_widget.dart';
 
@@ -17,8 +18,8 @@ class _SplashScreenState extends State<SplashScreen>
   late Animation<double> _fadeAnimation;
   late Animation<double> _scaleAnimation;
   final LocalStorageHelper _storageHelper = LocalStorageHelper();
-  
-  static const String _authTokenKey = 'auth_token';
+
+  static const String _authTokenKey = 'token';
   static const String _userIdKey = 'user_id';
   static const String _isLoggedInKey = 'is_logged_in';
 
@@ -26,7 +27,7 @@ class _SplashScreenState extends State<SplashScreen>
   void initState() {
     super.initState();
     _initializeAnimations();
-    _startAuthenticationCheck();
+    _validateTokenWithServer();
   }
 
   void _initializeAnimations() {
@@ -34,7 +35,7 @@ class _SplashScreenState extends State<SplashScreen>
       duration: Duration(seconds: 3),
       vsync: this,
     );
-    
+
     _fadeAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
@@ -42,7 +43,7 @@ class _SplashScreenState extends State<SplashScreen>
       parent: _controller,
       curve: Interval(0.0, 0.5, curve: Curves.easeIn),
     ));
-    
+
     _scaleAnimation = Tween<double>(
       begin: 0.5,
       end: 1.0,
@@ -50,55 +51,22 @@ class _SplashScreenState extends State<SplashScreen>
       parent: _controller,
       curve: Interval(0.3, 0.8, curve: Curves.elasticOut),
     ));
-    
+
     _controller.forward();
   }
 
-  void _startAuthenticationCheck() {
-    Future.delayed(Duration(seconds: 3), () async {
-      await _checkUserAuthentication();
-    });
-  }
 
-  Future<void> _checkUserAuthentication() async {
-    try {
-  
-      bool isLoggedIn = await _storageHelper.hasItem(key: _isLoggedInKey);
-      bool hasAuthToken = await _storageHelper.hasItem(key: _authTokenKey);
-      bool hasUserId = await _storageHelper.hasItem(key: _userIdKey);
-      
-    
-      String? loginStatus = await _storageHelper.retrieveItem(key: _isLoggedInKey);
-      bool isLoginStatusValid = loginStatus == 'true';
-      
-      bool userIsAuthenticated = hasAuthToken && hasUserId && isLoginStatusValid;
-      
-      if (userIsAuthenticated) {
-     
-        await _validateTokenWithServer();
-      } else {
-        _navigateToOnboarding();
-      }
-      
-    } catch (e) {
-      print("Error checking authentication: $e");
-    
-      _navigateToOnboarding();
-    }
-  }
 
   Future<void> _validateTokenWithServer() async {
     try {
       String? authToken = await _storageHelper.retrieveItem(key: _authTokenKey);
-      
+
       if (authToken != null) {
-  
         bool isTokenValid = await _performTokenValidation(authToken);
-        
+
         if (isTokenValid) {
-          _navigateToHome();
+          _navigateToSelectProfile();
         } else {
-      
           await _clearAuthenticationData();
           _navigateToOnboarding();
         }
@@ -113,8 +81,11 @@ class _SplashScreenState extends State<SplashScreen>
 
   Future<bool> _performTokenValidation(String token) async {
     try {
-      
-      return token.isNotEmpty;
+      var token = await LocalStorageHelper.getAccessTokenMain();
+
+      logItem(token, title: "User token thingys");
+
+      return token != null;
     } catch (e) {
       print("Token validation failed: $e");
       return false;
@@ -128,8 +99,11 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   void _navigateToHome() {
-    
-    AppRouter.toHome(); 
+    AppRouter.toHome();
+  }
+
+  void _navigateToSelectProfile() {
+    AppRouter.toProfile();
   }
 
   void _navigateToOnboarding() {
@@ -161,7 +135,6 @@ class _SplashScreenState extends State<SplashScreen>
                     children: [
                       AppLogoWidget(size: 200),
                       SizedBox(height: 24),
-                    
                     ],
                   ),
                 ),
