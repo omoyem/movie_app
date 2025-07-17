@@ -33,8 +33,9 @@ class _ProfileSetupIntroScreenState extends State<ProfileSetupIntroScreen> {
         _currentBg = (_currentBg + 1) % _backgrounds.length;
       });
     });
-    // Use the controller from Get.find (provided by binding)
-    Get.find<ProfileController>().loadAuthTokenAndFetchProfiles();
+    final controller = Get.find<ProfileController>();
+    controller.userProfiles.clear(); // Ensure fresh fetch
+    controller.loadAuthTokenAndFetchProfiles();
   }
 
   @override
@@ -152,7 +153,6 @@ class _ProfileSetupIntroScreenState extends State<ProfileSetupIntroScreen> {
         );
       }
 
-      // If there are profiles, show them and add card if allowed
       List<Widget> widgets = profiles
           .map((profile) => _buildExistingProfile(profile))
           .toList();

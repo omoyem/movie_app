@@ -46,6 +46,7 @@ dependencies:
   hive: ^2.2.3 # local database (SQFlite replacement)
   hive_flutter: ^1.1.0 # make it easy to use hive (no need for path provider)
 
+  encrypt: ^5.0.1 
  
   # Media Players
   rxdart: ^0.28.0
@@ -157,3 +158,4 @@ flutter:
     - family: BottomNavIcons
       fonts:
         - asset: assets/fonts/BottomNavIcons.ttf
+ 

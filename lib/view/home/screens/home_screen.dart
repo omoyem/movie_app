@@ -300,7 +300,7 @@ class HomeScreen extends GetView<HomeController> {
           child: Obx(() => ListView.builder(
                 scrollDirection: Axis.horizontal,
                 padding: EdgeInsets.only(left: 16),
-                itemCount: controller.continueWatching.length,
+                itemCount: controller.continueWatching.length > 5 ? 5 : controller.continueWatching.length,
                 itemBuilder: (context, index) {
                   final movie = controller.continueWatching[index];
                   return _buildMovieCard(movie: movie, showProgress: true);

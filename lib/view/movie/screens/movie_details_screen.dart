@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
+import 'package:godly_seed_app/constants/app_router.dart';
 import 'package:godly_seed_app/constants/color_palette.dart';
 import 'package:godly_seed_app/constants/endpoints.dart';
 import 'package:godly_seed_app/data/models/movie.dart';
@@ -12,6 +13,8 @@ import 'package:godly_seed_app/view/movie/controller/movie_controller.dart';
 import 'package:godly_seed_app/view/widgets/big_app_text.dart';
 
 import '../../../utils/helpers.dart';
+import 'package:godly_seed_app/view/downloads_screen/controller/downloads_controller.dart';
+
 
 class MovieDetailsScreen extends GetView<MovieController> {
   final AddFavouriteController addFavouriteController =
@@ -221,15 +224,43 @@ class MovieDetailsScreen extends GetView<MovieController> {
                 ),
           ),
           SizedBox(width: 12),
-          Container(
-            padding: EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: primaryColor,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(
-              Icons.download,
-              color: Colors.white,
+          GestureDetector(
+            onTap: () {
+              final movie = controller.currentMovie.value;
+              if (movie != null && movie.filePath != null && movie.filePath!.isNotEmpty) {
+                try {
+                  final downloadsController = Get.find<DownloadsController>();
+                  downloadsController.addDownload(
+                    title: movie.title ?? 'Untitled',
+                    videoUrl: movie.filePath!.startsWith('http')
+                        ? movie.filePath!
+                        : Endpoints.baseUrl + movie.filePath!,
+                    thumbnailUrl: movie.coverPhotoPath != null && movie.coverPhotoPath!.startsWith('http')
+                        ? movie.coverPhotoPath
+                        : Endpoints.imageBaseUrl + (movie.coverPhotoPath ?? ''),
+                    details: movie.duration ?? '',
+                  );
+                  Get.snackbar('Download', 'Download started for ${movie.title ?? 'video'}');
+                  AppRouter.toDownload();
+                } catch (e) {
+                
+                  AppRouter.toDownload();
+                }
+              } else {
+              
+                AppRouter.toDownload();
+              }
+            },
+            child: Container(
+              padding: EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: primaryColor,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(
+                Icons.download,
+                color: Colors.white,
+              ),
             ),
           ),
         ],
@@ -414,7 +445,7 @@ class MovieDetailsScreen extends GetView<MovieController> {
   Widget _buildSimilarMovieCard(MovieModel movie) {
     return GestureDetector(
       onTap: () {
-        // Navigate to MovieDetailsScreen with the selected movie's id and details
+       
         Get.to(
           () => MovieDetailsScreen(),
           arguments: Movies(
@@ -475,47 +506,5 @@ class MovieDetailsScreen extends GetView<MovieController> {
     );
   }
 
-  Widget _buildBottomNavigation() {
-    return Container(
-      height: 70,
-      decoration: BoxDecoration(
-        color: primaryColor,
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(20),
-          topRight: Radius.circular(20),
-        ),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _buildNavItem(Icons.home, 'Home', false),
-          _buildNavItem(Icons.search, 'Search', false),
-          _buildNavItem(Icons.games, 'Games', false),
-          _buildNavItem(Icons.download, 'Downloads', false),
-          _buildNavItem(Icons.list, 'My List', false),
-        ],
-      ),
-    );
-  }
 
-  Widget _buildNavItem(IconData icon, String label, bool isSelected) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(
-          icon,
-          color: isSelected ? Colors.white : Colors.white70,
-          size: 24,
-        ),
-        SizedBox(height: 4),
-        Text(
-          label,
-          style: TextStyle(
-            color: isSelected ? Colors.white : Colors.white70,
-            fontSize: 10,
-          ),
-        ),
-      ],
-    );
-  }
 }

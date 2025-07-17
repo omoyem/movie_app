@@ -10,22 +10,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="be5037f8-8eed-40e7-8087-92ce1d406a93" name="Changes" comment="Favourite movies and app stable">
-      <change afterPath="$PROJECT_DIR$/lib/data/models/search.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/view/search/bindings/search_binding.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/view/search/controller/search_controller.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/view/search/screen/search_movies_screen.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/constants/app_router.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/constants/app_router.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/constants/endpoints.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/constants/endpoints.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/view/home/screens/home_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/view/home/screens/home_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.metadata" beforeDir="false" afterPath="$PROJECT_DIR$/.metadata" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/view/home/controller/home_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/view/home/controller/home_controller.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/view/movie/controller/movie_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/view/movie/controller/movie_controller.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/view/movie/screens/movie_details_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/view/movie/screens/movie_details_screen.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/view/movie/screens/play_movie.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/view/movie/screens/play_movie.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/view/profile_setup/controller/profile_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/view/profile_setup/controller/profile_controller.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/view/profile_setup/screens/profile_selection_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/view/profile_setup/screens/profile_selection_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/view/profile_setup/screens/profile_setup_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/view/profile_setup/screens/profile_setup_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/view/sign_up/controller/signup_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/view/sign_up/controller/signup_controller.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -67,7 +56,6 @@
   &quot;associatedIndex&quot;: 2
 }</component>
   <component name="ProjectId" id="2zP58g0udi152RTSn55G9C0PXls" />
-  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
     <navigator currentView="ProjectPane" proportions="" version="1" />
     <panes>
@@ -82,17 +70,19 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "Flutter.main.dart.executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.cidr.known.project.marker": "true",
+    "RunOnceActivity.git.unshallow": "true",
     "RunOnceActivity.readMode.enableVisualFormatting": "true",
     "cf.first.check.clang-format": "false",
     "cidr.known.project.marker": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "Merging main",
+    "git-widget-placeholder": "main",
     "io.flutter.reload.alreadyRun": "true",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "/Users/test/AndroidStudioProjects/godly_seed_app/lib/utils",
-    "settings.editor.selected.configurable": "flutter.settings",
+    "settings.editor.selected.configurable": "dart.settings",
     "show.migrate.to.gradle.popup": "false",
     "structure.view.defaults.are.configured": "true"
   }

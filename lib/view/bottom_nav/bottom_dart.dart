@@ -2,6 +2,8 @@ import 'package:awesome_bottom_bar/awesome_bottom_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
+import 'package:godly_seed_app/view/downloads_screen/screen/downloads_screen.dart';
+import 'package:godly_seed_app/view/settings/screen/settings_screen.dart';
 
 import '../../constants/color_palette.dart';
 import '../favourites/screen/favourites_screen.dart';
@@ -23,16 +25,16 @@ class _BottomNavState extends State<BottomNav> {
       title: 'Home',
     ),
     const TabItem(
-      icon: Icons.search,
-      title: 'Search',
-    ),
-    const TabItem(
       icon: Icons.download,
       title: 'Downloads',
     ),
     const TabItem(
       icon: Icons.list,
       title: 'My List',
+    ),
+    const TabItem(
+      icon: Icons.settings,
+      title: 'Settings',
     ),
   ];
 
@@ -49,9 +51,9 @@ class _BottomNavState extends State<BottomNav> {
 
   List<Widget> pages = [
     HomeScreen(),
-    HomeScreen(),
-    HomeScreen(),
+    DownloadsScreen(),
     FavouritesScreen(),
+    SettingsScreen(),
   ];
 
   @override

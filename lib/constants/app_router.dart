@@ -42,6 +42,7 @@ class AppRouter {
   static const String movie = '/movie';
   static const String movieDetails = '/movieDetails';
   static const String searchMovies = '/search';
+  static const String downloads = '/downloads';
 
 
   static List<GetPage> routes = [
@@ -142,7 +143,13 @@ class AppRouter {
       transitionDuration: Duration(milliseconds: 300),
       binding: SearchBinding(),
     ),
-    
+    GetPage(
+      name: searchMovies,
+      page: () => SearchMoviesScreen(),
+      transition: Transition.leftToRight,
+      transitionDuration: Duration(milliseconds: 300),
+      binding: SearchBinding(),
+    ),
   ];
 
   static void toOnboarding() => Get.offNamed(onboarding);
@@ -156,7 +163,7 @@ class AppRouter {
   static void toSearch() => Get.toNamed(searchMovies);
   static void toGetStarted() => Get.toNamed(getStarted);
   static void toOtpAuth() => Get.toNamed(otpVerification);
-
+  static void toDownload() => Get.toNamed(downloads);
 
 
 }

@@ -2,17 +2,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:godly_seed_app/constants/app_router.dart';
 import 'package:godly_seed_app/data/local/secure_storage_helper.dart';
-import 'package:godly_seed_app/data/models/movie.dart';
 import 'package:godly_seed_app/data/models/movie_list_response.dart' as ml;
 import 'package:godly_seed_app/network/api_client.dart';
 import 'package:godly_seed_app/utils/helpers.dart';
-import 'package:godly_seed_app/utils/httpClient_helper.dart';
 import 'package:godly_seed_app/view/home/movie_request.dart';
-import 'package:godly_seed_app/view/home/screens/home_screen.dart';
 import 'package:godly_seed_app/view/login/models/login_response.dart';
 import 'dart:convert';
-import 'dart:io';
-import 'package:http/io_client.dart';
 import 'package:flutter/foundation.dart';
 import 'package:godly_seed_app/constants/endpoints.dart';
 
@@ -76,6 +71,7 @@ class HomeController extends GetxController {
       profile.value = fetchedProfile; 
       username.value = profile.value.name ?? '';
       await loadMoviesFromApi();
+      await loadContinueWatchingFromApi();
     });
 
 
@@ -126,13 +122,12 @@ class HomeController extends GetxController {
           
           featuredMovies.value = movies.take(5).toList();
 
-
+          // Show at least 5 top movies if available
           topMovies.value = movies.length > 5
-              ? movies.skip(5).toList()
+              ? movies.skip(5).take(5).toList()
               : movies;
-          
-        
-          continueWatching.value = movies.take(3).toList();
+
+          // continueWatching.value = movies.take(3).toList(); 
         }
       } else {
         isLoading.value = false;
@@ -149,53 +144,41 @@ class HomeController extends GetxController {
     }
   }
 
-  Future<MoviesResponse> _getMoviesFromApi({
-    required String userId,
-    required String profileId,
-    int page = 1,
-    int perPage = 10,
-  }) async {
-    final token = await _storageHelper.getAccessToken();
-    if (token == null || token.isEmpty) {
-      throw Exception('Token not found');
-    }
-    myToken.value = token;
-
-    final requestBody = {
-      "user_id": userId,
-      "profile_id": profileId,
-      "page": page,
-      "per_page": perPage,
-    };
-
-    logItem(requestBody, title: "We are here ooooooooooiiiii");
-
-    final uri = Uri.parse(Endpoints.baseUrl + Endpoints.getMovies);
-
-
-    // final uri = Uri.parse(Endpoints.baseUrl + Endpoints.getMovies);
-    final client = IOClient(InsecureHttpClientHelper.createInsecureHttpClient());
+  Future<void> loadContinueWatchingFromApi() async {
     try {
-      final response = await client.get(
-        uri,
-        headers: {
-          HttpHeaders.contentTypeHeader: 'application/json',
-          HttpHeaders.authorizationHeader: 'Bearer $token',
-        },
+      isLoading.value = true;
+      errorMessage.value = '';
+
+      final requestBody = {
+        'user_id': user.value.email,
+        'profile_id': profile.value.id,
+      };
+
+      final response = await apiClient.postRequest(
+        url: Endpoints.continueWatching,
+        data: requestBody,
       );
 
-      if (response.statusCode == 200) {
-        final jsonData = json.decode(response.body);
-        return MoviesResponse.fromJson(jsonData);
+      isLoading.value = false;
+
+      final decoded = json.decode(response.body);
+      if (decoded['response_code'] == 200 && decoded['data'] != null) {
+        continueWatching.value = List<ml.Movies>.from(
+          (decoded['data'] as List).map((item) => ml.Movies.fromJson(item)),
+        );
       } else {
-        throw Exception('Failed to load movies: \\${response.statusCode} - \\${response.body}');
+        throw Exception(decoded['response_message'] ?? 'Unknown error');
       }
     } catch (e) {
-      throw Exception('Error fetching movies: $e');
+      isLoading.value = false;
+      print('Error loading continue watching from API: $e');
+      errorMessage.value = 'Failed to load continue watching: ${e.toString()}';
+      continueWatching.clear();
     } finally {
-      client.close();
+      isLoading.value = false;
     }
   }
+
 
   void loadFallbackMovies() {
  
