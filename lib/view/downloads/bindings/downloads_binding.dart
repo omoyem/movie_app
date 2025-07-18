@@ -1,9 +1,7 @@
 import 'package:get/get.dart';
-import 'package:godly_seed_app/view/downloads_screen/controller/downloads_controller.dart';
+import 'package:godly_seed_app/view/downloads/controller/downloads_controller.dart';
 
-
-
-class SearchBinding extends Bindings {
+class DownloadsBinding extends Bindings {
   @override
   void dependencies() {
     Get.lazyPut<DownloadsController>(() => DownloadsController());

@@ -115,10 +115,11 @@ class _SignupScreenState extends State<SignupScreen> {
                   prefixIcon: Icons.lock,
                   isPassword: true,
                   validator: (value) {
-                    if (value?.isEmpty ?? true) {
+                    final trimmed = value?.trim() ?? '';
+                    if (trimmed.isEmpty) {
                       return 'Please enter your password';
                     }
-                    if (value!.length < 6) {
+                    if (trimmed.length < 6) {
                       return 'Password must be at least 6 characters';
                     }
                     return null;
@@ -133,10 +134,11 @@ class _SignupScreenState extends State<SignupScreen> {
                   prefixIcon: Icons.lock_outline,
                   isPassword: true,
                   validator: (value) {
-                    if (value?.isEmpty ?? true) {
+                    final trimmed = value?.trim() ?? '';
+                    if (trimmed.isEmpty) {
                       return 'Please confirm your password';
                     }
-                    if (value != _passwordController.text) {
+                    if (trimmed != _passwordController.text.trim()) {
                       return 'Passwords do not match';
                     }
                     return null;
@@ -224,26 +226,32 @@ class _SignupScreenState extends State<SignupScreen> {
       try {
         print('Starting signup process...'); 
         
-        final result = await _signupController.register(
+        final response = await _signupController.register(
           fullName: _nameController.text.trim(),
           email: _emailController.text.trim(),
-          password: _passwordController.text,
-          passwordConfirmation: _confirmPasswordController.text,
+          password: _passwordController.text.trim(),
+          passwordConfirmation: _confirmPasswordController.text.trim(),
         );
         
-        print('Signup result: $result'); 
+        print('Signup response: $response'); 
         
-     
-        if (result) {
-       Get.off(
-          () => SignInScreen(),
-        
-        );
-     
+        if (response is Map<String, dynamic> &&
+            response['response_code'] == 0 &&
+            response['response_message'] == 'User Created Successfully') {
+          Get.off(() => SignInScreen());
           Get.snackbar(
             'Success',
             'Account created successfully! Please login.',
             backgroundColor: Colors.green,
+            colorText: Colors.white,
+          );
+        } else {
+          Get.snackbar(
+            'Error',
+            response is Map<String, dynamic>
+                ? (response['response_message'] ?? 'Failed to create account. Please try again.')
+                : 'Failed to create account. Please try again.',
+            backgroundColor: Colors.red,
             colorText: Colors.white,
           );
         }

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io' show Platform;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -11,10 +12,11 @@ import 'package:godly_seed_app/data/models/movie_list_response.dart';
 import 'package:godly_seed_app/view/movie/controller/add_favourite_controller.dart';
 import 'package:godly_seed_app/view/movie/controller/movie_controller.dart';
 import 'package:godly_seed_app/view/widgets/big_app_text.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 
 import '../../../utils/helpers.dart';
-import 'package:godly_seed_app/view/downloads_screen/controller/downloads_controller.dart';
-
+import 'package:godly_seed_app/view/downloads/controller/downloads_controller.dart';
 
 class MovieDetailsScreen extends GetView<MovieController> {
   final AddFavouriteController addFavouriteController =
@@ -95,7 +97,9 @@ class MovieDetailsScreen extends GetView<MovieController> {
                     Icons.play_arrow,
                     size: 32,
                   ),
-                  onPressed: () {},
+                  onPressed: () {
+                    controller.playMovie();
+                  },
                   color: Colors.black,
                 ),
               ),
@@ -190,69 +194,40 @@ class MovieDetailsScreen extends GetView<MovieController> {
           SizedBox(width: 12),
           Expanded(
             child: OutlinedButton(
-                  onPressed: () => addFavouriteController.addToFavourite(
-                      controller.currentMovie.value!.id!.toString()),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.grey[700],
-                    padding: EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: Obx(() => Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        addFavouriteController.isLoading.value
-                            ? const SpinKitCircle(
-                                color: primaryColor,
-                                size: 25,
-                              )
-                            : Icon(controller.currentMovie.value!.isFavourite ?? false
-                                ? Icons.check
-                                : Icons.add),
-                        SizedBox(width: 8),
-                        Row(
-                          children: [
-                            Text(addFavouriteController.isLoading.value
-                                ? 'Adding...'
-                                : 'My List')
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
+              onPressed: () => addFavouriteController.addToFavourite(
+                  controller.currentMovie.value!.id!.toString()),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: Colors.grey[700],
+                padding: EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
                 ),
+              ),
+              child: Obx(() => Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      addFavouriteController.isLoading.value
+                          ? const SpinKitCircle(
+                              color: primaryColor,
+                              size: 25,
+                            )
+                          : Icon(controller.currentMovie.value!.isFavourite ?? false
+                              ? Icons.check
+                              : Icons.add),
+                      SizedBox(width: 8),
+                      Text(addFavouriteController.isLoading.value
+                          ? 'Adding...'
+                          : 'My List'),
+                    ],
+                  ),
+              ),
+            ),
           ),
           SizedBox(width: 12),
           GestureDetector(
-            onTap: () {
-              final movie = controller.currentMovie.value;
-              if (movie != null && movie.filePath != null && movie.filePath!.isNotEmpty) {
-                try {
-                  final downloadsController = Get.find<DownloadsController>();
-                  downloadsController.addDownload(
-                    title: movie.title ?? 'Untitled',
-                    videoUrl: movie.filePath!.startsWith('http')
-                        ? movie.filePath!
-                        : Endpoints.baseUrl + movie.filePath!,
-                    thumbnailUrl: movie.coverPhotoPath != null && movie.coverPhotoPath!.startsWith('http')
-                        ? movie.coverPhotoPath
-                        : Endpoints.imageBaseUrl + (movie.coverPhotoPath ?? ''),
-                    details: movie.duration ?? '',
-                  );
-                  Get.snackbar('Download', 'Download started for ${movie.title ?? 'video'}');
-                  AppRouter.toDownload();
-                } catch (e) {
-                
-                  AppRouter.toDownload();
-                }
-              } else {
-              
-                AppRouter.toDownload();
-              }
-            },
+            onTap: _handleDownload,
             child: Container(
-              padding: EdgeInsets.all(8),
+              padding: EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: primaryColor,
                 borderRadius: BorderRadius.circular(8),
@@ -260,11 +235,211 @@ class MovieDetailsScreen extends GetView<MovieController> {
               child: Icon(
                 Icons.download,
                 color: Colors.white,
+                size: 24,
               ),
             ),
           ),
         ],
       ),
+    );
+  }
+
+  /// Enhanced download handler with comprehensive permission management
+  Future<void> _handleDownload() async {
+    final movie = controller.currentMovie.value;
+    if (movie == null) {
+      _showErrorSnackbar('Movie not found');
+      return;
+    }
+
+    try {
+      bool permissionGranted = true;
+      if (Platform.isAndroid) {
+        final androidInfo = await DeviceInfoPlugin().androidInfo;
+        print('[DEBUG] Android SDK version:  [${androidInfo.version.sdkInt}]');
+        if (androidInfo.version.sdkInt >= 33) {
+          // Android 13+
+          PermissionStatus videoStatus = await Permission.videos.status;
+          print('[DEBUG] Permission.videos status:  [${videoStatus}]');
+          if (!videoStatus.isGranted) {
+            videoStatus = await Permission.videos.request();
+            print('[DEBUG] Permission.videos request result:  [${videoStatus}]');
+          }
+          permissionGranted = videoStatus.isGranted;
+        } else {
+          // Android 12 and below
+          PermissionStatus storageStatus = await Permission.storage.status;
+          print('[DEBUG] Permission.storage status:  [${storageStatus}]');
+          if (!storageStatus.isGranted) {
+            storageStatus = await Permission.storage.request();
+            print('[DEBUG] Permission.storage request result:  [${storageStatus}]');
+          }
+          permissionGranted = storageStatus.isGranted;
+        }
+      } else {
+        print('[DEBUG] Not Android, permission granted by default.');
+      }
+      if (!permissionGranted) {
+        _showWarningSnackbar('Storage permission denied. Download cancelled.');
+        _navigateToDownloadScreen();
+        return;
+      }
+      _showInfoSnackbar('Permission granted! Starting download...');
+      await _proceedWithDownload(movie);
+    } catch (e) {
+      _showErrorSnackbar('Permission error: ${e.toString()}');
+      _navigateToDownloadScreen();
+    }
+  }
+
+  /// Process the actual download after permission is granted
+  Future<void> _proceedWithDownload(Movies movie) async {
+    try {
+      // Validate movie file path
+      if (movie.filePath == null || movie.filePath!.isEmpty) {
+        _showErrorSnackbar('No download link available for this movie');
+        _navigateToDownloadScreen();
+        return;
+      }
+
+      // Get downloads controller
+      final downloadsController = Get.find<DownloadsController>();
+      
+      // Prepare download URLs
+      final videoUrl = movie.filePath!.startsWith('http')
+          ? movie.filePath!
+          : Endpoints.baseUrl + movie.filePath!;
+          
+      final thumbnailUrl = movie.coverPhotoPath != null
+          ? (movie.coverPhotoPath!.startsWith('http')
+              ? movie.coverPhotoPath!
+              : Endpoints.imageBaseUrl + movie.coverPhotoPath!)
+          : null;
+
+      // Start download
+      await downloadsController.addDownload(
+        title: movie.title ?? 'Untitled Movie',
+        videoUrl: videoUrl,
+        thumbnailUrl: thumbnailUrl,
+        details: movie.duration ?? 'Unknown duration',
+      );
+
+      // Show success message
+      _showSuccessSnackbar('Download started for "${movie.title ?? 'video'}"');
+      
+      // Navigate to download screen
+      _navigateToDownloadScreen();
+      
+    } catch (e) {
+      _showErrorSnackbar('Failed to start download: ${e.toString()}');
+      _navigateToDownloadScreen();
+    }
+  }
+
+  /// Show permission dialog for permanently denied permission
+  void _showPermissionDialog() {
+    Get.dialog(
+      AlertDialog(
+        title: Row(
+          children: [
+            Icon(Icons.warning, color: Colors.orange),
+            SizedBox(width: 8),
+            Text('Permission Required'),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Storage permission is required to download movies.'),
+            SizedBox(height: 8),
+            Text('Please enable it in app settings to continue downloading.'),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Get.back();
+              _navigateToDownloadScreen();
+            },
+            child: Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Get.back();
+              await openAppSettings();
+              _navigateToDownloadScreen();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: primaryColor,
+              foregroundColor: Colors.white,
+            ),
+            child: Text('Open Settings'),
+          ),
+        ],
+      ),
+      barrierDismissible: false,
+    );
+  }
+
+  /// Navigate to download screen
+  void _navigateToDownloadScreen() {
+    try {
+      AppRouter.toDownload();
+    } catch (e) {
+      debugPrint('Navigation error: $e');
+    }
+  }
+
+  /// Show success snackbar
+  void _showSuccessSnackbar(String message) {
+    Get.snackbar(
+      'Success',
+      message,
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.green,
+      colorText: Colors.white,
+      duration: Duration(seconds: 3),
+      icon: Icon(Icons.check_circle, color: Colors.white),
+    );
+  }
+
+  /// Show error snackbar
+  void _showErrorSnackbar(String message) {
+    Get.snackbar(
+      'Error',
+      message,
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.red,
+      colorText: Colors.white,
+      duration: Duration(seconds: 3),
+      icon: Icon(Icons.error, color: Colors.white),
+    );
+  }
+
+  /// Show warning snackbar
+  void _showWarningSnackbar(String message) {
+    Get.snackbar(
+      'Warning',
+      message,
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.orange,
+      colorText: Colors.white,
+      duration: Duration(seconds: 3),
+      icon: Icon(Icons.warning, color: Colors.white),
+    );
+  }
+
+  /// Show info snackbar
+  void _showInfoSnackbar(String message) {
+    Get.snackbar(
+      'Info',
+      message,
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: primaryColor,
+      colorText: Colors.white,
+      duration: Duration(seconds: 2),
+      icon: Icon(Icons.info, color: Colors.white),
     );
   }
 
@@ -395,10 +570,13 @@ class MovieDetailsScreen extends GetView<MovieController> {
               ],
             ),
           ),
-          Icon(
-            Icons.download,
-            color: Colors.grey[400],
-            size: 20,
+          GestureDetector(
+            onTap: () => _handleDownload(),
+            child: Icon(
+              Icons.download,
+              color: Colors.grey[400],
+              size: 20,
+            ),
           ),
         ],
       ),
@@ -445,24 +623,23 @@ class MovieDetailsScreen extends GetView<MovieController> {
   Widget _buildSimilarMovieCard(MovieModel movie) {
     return GestureDetector(
       onTap: () {
-       
-        Get.to(
-          () => MovieDetailsScreen(),
-          arguments: Movies(
-            id: movie.id.toString(),
-            title: movie.title,
-            description: movie.description,
-            duration: '',
-            filePath: movie.fileUrl,
-            coverPhotoPath: movie.imageUrl,
-            tags: jsonEncode(movie.categories.map((e) => {'value': e}).toList()),
-            ageGroup: '',
-            categoryId: '',
-            releaseDate: movie.year,
-            uploadedAt: '',
-            uploadedBy: '',
-          ),
+        // Update current movie and navigate
+        controller.currentMovie.value = Movies(
+          id: movie.id.toString(),
+          title: movie.title,
+          description: movie.description,
+          duration: '',
+          filePath: movie.fileUrl,
+          coverPhotoPath: movie.imageUrl,
+          tags: jsonEncode(movie.categories.map((e) => {'value': e}).toList()),
+          ageGroup: '',
+          categoryId: '',
+          releaseDate: movie.year,
+          uploadedAt: '',
+          uploadedBy: '',
         );
+        
+        Get.to(() => MovieDetailsScreen());
       },
       child: Container(
         decoration: BoxDecoration(
@@ -505,6 +682,4 @@ class MovieDetailsScreen extends GetView<MovieController> {
       ),
     );
   }
-
-
 }

@@ -2,6 +2,8 @@ import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/get_navigation.dart';
 import 'package:get/get_navigation/src/routes/get_route.dart';
 import 'package:get/get_navigation/src/routes/transitions_type.dart';
+import 'package:godly_seed_app/view/downloads/bindings/downloads_binding.dart';
+import 'package:godly_seed_app/view/downloads/screen/downloads_screen.dart';
 import 'package:godly_seed_app/view/favourites/screen/favourites_screen.dart';
 import 'package:godly_seed_app/view/home/binding/home_binding.dart';
 import 'package:godly_seed_app/view/home/screens/home_screen.dart';
@@ -144,11 +146,11 @@ class AppRouter {
       binding: SearchBinding(),
     ),
     GetPage(
-      name: searchMovies,
-      page: () => SearchMoviesScreen(),
+      name: downloads,
+      page: () => DownloadsScreen(),
       transition: Transition.leftToRight,
       transitionDuration: Duration(milliseconds: 300),
-      binding: SearchBinding(),
+      binding: DownloadsBinding(),
     ),
   ];
 

@@ -6,7 +6,6 @@ import 'package:godly_seed_app/constants/images.dart';
 import 'package:godly_seed_app/view/reset_password/screen/reset_password_screen.dart';
 import 'package:godly_seed_app/view/sign_up/controller/signup_controller.dart';
 import 'package:godly_seed_app/view/sign_up/screens/signup_screen.dart';
-import 'package:godly_seed_app/view/widgets/app_logo_widget.dart';
 import 'package:godly_seed_app/view/widgets/background_widget.dart';
 import 'package:godly_seed_app/view/widgets/custom_button.dart';
 
@@ -27,7 +26,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   final SignupController _signupController = Get.find<SignupController>();
 
   Timer? _timer;
-  int _remainingTime = 300;
+  int _remainingTime = 100;
   bool _canResend = false;
 
   var argumentData = Get.arguments;
