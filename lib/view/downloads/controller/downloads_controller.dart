@@ -114,7 +114,7 @@ class DownloadsController extends GetxController {
       final androidInfo = await DeviceInfoPlugin().androidInfo;
       print('[DEBUG] Android SDK version:  [${androidInfo.version.sdkInt}]');
       if (androidInfo.version.sdkInt >= 33) {
-        // Android 13+ (API 33+)
+      
         final videoStatus = await Permission.videos.status;
         print('[DEBUG] Permission.videos status:  [${videoStatus}]');
         if (!videoStatus.isGranted) {
@@ -159,8 +159,6 @@ class DownloadsController extends GetxController {
       print('Download system not ready');
       return;
     }
-
-    // Check if already downloading or downloaded
     if (downloads.any((d) => d.title == title && 
         (d.status == DownloadStatus.inProgress || d.status == DownloadStatus.completed))) {
       errorMessage.value = 'This movie is already downloaded or downloading.';
@@ -193,7 +191,6 @@ class DownloadsController extends GetxController {
       downloads.insert(0, downloadItem);
       await _saveDownloadsToHive();
 
-      // Create cancel token for this download
       final cancelToken = CancelToken();
       _activeDowloads[title] = cancelToken;
 
@@ -231,7 +228,6 @@ class DownloadsController extends GetxController {
     required CancelToken cancelToken,
   }) async {
     try {
-      // Download to temporary file first
       await Dio().download(
         videoUrl,
         tempFilePath,
@@ -249,7 +245,7 @@ class DownloadsController extends GetxController {
       );
 
       if (cancelToken.isCancelled) {
-        // Clean up temp file if download was cancelled
+      
         final tempFile = File(tempFilePath);
         if (await tempFile.exists()) {
           await tempFile.delete();
@@ -259,22 +255,20 @@ class DownloadsController extends GetxController {
 
       print('Download completed for: ${downloadItem.title}. Starting encryption...');
 
-      // Encrypt the downloaded file
       final encryptedFilePath = await EncrptionService.encryptFile(tempFilePath);
       
-      // Move encrypted file to final location
+     
       final encryptedFile = File(encryptedFilePath);
       if (await encryptedFile.exists()) {
         await encryptedFile.rename(finalFilePath);
       }
 
-      // Clean up temporary file
+ 
       final tempFile = File(tempFilePath);
       if (await tempFile.exists()) {
         await tempFile.delete();
       }
 
-      // Update download status
       final index = downloads.indexWhere((d) => d.title == downloadItem.title);
       if (index != -1) {
         downloads[index] = downloads[index].copyWith(
@@ -289,7 +283,7 @@ class DownloadsController extends GetxController {
       
     } catch (e) {
       if (!cancelToken.isCancelled) {
-        // Clean up any files created during failed download
+      
         await _cleanupFailedDownload(tempFilePath, finalFilePath);
         rethrow;
       }
@@ -322,7 +316,7 @@ class DownloadsController extends GetxController {
     if (index != -1) {
       final item = downloads[index];
       if (item.status == DownloadStatus.inProgress) {
-        // Clean up any downloaded files
+      
         if (item.filePath != null) {
           final file = File(item.filePath!);
           if (await file.exists()) {
@@ -338,14 +332,13 @@ class DownloadsController extends GetxController {
 
   Future<void> retryDownload(DownloadItem item) async {
     if (item.status == DownloadStatus.failed) {
-      // Remove the failed download
+     
       downloads.removeWhere((d) => d.title == item.title);
       await _saveDownloadsToHive();
-      
-      // Start fresh download
+     
       await addDownload(
         title: item.title,
-        videoUrl: '', // You'll need to store the original URL or pass it
+        videoUrl: '', 
         thumbnailUrl: item.thumbnailUrl,
         details: item.details,
       );
@@ -354,7 +347,7 @@ class DownloadsController extends GetxController {
 
   Future<void> deleteDownload(DownloadItem item) async {
     try {
-      // Delete the physical file
+     
       if (item.filePath != null) {
         final file = File(item.filePath!);
         if (await file.exists()) {
@@ -362,7 +355,6 @@ class DownloadsController extends GetxController {
         }
       }
 
-      // Remove from list and database
       downloads.removeWhere((d) => d.title == item.title);
       await _saveDownloadsToHive();
       
@@ -382,7 +374,7 @@ class DownloadsController extends GetxController {
     }
   }
 
-  // Get total download size
+
   Future<int> getTotalDownloadSize() async {
     int totalSize = 0;
     for (var item in downloads) {
@@ -396,10 +388,10 @@ class DownloadsController extends GetxController {
     return totalSize;
   }
 
-  // Clear all downloads
+  
   Future<void> clearAllDownloads() async {
     try {
-      // Delete all files
+      
       for (var item in downloads) {
         if (item.filePath != null) {
           final file = File(item.filePath!);
@@ -409,7 +401,7 @@ class DownloadsController extends GetxController {
         }
       }
 
-      // Clear from memory and database
+     
       downloads.clear();
       await downloadsBox.clear();
       
@@ -422,7 +414,7 @@ class DownloadsController extends GetxController {
 
   @override
   void onClose() {
-    // Cancel all active downloads
+   
     for (var cancelToken in _activeDowloads.values) {
       if (!cancelToken.isCancelled) {
         cancelToken.cancel('App closing');

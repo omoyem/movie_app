@@ -13,6 +13,7 @@ import '../screens/play_movie.dart';
 class MovieController extends GetxController {
   final Rx<Movies?> currentMovie = Rx<Movies?>(null);
   final RxList<MovieModel> similarMovies = <MovieModel>[].obs;
+  final RxString similarMoviesMessage = ''.obs;
   final RxBool isInMyList = false.obs;
 
   ApiClient apiClient = ApiClient(appbaseurl: Endpoints.baseUrl);
@@ -66,14 +67,18 @@ class MovieController extends GetxController {
               })
               .toList();
           similarMovies.value = fetched;
+          similarMoviesMessage.value = '';
         } else {
           similarMovies.clear();
+          similarMoviesMessage.value = data['response_message'] ?? 'No similar movies found.';
         }
       } else {
         similarMovies.clear();
+        similarMoviesMessage.value = 'No similar movies found.';
       }
     } catch (e) {
       similarMovies.clear();
+      similarMoviesMessage.value = 'No similar movies found.';
       print('Error loading similar movies: ' + e.toString());
     }
   }

@@ -3,7 +3,7 @@ import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:path/path.dart' as path;
 
 class EncrptionService {
-  // Use a fixed key/iv for demo. In production, store securely!
+
   static final _key = encrypt.Key.fromUtf8('my32lengthsupersecretnooneknows1'); // 32 chars
   static final _iv = encrypt.IV.fromLength(16);
 

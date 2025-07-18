@@ -22,6 +22,8 @@ class MovieDetailsScreen extends GetView<MovieController> {
   final AddFavouriteController addFavouriteController =
       Get.put(AddFavouriteController());
 
+  final DownloadsController downloadsController = Get.put(DownloadsController());
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -244,7 +246,6 @@ class MovieDetailsScreen extends GetView<MovieController> {
     );
   }
 
-  /// Enhanced download handler with comprehensive permission management
   Future<void> _handleDownload() async {
     final movie = controller.currentMovie.value;
     if (movie == null) {
@@ -258,7 +259,7 @@ class MovieDetailsScreen extends GetView<MovieController> {
         final androidInfo = await DeviceInfoPlugin().androidInfo;
         print('[DEBUG] Android SDK version:  [${androidInfo.version.sdkInt}]');
         if (androidInfo.version.sdkInt >= 33) {
-          // Android 13+
+        
           PermissionStatus videoStatus = await Permission.videos.status;
           print('[DEBUG] Permission.videos status:  [${videoStatus}]');
           if (!videoStatus.isGranted) {
@@ -267,7 +268,7 @@ class MovieDetailsScreen extends GetView<MovieController> {
           }
           permissionGranted = videoStatus.isGranted;
         } else {
-          // Android 12 and below
+         
           PermissionStatus storageStatus = await Permission.storage.status;
           print('[DEBUG] Permission.storage status:  [${storageStatus}]');
           if (!storageStatus.isGranted) {
@@ -290,22 +291,17 @@ class MovieDetailsScreen extends GetView<MovieController> {
       _showErrorSnackbar('Permission error: ${e.toString()}');
       _navigateToDownloadScreen();
     }
-  }
-
-  /// Process the actual download after permission is granted
-  Future<void> _proceedWithDownload(Movies movie) async {
+  }  
+ Future<void> _proceedWithDownload(Movies movie) async {
     try {
-      // Validate movie file path
+  
       if (movie.filePath == null || movie.filePath!.isEmpty) {
         _showErrorSnackbar('No download link available for this movie');
         _navigateToDownloadScreen();
         return;
       }
 
-      // Get downloads controller
-      final downloadsController = Get.find<DownloadsController>();
-      
-      // Prepare download URLs
+  
       final videoUrl = movie.filePath!.startsWith('http')
           ? movie.filePath!
           : Endpoints.baseUrl + movie.filePath!;
@@ -316,7 +312,7 @@ class MovieDetailsScreen extends GetView<MovieController> {
               : Endpoints.imageBaseUrl + movie.coverPhotoPath!)
           : null;
 
-      // Start download
+     
       await downloadsController.addDownload(
         title: movie.title ?? 'Untitled Movie',
         videoUrl: videoUrl,
@@ -324,10 +320,10 @@ class MovieDetailsScreen extends GetView<MovieController> {
         details: movie.duration ?? 'Unknown duration',
       );
 
-      // Show success message
+   
       _showSuccessSnackbar('Download started for "${movie.title ?? 'video'}"');
       
-      // Navigate to download screen
+      
       _navigateToDownloadScreen();
       
     } catch (e) {
@@ -336,7 +332,7 @@ class MovieDetailsScreen extends GetView<MovieController> {
     }
   }
 
-  /// Show permission dialog for permanently denied permission
+
   void _showPermissionDialog() {
     Get.dialog(
       AlertDialog(
@@ -382,7 +378,7 @@ class MovieDetailsScreen extends GetView<MovieController> {
     );
   }
 
-  /// Navigate to download screen
+
   void _navigateToDownloadScreen() {
     try {
       AppRouter.toDownload();
@@ -391,7 +387,7 @@ class MovieDetailsScreen extends GetView<MovieController> {
     }
   }
 
-  /// Show success snackbar
+
   void _showSuccessSnackbar(String message) {
     Get.snackbar(
       'Success',
@@ -404,7 +400,7 @@ class MovieDetailsScreen extends GetView<MovieController> {
     );
   }
 
-  /// Show error snackbar
+ 
   void _showErrorSnackbar(String message) {
     Get.snackbar(
       'Error',

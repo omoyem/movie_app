@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:godly_seed_app/view/downloads/screen/downloads_screen.dart';
 import 'package:godly_seed_app/view/settings/screen/settings_screen.dart';
+import 'package:godly_seed_app/view/downloads/controller/downloads_controller.dart';
 
 import '../../constants/color_palette.dart';
 import '../favourites/screen/favourites_screen.dart';
@@ -44,6 +45,7 @@ class _BottomNavState extends State<BottomNav> {
 
   @override
   void initState() {
+    Get.put(DownloadsController());
     // profile = argumentData[0]['profile'];
 
     super.initState();
