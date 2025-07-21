@@ -85,7 +85,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       onboardingData.length,
                       (index) => Container(
                         margin: EdgeInsets.symmetric(horizontal: 4),
-                        width: currentIndex == index ? 24 : 8,
+                        width: currentIndex == index ? 16: 8,
                         height: 8,
                         decoration: BoxDecoration(
                           color: currentIndex == index

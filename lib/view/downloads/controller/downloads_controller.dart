@@ -1,4 +1,4 @@
-import 'dart:async';
+ import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 import 'package:get/get.dart';
@@ -46,7 +46,7 @@ class DownloadsController extends GetxController {
       isLoading.value = true;
       errorMessage.value = '';
       downloads.clear();
-  
+
       final items = downloadsBox.values.toList();
       for (var item in items) {
         if (item.status == DownloadStatus.completed && item.filePath != null) {
@@ -54,14 +54,14 @@ class DownloadsController extends GetxController {
           if (await file.exists()) {
             downloads.add(item);
           } else {
-          
+
             await _removeDownloadFromHive(item);
           }
         } else {
           downloads.add(item);
         }
       }
-      
+
       print('Loaded ${downloads.length} downloads from storage');
     } catch (e) {
       errorMessage.value = 'Failed to load downloads: ${e.toString()}';
@@ -101,11 +101,11 @@ class DownloadsController extends GetxController {
 
     final dir = await getApplicationDocumentsDirectory();
     final downloadDir = Directory('${dir.path}/secure_downloads');
-    
+
     if (!await downloadDir.exists()) {
       await downloadDir.create(recursive: true);
     }
-    
+
     return downloadDir.path;
   }
 
@@ -114,7 +114,7 @@ class DownloadsController extends GetxController {
       final androidInfo = await DeviceInfoPlugin().androidInfo;
       print('[DEBUG] Android SDK version:  [${androidInfo.version.sdkInt}]');
       if (androidInfo.version.sdkInt >= 33) {
-      
+
         final videoStatus = await Permission.videos.status;
         print('[DEBUG] Permission.videos status:  [${videoStatus}]');
         if (!videoStatus.isGranted) {
@@ -124,7 +124,7 @@ class DownloadsController extends GetxController {
         }
         return true;
       } else {
-      
+
         final storageStatus = await Permission.storage.status;
         print('[DEBUG] Permission.storage status:  [${storageStatus}]');
         if (!storageStatus.isGranted) {
@@ -135,17 +135,17 @@ class DownloadsController extends GetxController {
         return true;
       }
     }
- 
+
     print('[DEBUG] Not Android, permission granted by default.');
     return true;
   }
 
   String _generateSecureFileName(String title) {
-   
+
     final timestamp = DateTime.now().millisecondsSinceEpoch;
     final random = Random().nextInt(10000);
     final sanitizedTitle = title.replaceAll(RegExp(r'[^\w\s-]'), '').trim();
-    return '${sanitizedTitle}_${timestamp}_$random.enc';
+    return '${sanitizedTitle}${timestamp}$random.enc';
   }
 
   Future<void> addDownload({
@@ -165,7 +165,6 @@ class DownloadsController extends GetxController {
       return;
     }
 
-   
     if (!await _checkPermissions()) {
       errorMessage.value = 'Storage permission required for downloads.';
       return;
@@ -174,10 +173,9 @@ class DownloadsController extends GetxController {
     try {
       final secureDir = await _getSecureDownloadPath();
       final secureFileName = _generateSecureFileName(title);
-      final tempFilePath = '$secureDir/temp_$secureFileName';
+      final tempFilePath = '$secureDir/temp$secureFileName';
       final finalFilePath = '$secureDir/$secureFileName';
 
-  
       final downloadItem = DownloadItem(
         title: title,
         thumbnailUrl: thumbnailUrl,
@@ -195,7 +193,7 @@ class DownloadsController extends GetxController {
       _activeDowloads[title] = cancelToken;
 
       print('Starting download for: $title');
-      
+
       await _performDownload(
         downloadItem: downloadItem,
         videoUrl: videoUrl,
@@ -245,7 +243,7 @@ class DownloadsController extends GetxController {
       );
 
       if (cancelToken.isCancelled) {
-      
+
         final tempFile = File(tempFilePath);
         if (await tempFile.exists()) {
           await tempFile.delete();
@@ -256,14 +254,12 @@ class DownloadsController extends GetxController {
       print('Download completed for: ${downloadItem.title}. Starting encryption...');
 
       final encryptedFilePath = await EncrptionService.encryptFile(tempFilePath);
-      
-     
+
       final encryptedFile = File(encryptedFilePath);
       if (await encryptedFile.exists()) {
         await encryptedFile.rename(finalFilePath);
       }
 
- 
       final tempFile = File(tempFilePath);
       if (await tempFile.exists()) {
         await tempFile.delete();
@@ -280,10 +276,10 @@ class DownloadsController extends GetxController {
       }
 
       print('Download and encryption completed for: ${downloadItem.title}');
-      
+
     } catch (e) {
       if (!cancelToken.isCancelled) {
-      
+
         await _cleanupFailedDownload(tempFilePath, finalFilePath);
         rethrow;
       }
@@ -296,7 +292,7 @@ class DownloadsController extends GetxController {
       if (await tempFile.exists()) {
         await tempFile.delete();
       }
-      
+
       final finalFile = File(finalFilePath);
       if (await finalFile.exists()) {
         await finalFile.delete();
@@ -316,14 +312,14 @@ class DownloadsController extends GetxController {
     if (index != -1) {
       final item = downloads[index];
       if (item.status == DownloadStatus.inProgress) {
-      
+
         if (item.filePath != null) {
           final file = File(item.filePath!);
           if (await file.exists()) {
             await file.delete();
           }
         }
-        
+
         downloads.removeAt(index);
         await _saveDownloadsToHive();
       }
@@ -332,10 +328,10 @@ class DownloadsController extends GetxController {
 
   Future<void> retryDownload(DownloadItem item) async {
     if (item.status == DownloadStatus.failed) {
-     
+
       downloads.removeWhere((d) => d.title == item.title);
       await _saveDownloadsToHive();
-     
+
       await addDownload(
         title: item.title,
         videoUrl: '', 
@@ -347,7 +343,7 @@ class DownloadsController extends GetxController {
 
   Future<void> deleteDownload(DownloadItem item) async {
     try {
-     
+
       if (item.filePath != null) {
         final file = File(item.filePath!);
         if (await file.exists()) {
@@ -357,7 +353,7 @@ class DownloadsController extends GetxController {
 
       downloads.removeWhere((d) => d.title == item.title);
       await _saveDownloadsToHive();
-      
+
       print('Download deleted: ${item.title}');
     } catch (e) {
       errorMessage.value = 'Failed to delete download: ${e.toString()}';
@@ -374,7 +370,6 @@ class DownloadsController extends GetxController {
     }
   }
 
-
   Future<int> getTotalDownloadSize() async {
     int totalSize = 0;
     for (var item in downloads) {
@@ -388,10 +383,9 @@ class DownloadsController extends GetxController {
     return totalSize;
   }
 
-  
   Future<void> clearAllDownloads() async {
     try {
-      
+
       for (var item in downloads) {
         if (item.filePath != null) {
           final file = File(item.filePath!);
@@ -401,10 +395,9 @@ class DownloadsController extends GetxController {
         }
       }
 
-     
       downloads.clear();
       await downloadsBox.clear();
-      
+
       print('All downloads cleared');
     } catch (e) {
       errorMessage.value = 'Failed to clear downloads: ${e.toString()}';
@@ -414,13 +407,13 @@ class DownloadsController extends GetxController {
 
   @override
   void onClose() {
-   
+
     for (var cancelToken in _activeDowloads.values) {
       if (!cancelToken.isCancelled) {
         cancelToken.cancel('App closing');
       }
     }
-    
+
     downloadsBox.close();
     super.onClose();
   }

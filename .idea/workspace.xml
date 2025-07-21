@@ -9,13 +9,7 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="be5037f8-8eed-40e7-8087-92ce1d406a93" name="Changes" comment="Favourite movies and app stable">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.metadata" beforeDir="false" afterPath="$PROJECT_DIR$/.metadata" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/view/home/controller/home_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/view/home/controller/home_controller.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/view/movie/controller/movie_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/view/movie/controller/movie_controller.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/view/movie/screens/play_movie.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/view/movie/screens/play_movie.dart" afterDir="false" />
-    </list>
+    <list default="true" id="be5037f8-8eed-40e7-8087-92ce1d406a93" name="Changes" comment="Favourite movies and app stable" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -78,7 +72,7 @@
     "cf.first.check.clang-format": "false",
     "cidr.known.project.marker": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "main",
+    "git-widget-placeholder": "omo",
     "io.flutter.reload.alreadyRun": "true",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "/Users/test/AndroidStudioProjects/godly_seed_app/lib/utils",
@@ -194,12 +188,12 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="Dart">
           <url>file://$PROJECT_DIR$/lib/view/home/controller/home_controller.dart</url>
-          <line>138</line>
+          <line>134</line>
           <option name="timeStamp" value="9" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="Dart">
           <url>file://$PROJECT_DIR$/lib/view/home/controller/home_controller.dart</url>
-          <line>143</line>
+          <line>139</line>
           <option name="timeStamp" value="10" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="Dart">

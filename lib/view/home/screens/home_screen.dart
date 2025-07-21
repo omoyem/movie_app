@@ -45,6 +45,7 @@ class HomeScreen extends GetView<HomeController> {
               child: RefreshIndicator(
                 onRefresh: () async {
                   await controller.loadMoviesFromApi();
+                  await controller.loadContinueWatchingFromApi();
                   await _categoriesController.getCategories();
                 },
                 child: SingleChildScrollView(
@@ -54,7 +55,9 @@ class HomeScreen extends GetView<HomeController> {
                       _buildFeaturedCarousel(),
                       _buildCategoryTabs(),
                       _buildTopMoviesSection(),
-                      _buildContinueWatchingSection(),
+                      Obx(() => controller.continueWatching.isNotEmpty
+                          ? _buildContinueWatchingSection()
+                          : SizedBox.shrink()),
                     ],
                   ),
                 ),

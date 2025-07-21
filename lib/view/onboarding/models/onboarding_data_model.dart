@@ -94,7 +94,7 @@ class OnboardingData {
       errorBuilder: (context, error, stackTrace) {
         return const Icon(
           Icons.error_outline,
-          size: 50,
+          size: 45,
           color: Colors.grey,
         );
       },

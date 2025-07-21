@@ -150,7 +150,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                       controller.updateScreenTime(value);
                     },
                     decoration: _getInputDecoration(
-                      hintText: '3pm - 7pm',
+                      hintText: '3pm-7pm',
                       suffixIcon: const Icon(Icons.access_time, size: 20),
                     ),
                   ),
@@ -301,15 +301,15 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
 
   String _formatDateForDisplay(String dateString) {
     try {
-      // Parse the YYYY-MM-DD format and convert to DD-MM-YYYY for display
+    
       final parts = dateString.split('-');
       if (parts.length == 3) {
-        return "${parts[2]}-${parts[1]}-${parts[0]}"; // DD-MM-YYYY
+        return "${parts[2]}-${parts[1]}-${parts[0]}";
       }
     } catch (e) {
       print('Error formatting date: $e');
     }
-    return dateString; // Return original if parsing fails
+    return dateString;
   }
 
   void _selectDate(BuildContext context) async {

@@ -17,14 +17,11 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
 
   @override
   Widget build(BuildContext context) {
-  
-    
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-      
         title: Text(
           'Downloads',
           style: TextStyle(
@@ -71,7 +68,6 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
       ),
       body: SafeArea(
         child: Obx(() {
-        
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (controller.errorMessage.value.isNotEmpty) {
               final context = Get.context;
@@ -95,7 +91,6 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
           if (controller.downloads.isEmpty) {
             return _buildEmptyState();
           }
-
           return ListView.separated(
             padding: EdgeInsets.all(16),
             itemCount: controller.downloads.length,
