@@ -341,34 +341,121 @@ class DownloadsController extends GetxController {
     }
   }
 
-  Future<void> deleteDownload(DownloadItem item) async {
-    try {
+  // Future<void> deleteDownload(DownloadItem item) async {
+  //   try {
 
+  //     if (item.filePath != null) {
+  //       final file = File(item.filePath!);
+  //       if (await file.exists()) {
+  //         await file.delete();
+  //       }
+  //     }
+
+  //     downloads.removeWhere((d) => d.title == item.title);
+  //     await _saveDownloadsToHive();
+
+  //     print('Download deleted: ${item.title}');
+  //   } catch (e) {
+  //     errorMessage.value = 'Failed to delete download: ${e.toString()}';
+  //     print('Error deleting download: $e');
+  //   }
+  // }
+
+  // Add these methods to your existing DownloadsController class
+
+Future<String?> getDecryptedFilePath(String encryptedFilePath) async {
+  try {
+    return await EncrptionService.decryptFile(encryptedFilePath);
+  } catch (e) {
+    print('Error decrypting file: $e');
+    return null;
+  }
+}
+
+Future<void> deleteDownload(DownloadItem item) async {
+  try {
+   
+    if (item.filePath != null) {
+      final encryptedFile = File(item.filePath!);
+      if (await encryptedFile.exists()) {
+        await encryptedFile.delete();
+        print('Deleted encrypted file: ${item.filePath}');
+      }
+      
+      await EncrptionService.deleteDecryptedFile(item.filePath!);
+    }
+
+    downloads.removeWhere((d) => d.title == item.title);
+    await _saveDownloadsToHive();
+
+    print('Download deleted: ${item.title}');
+  } catch (e) {
+    errorMessage.value = 'Failed to delete download: ${e.toString()}';
+    print('Error deleting download: $e');
+  }
+}
+
+// Enhanced clear all method
+Future<void> clearAllDownloads() async {
+  try {
+    // Delete all encrypted files
+    for (var item in downloads) {
       if (item.filePath != null) {
         final file = File(item.filePath!);
         if (await file.exists()) {
           await file.delete();
         }
       }
+    }
 
-      downloads.removeWhere((d) => d.title == item.title);
-      await _saveDownloadsToHive();
+    // Clear all decrypted files
+    await EncrptionService.cleanupAllDecryptedFiles();
 
-      print('Download deleted: ${item.title}');
-    } catch (e) {
-      errorMessage.value = 'Failed to delete download: ${e.toString()}';
-      print('Error deleting download: $e');
+    // Clear downloads list
+    downloads.clear();
+    await downloadsBox.clear();
+
+    print('All downloads cleared');
+  } catch (e) {
+    errorMessage.value = 'Failed to clear downloads: ${e.toString()}';
+    print('Error clearing downloads: $e');
+  }
+}
+
+// Get total storage used (encrypted + decrypted)
+Future<Map<String, int>> getDetailedStorageInfo() async {
+  int encryptedSize = 0;
+  
+  // Calculate encrypted files size
+  for (var item in downloads) {
+    if (item.status == DownloadStatus.completed && item.filePath != null) {
+      final file = File(item.filePath!);
+      if (await file.exists()) {
+        encryptedSize += await file.length();
+      }
     }
   }
+  
+  // Get decrypted files size
+  final decryptedSize = await EncrptionService.getDecryptedFilesSize();
+  
+  return {
+    'encrypted': encryptedSize,
+    'decrypted': decryptedSize,
+    'total': encryptedSize + decryptedSize,
+  };
+}
 
-  Future<String?> getDecryptedFilePath(String encryptedFilePath) async {
-    try {
-      return await EncrptionService.decryptFile(encryptedFilePath);
-    } catch (e) {
-      print('Error decrypting file: $e');
-      return null;
-    }
+// Method to clear only decrypted files (keep encrypted originals)
+Future<void> clearDecryptedFiles() async {
+  try {
+    await EncrptionService.cleanupAllDecryptedFiles();
+    print('All decrypted files cleared');
+  } catch (e) {
+    errorMessage.value = 'Failed to clear decrypted files: ${e.toString()}';
+    print('Error clearing decrypted files: $e');
   }
+}
 
   Future<int> getTotalDownloadSize() async {
     int totalSize = 0;
@@ -383,27 +470,27 @@ class DownloadsController extends GetxController {
     return totalSize;
   }
 
-  Future<void> clearAllDownloads() async {
-    try {
+  // Future<void> clearAllDownloads() async {
+  //   try {
 
-      for (var item in downloads) {
-        if (item.filePath != null) {
-          final file = File(item.filePath!);
-          if (await file.exists()) {
-            await file.delete();
-          }
-        }
-      }
+  //     for (var item in downloads) {
+  //       if (item.filePath != null) {
+  //         final file = File(item.filePath!);
+  //         if (await file.exists()) {
+  //           await file.delete();
+  //         }
+  //       }
+  //     }
 
-      downloads.clear();
-      await downloadsBox.clear();
+  //     downloads.clear();
+  //     await downloadsBox.clear();
 
-      print('All downloads cleared');
-    } catch (e) {
-      errorMessage.value = 'Failed to clear downloads: ${e.toString()}';
-      print('Error clearing downloads: $e');
-    }
-  }
+  //     print('All downloads cleared');
+  //   } catch (e) {
+  //     errorMessage.value = 'Failed to clear downloads: ${e.toString()}';
+  //     print('Error clearing downloads: $e');
+  //   }
+  // }
 
   @override
   void onClose() {

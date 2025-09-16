@@ -23,6 +23,7 @@ class ProfileController extends GetxController {
   final RxString errorMessage = ''.obs;
   final RxBool isLoading = false.obs;
   final RxBool isFormValid = false.obs;
+  final RxBool isInitialized = false.obs;
   String? userEmail;
   String? _authToken;
   final LocalStorageHelper _storageHelper = LocalStorageHelper();
@@ -35,44 +36,67 @@ class ProfileController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    _initializeHttpClient();
-    _loadUserEmail();
-    _loadAuthToken();
-    _initializeForm();
-    _setupValidation();
+    print('🎯 ProfileController onInit called');
+    _initializeController();
+  }
 
-    if (Get.currentRoute.contains('profileSelection')) {
-      fetchUserProfiles();
+  Future<void> _initializeController() async {
+    try {
+      print('🚀 Initializing ProfileController...');
+      
+      // Initialize HTTP client synchronously first
+      await _initializeHttpClientSync();
+      
+      // Load auth data
+      await _loadAuthToken();
+      await _loadUserEmail();
+      
+      // Initialize form
+      _initializeForm();
+      _setupValidation();
+      
+      // Mark as initialized
+      isInitialized.value = true;
+      
+      print('✅ ProfileController initialized successfully');
+      
+      // Auto-fetch profiles if we're on the profile selection route
+      if (Get.currentRoute.contains('profileSelection')) {
+        print('🔄 Auto-fetching profiles for profileSelection route');
+        await Future.delayed(Duration(milliseconds: 300)); // Small delay for UI
+        await fetchUserProfiles();
+      }
+      
+    } catch (e) {
+      print('❌ Error initializing ProfileController: $e');
+      isInitialized.value = true; // Mark as initialized even if there's an error
     }
   }
 
   @override
   void onClose() {
     _safeCloseHttpClient();
-
     super.onClose();
   }
 
-  void _initializeHttpClient() {
+  Future<void> _initializeHttpClientSync() async {
     try {
       _safeCloseHttpClient();
+      
+      print('🔧 Initializing HTTP client synchronously...');
+      
+      if (kDebugMode) {
+        print('🔧 Creating insecure HTTP client for debug mode');
+        _httpClient = IOClient(InsecureHttpClientHelper.createInsecureHttpClient());
+        print('✅ INSECURE HTTP client created (self-signed certificates allowed)');
+      } else {
+        print('🔧 Creating secure HTTP client for release mode');
+        _httpClient = http.Client();
+        print('✅ SECURE HTTP client created (strict SSL)');
+      }
 
-      Future.delayed(Duration(milliseconds: 100), () {
-        if (kDebugMode) {
-          print(
-              '🔧 Initializing HTTP client in debug mode (allowing self-signed certificates)');
-          _httpClient =
-              IOClient(InsecureHttpClientHelper.createInsecureHttpClient());
-          print(
-              'DEBUG: Using INSECURE HTTP client (self-signed certificates allowed)');
-        } else {
-          print('🔧 Initializing HTTP client in release mode (strict SSL)');
-          _httpClient = http.Client();
-          print('DEBUG: Using SECURE HTTP client (strict SSL)');
-        }
-
-        _isClientClosed = false;
-      });
+      _isClientClosed = false;
+      print('✅ HTTP client initialized successfully');
     } catch (e) {
       print('❌ Error initializing HTTP client: $e');
       _httpClient = http.Client();
@@ -98,8 +122,7 @@ class ProfileController extends GetxController {
       print('🔄 Creating new HTTP client (existing was null or closed)');
 
       if (kDebugMode) {
-        _httpClient =
-            IOClient(InsecureHttpClientHelper.createInsecureHttpClient());
+        _httpClient = IOClient(InsecureHttpClientHelper.createInsecureHttpClient());
       } else {
         _httpClient = http.Client();
       }
@@ -137,7 +160,7 @@ class ProfileController extends GetxController {
 
         if (kDebugMode) {
           print('🔄 Reinitializing HTTP client due to SSL error...');
-          _initializeHttpClient();
+          _initializeHttpClientSync();
         }
       } else {
         errorMessage = 'Secure connection failed. Please try again.';
@@ -148,20 +171,19 @@ class ProfileController extends GetxController {
         errorMessage = 'Connection was cancelled. Please try again.';
         technicalDetails = 'Connection cancelled: ${error.toString()}';
 
-        _initializeHttpClient();
+        _initializeHttpClientSync();
       } else if (error.osError?.errorCode == 7) {
         errorMessage = 'Cannot connect to server. Please check your internet connection and try again.';
         technicalDetails = 'DNS resolution failed - hostname not found';
         
-       
-      
-        // Get.snackbar(    // 'Connection Error',
-          // 'Unable to reach the server. Please check your internet connection.',
-          // snackPosition: SnackPosition.BOTTOM,
-          // backgroundColor: Colors.orange,
-          // colorText: Colors.white,
-          // duration: Duration(seconds: 8),
-          TextButton(
+        Get.snackbar(
+          'Connection Error',
+          'Unable to reach the server. Please check your internet connection.',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.orange,
+          colorText: Colors.white,
+          duration: Duration(seconds: 8),
+          mainButton: TextButton(
             onPressed: () {
               // Retry the operation
               if (endpoint == Endpoints.profileSetup) {
@@ -171,6 +193,7 @@ class ProfileController extends GetxController {
               }
             },
             child: Text('Retry', style: TextStyle(color: Colors.white)),
+          ),
         );
         return;
       } else if (error.osError?.errorCode == 111) {
@@ -187,20 +210,20 @@ class ProfileController extends GetxController {
       errorMessage = 'Connection was interrupted. Please try again.';
       technicalDetails = 'HTTP client was closed prematurely';
 
-      _initializeHttpClient();
+      _initializeHttpClientSync();
     }
 
     this.errorMessage.value = errorMessage;
     _logResponse(endpoint, 0, {}, error: technicalDetails);
 
-    // Get.snackbar(
-    //   'Connection Error',
-    //   errorMessage,
-    //   snackPosition: SnackPosition.BOTTOM,
-    //   backgroundColor: Colors.red,
-    //   colorText: Colors.white,
-    //   duration: Duration(seconds: 5),
-    // );
+    Get.snackbar(
+      'Connection Error',
+      errorMessage,
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.red,
+      colorText: Colors.white,
+      duration: Duration(seconds: 5),
+    );
   }
 
   Future<void> _clearAuthData() async {
@@ -208,6 +231,7 @@ class ProfileController extends GetxController {
       await _storageHelper.deleteItem(key: 'auth_token');
       await _storageHelper.deleteItem(key: 'access_token');
       await _storageHelper.deleteItem(key: 'user_token');
+      await _storageHelper.deleteItem(key: 'token');
       await StorageService.clearAll();
       _authToken = null;
       print('🗑️ Auth data cleared');
@@ -243,14 +267,22 @@ class ProfileController extends GetxController {
       Map<String, String>? headers,
       bool requiresAuth = true,
       int retryCount = 0}) async {
+    
+    // Wait for initialization if not ready
+    if (!isInitialized.value) {
+      print('⏳ Waiting for ProfileController initialization...');
+      await Future.doWhile(() async {
+        await Future.delayed(Duration(milliseconds: 100));
+        return !isInitialized.value;
+      });
+    }
+    
     if (requiresAuth && (_authToken == null || _authToken!.isEmpty)) {
-      print(
-          '⚠️ Auth token required but not available, attempting to reload...');
+      print('⚠️ Auth token required but not available, attempting to reload...');
       await _loadAuthToken();
 
       if (_authToken == null || _authToken!.isEmpty) {
-        throw HttpException(
-            'Authorization token not found. Please login again.');
+        throw HttpException('Authorization token not found. Please login again.');
       }
     }
 
@@ -276,17 +308,14 @@ class ProfileController extends GetxController {
         client = _getOrCreateHttpClient();
 
         if (kDebugMode) {
-          print(
-              '🌐 Making $method request to: $uri (Attempt ${attempt + 1}/${_maxRetries + 1})');
+          print('🌐 Making $method request to: $uri (Attempt ${attempt + 1}/${_maxRetries + 1})');
           print('🔧 Using ${kDebugMode ? 'insecure' : 'secure'} HTTP client');
           print('🔧 Client state: ${_isClientClosed ? 'Closed' : 'Open'}');
           print('🔐 Auth required: $requiresAuth');
-          print(
-              '🔐 Token available: ${_authToken != null && _authToken!.isNotEmpty}');
+          print('🔐 Token available: ${_authToken != null && _authToken!.isNotEmpty}');
           print('📋 Headers: ${requestHeaders.keys.join(', ')}');
           if (_authToken != null) {
-            print(
-                '🔐 Auth header: Authorization: Bearer ${_authToken!.substring(0, math.min(10, _authToken!.length))}...');
+            print('🔐 Auth header: Authorization: Bearer ${_authToken!.substring(0, math.min(10, _authToken!.length))}...');
           }
           if (body != null) print('📤 Request body: ${jsonEncode(body)}');
         }
@@ -359,16 +388,11 @@ class ProfileController extends GetxController {
         }
 
         if (shouldRetry && attempt < _maxRetries) {
-          print(
-              '🔄 Retrying request (attempt ${attempt + 2}/${_maxRetries + 1})...');
+          print('🔄 Retrying request (attempt ${attempt + 2}/${_maxRetries + 1})...');
 
-          
           _safeCloseHttpClient();
-          await Future.delayed(
-              Duration(milliseconds: 500 * (attempt + 1))); 
-          _initializeHttpClient();
-          await Future.delayed(
-              Duration(milliseconds: 100));
+          await Future.delayed(Duration(milliseconds: 500 * (attempt + 1)));
+          await _initializeHttpClientSync();
 
           continue;
         }
@@ -380,60 +404,88 @@ class ProfileController extends GetxController {
     throw HttpException('Maximum retry attempts exceeded');
   }
 
-  void _loadUserEmail() async {
-    final args = Get.arguments;
-    if (args != null && args is Map && args['email'] != null) {
-      userEmail = args['email'];
-      if (kDebugMode) {
-        print(
-            'ProfileController: Loaded userEmail from Get.arguments: $userEmail');
+  Future<void> _loadUserEmail() async {
+    try {
+      print('👤 Loading user email...');
+      
+      // First try Get.arguments
+      final args = Get.arguments;
+      if (args != null && args is Map && args['email'] != null) {
+        userEmail = args['email'];
+        print('✅ UserEmail loaded from Get.arguments: $userEmail');
+        await _storageHelper.storeItem(key: 'user_email', value: userEmail!);
+        return;
       }
-      await _storageHelper.storeItem(key: 'user_email', value: userEmail!);
-    } else {
+
+      // Try StorageService
       final user = await StorageService.getUser();
       if (user != null && user.email.isNotEmpty) {
         userEmail = user.email;
-        if (kDebugMode) {
-          print(
-              'ProfileController: Loaded userEmail from StorageService.getUser(): $userEmail');
-        }
+        print('✅ UserEmail loaded from StorageService.getUser(): $userEmail');
         await _storageHelper.storeItem(key: 'user_email', value: userEmail!);
-      } else {
-        userEmail = await _storageHelper.retrieveItem(key: 'user_email');
-        if (kDebugMode) {
-          print(
-              'ProfileController: Loaded userEmail from LocalStorageHelper: $userEmail');
-        }
+        return;
       }
-    }
 
-    if (userEmail == null || userEmail!.isEmpty) {
-      print('⚠️ Warning: User email not found in storage or arguments');
-    } else {
-      print('✅ User email loaded: $userEmail');
+      // Try LocalStorageHelper
+      userEmail = await _storageHelper.retrieveItem(key: 'user_email');
+      if (userEmail != null && userEmail!.isNotEmpty) {
+        print('✅ UserEmail loaded from LocalStorageHelper: $userEmail');
+        return;
+      }
+
+      // Try alternative key
+      userEmail = await _storageHelper.retrieveItem(key: 'user_id');
+      if (userEmail != null && userEmail!.isNotEmpty) {
+        print('✅ UserEmail loaded from user_id key: $userEmail');
+        return;
+      }
+
+      print('⚠️ Warning: User email not found in any storage');
+    } catch (e) {
+      print('❌ Error loading user email: $e');
     }
   }
 
   Future<void> _loadAuthToken() async {
     try {
+      print('🔐 Loading auth token...');
+      
+      // First try Get.arguments (highest priority)
       final args = Get.arguments;
-
       if (args != null && args is Map && args['token'] != null) {
         _authToken = args['token'];
         await StorageService.saveAccessToken(_authToken!);
-        print('✅ Auth token loaded from arguments and saved');
+        await _storageHelper.storeItem(key: 'auth_token', value: _authToken!);
+        print('✅ Auth token loaded from arguments and saved: ${_authToken!.substring(0, 10)}...');
         return;
       }
 
+      // Try StorageService
       _authToken = await StorageService.getAccessToken();
       if (_authToken != null && _authToken!.isNotEmpty) {
-        print('✅ Auth token loaded from StorageService');
+        print('✅ Auth token loaded from StorageService: ${_authToken!.substring(0, 10)}...');
         return;
       }
 
-      _authToken = await _storageHelper.retrieveItem(key: 'auth_token');
+      // Try secure storage - multiple keys
+      final tokenKeys = ['auth_token', 'access_token', 'token', 'user_token'];
+      for (String key in tokenKeys) {
+        _authToken = await _storageHelper.retrieveItem(key: key);
+        if (_authToken != null && _authToken!.isNotEmpty) {
+          print('✅ Auth token loaded from secure storage ($key): ${_authToken!.substring(0, 10)}...');
+          // Save to all locations for consistency
+          await StorageService.saveAccessToken(_authToken!);
+          await _storageHelper.storeItem(key: 'auth_token', value: _authToken!);
+          return;
+        }
+      }
+
+      // Try LocalStorageHelper main method
+      _authToken = await LocalStorageHelper.getAccessTokenMain();
       if (_authToken != null && _authToken!.isNotEmpty) {
-        print('✅ Auth token loaded from secure storage');
+        print('✅ Auth token loaded via getAccessTokenMain: ${_authToken!.substring(0, 10)}...');
+        await StorageService.saveAccessToken(_authToken!);
+        await _storageHelper.storeItem(key: 'auth_token', value: _authToken!);
         return;
       }
 
@@ -447,15 +499,18 @@ class ProfileController extends GetxController {
     _authToken = token;
     await StorageService.saveAccessToken(token);
     await _storageHelper.storeItem(key: 'auth_token', value: token);
-    print('✅ Auth token set manually and saved to both storage systems');
+    await _storageHelper.storeItem(key: 'access_token', value: token);
+    await _storageHelper.storeItem(key: 'token', value: token);
+    print('✅ Auth token set manually and saved to all storage systems');
   }
 
   void _initializeForm() {
     if (profile.value.ageGroup == ProfileType.kids.toString()) {
+      // Kids profile initialization
     } else {
-     
+      // Adult profile initialization
     }
-    if(profile.value.name != null) {
+    if (profile.value.name != null) {
       updateName(profile.value.name!);
       updateScreenTime(profile.value.screenTime ?? '3pm - 7pm');
     }
@@ -703,7 +758,7 @@ class ProfileController extends GetxController {
           await StorageService.saveUserProfile(requestBody);
 
           await Future.delayed(Duration(milliseconds: 500));
-          _initializeHttpClient();
+          _initializeHttpClientSync();
 
           Get.offAllNamed('/profileSelection', arguments: {
             'profile_id': profile.value,
@@ -784,11 +839,11 @@ class ProfileController extends GetxController {
 
     await _storageHelper.storeItem(key: "current_profile", value: userString);
 
-    Get.to(() => BottomNav(), arguments: [{'profile': selectedProfile}]);    // Get.toNamed('/home', arguments: {'profile_id': selectedProfile.id});
+    Get.to(() => BottomNav(), arguments: [{'profile': selectedProfile}]);  
   }
 
   Future<void> refreshProfiles() async {
-    _initializeHttpClient();
+    _initializeHttpClientSync();
     await Future.delayed(Duration(milliseconds: 100));
     await fetchUserProfiles();
   }
@@ -822,7 +877,7 @@ class ProfileController extends GetxController {
   Future<void> loadAuthTokenAndFetchProfiles() async {
     await _loadAuthToken();
 
-    _initializeHttpClient();
+    _initializeHttpClientSync();
     await Future.delayed(Duration(milliseconds: 100));
     await fetchUserProfiles();
   }

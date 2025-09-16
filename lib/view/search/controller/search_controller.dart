@@ -1,4 +1,3 @@
-
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
@@ -10,8 +9,6 @@ import 'package:godly_seed_app/data/models/movie_list_response.dart';
 import 'package:godly_seed_app/data/models/search.dart';
 import 'package:godly_seed_app/network/api_client.dart';
 import 'package:godly_seed_app/utils/helpers.dart';
-
-
 class SearchController extends GetxController {
   final TextEditingController searchController = TextEditingController();
   final RxString searchQuery = ''.obs;
@@ -53,11 +50,8 @@ class SearchController extends GetxController {
 
   void onSearchChanged(String value) {
     searchQuery.value = value;
-    
-  
     _debounceTimer?.cancel();
     
-  
     if (value.isEmpty) {
       searchResults.clear();
       errorMessage.value = '';
@@ -76,15 +70,12 @@ class SearchController extends GetxController {
       isLoading.value = true;
       errorMessage.value = '';
 
-      
       _addToRecentSearches(query.trim());
 
-  
       final Map<String, dynamic> requestBody = {
         'q': query.trim(),
       };
 
-      
       if (selectedTags.isNotEmpty) {
         requestBody['tags'] = selectedTags.join(',');
       }

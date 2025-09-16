@@ -107,4 +107,8 @@ class LocalStorageHelper {
 
   static Future<void> clearTokens() async {}
 
+  Future<void> saveRecentSearches(List<String> list) async {}
+
+  Future getRecentSearches() async {}
+
 }

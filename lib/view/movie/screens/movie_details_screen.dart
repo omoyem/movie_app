@@ -4,7 +4,6 @@ import 'dart:io' show Platform;
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
-import 'package:godly_seed_app/constants/app_router.dart';
 import 'package:godly_seed_app/constants/color_palette.dart';
 import 'package:godly_seed_app/constants/endpoints.dart';
 import 'package:godly_seed_app/data/models/movie.dart';
@@ -282,14 +281,14 @@ class MovieDetailsScreen extends GetView<MovieController> {
       }
       if (!permissionGranted) {
         _showWarningSnackbar('Storage permission denied. Download cancelled.');
-        _navigateToDownloadScreen();
+      
         return;
       }
       _showInfoSnackbar('Permission granted! Starting download...');
       await _proceedWithDownload(movie);
     } catch (e) {
       _showErrorSnackbar('Permission error: ${e.toString()}');
-      _navigateToDownloadScreen();
+     
     }
   }  
  Future<void> _proceedWithDownload(Movies movie) async {
@@ -297,7 +296,7 @@ class MovieDetailsScreen extends GetView<MovieController> {
   
       if (movie.filePath == null || movie.filePath!.isEmpty) {
         _showErrorSnackbar('No download link available for this movie');
-        _navigateToDownloadScreen();
+       
         return;
       }
 
@@ -324,66 +323,10 @@ class MovieDetailsScreen extends GetView<MovieController> {
       _showSuccessSnackbar('Download started for "${movie.title ?? 'video'}"');
       
       
-      _navigateToDownloadScreen();
       
     } catch (e) {
       _showErrorSnackbar('Failed to start download: ${e.toString()}');
-      _navigateToDownloadScreen();
-    }
-  }
-
-
-  void _showPermissionDialog() {
-    Get.dialog(
-      AlertDialog(
-        title: Row(
-          children: [
-            Icon(Icons.warning, color: Colors.orange),
-            SizedBox(width: 8),
-            Text('Permission Required'),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Storage permission is required to download movies.'),
-            SizedBox(height: 8),
-            Text('Please enable it in app settings to continue downloading.'),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Get.back();
-              _navigateToDownloadScreen();
-            },
-            child: Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              Get.back();
-              await openAppSettings();
-              _navigateToDownloadScreen();
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: primaryColor,
-              foregroundColor: Colors.white,
-            ),
-            child: Text('Open Settings'),
-          ),
-        ],
-      ),
-      barrierDismissible: false,
-    );
-  }
-
-
-  void _navigateToDownloadScreen() {
-    try {
-      AppRouter.toDownload();
-    } catch (e) {
-      debugPrint('Navigation error: $e');
+     
     }
   }
 
@@ -466,118 +409,7 @@ class MovieDetailsScreen extends GetView<MovieController> {
     );
   }
 
-  Widget _buildEpisodesSection(MovieModel movie) {
-    if (movie.episodes.isEmpty) return SizedBox.shrink();
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Row(
-            children: [
-              Text(
-                'EPISODES',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Spacer(),
-              Text(
-                'SIMILAR MOVIES',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey[600],
-                ),
-              ),
-            ],
-          ),
-        ),
-        SizedBox(height: 16),
-        Container(
-          padding: EdgeInsets.symmetric(horizontal: 16),
-          child: Column(
-            children: movie.episodes
-                .map((episode) => _buildEpisodeItem(episode))
-                .toList(),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildEpisodeItem(EpisodeModel episode) {
-    return Container(
-      margin: EdgeInsets.only(bottom: 16),
-      padding: EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.grey[50],
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 80,
-            height: 60,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(6),
-              image: DecorationImage(
-                image: AssetImage(episode.imageUrl),
-                fit: BoxFit.cover,
-              ),
-            ),
-            child: Center(
-              child: Container(
-                padding: EdgeInsets.all(4),
-                decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.7),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.play_arrow,
-                  color: Colors.white,
-                  size: 16,
-                ),
-              ),
-            ),
-          ),
-          SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '${episode.id}. ${episode.title}',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                SizedBox(height: 4),
-                Text(
-                  episode.description,
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontSize: 12,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          ),
-          GestureDetector(
-            onTap: () => _handleDownload(),
-            child: Icon(
-              Icons.download,
-              color: Colors.grey[400],
-              size: 20,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildSimilarMoviesSection() {
     return Column(

@@ -23,7 +23,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     dateController = TextEditingController(
       text: controller.profile.value.dob ?? '',
     );
-    screenTimeController = TextEditingController(text: controller.profile.value.screenTime ?? '3pm - 7pm');
+    screenTimeController = TextEditingController(text: controller.profile.value.screenTime ?? '');
   }
 
   @override

@@ -1,5 +1,5 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:godly_seed_app/constants/app_router.dart';
 import 'package:godly_seed_app/constants/images.dart';
 import 'package:godly_seed_app/data/local/secure_storage_helper.dart';
@@ -28,7 +28,14 @@ class _SplashScreenState extends State<SplashScreen>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _initializeAnimations();
-    _validateTokenWithServer();
+  
+    _delayedTokenValidation();
+  }
+
+  void _delayedTokenValidation() {
+    Future.delayed(Duration(milliseconds: 1500), () {
+      _validateTokenWithServer();
+    });
   }
 
   void _initializeAnimations() {
@@ -56,58 +63,153 @@ class _SplashScreenState extends State<SplashScreen>
     _controller.forward();
   }
 
-
-
   Future<void> _validateTokenWithServer() async {
     try {
-      String? authToken = await _storageHelper.retrieveItem(key: _authTokenKey);
+      print('🔍 Starting token validation...');
+    
+      String? authToken = await _getAuthToken();
+      String? userEmail = await _getUserEmail();
 
-      if (authToken != null) {
+      print('🔐 Auth token found: ${authToken != null && authToken.isNotEmpty}');
+      print('👤 User email found: ${userEmail != null && userEmail.isNotEmpty}');
+
+      if (authToken != null && authToken.isNotEmpty) {
         bool isTokenValid = await _performTokenValidation(authToken);
+        
+        print('✅ Token validation result: $isTokenValid');
 
         if (isTokenValid) {
-          _navigateToSelectProfile();
+        
+          _navigateToSelectProfile(authToken, userEmail);
         } else {
+          print('❌ Token invalid, clearing auth data');
           await _clearAuthenticationData();
           _navigateToOnboarding();
         }
       } else {
+        print('⚠️ No auth token found, going to onboarding');
         _navigateToOnboarding();
       }
     } catch (e) {
-      print("Token validation error: $e");
+      print("❌ Token validation error: $e");
+      await _clearAuthenticationData();
       _navigateToOnboarding();
+    }
+  }
+
+  Future<String?> _getAuthToken() async {
+    try {
+    
+      String? token = await _storageHelper.retrieveItem(key: _authTokenKey);
+      if (token != null && token.isNotEmpty) {
+        print('🔐 Token found in secure storage');
+        return token;
+      }
+
+      token = await _storageHelper.retrieveItem(key: 'auth_token');
+      if (token != null && token.isNotEmpty) {
+        print('🔐 Token found in auth_token key');
+        return token;
+      }
+      token = await _storageHelper.retrieveItem(key: 'access_token');
+      if (token != null && token.isNotEmpty) {
+        print('🔐 Token found in access_token key');
+        return token;
+      }
+
+    
+      token = await LocalStorageHelper.getAccessTokenMain();
+      if (token != null && token.isNotEmpty) {
+        print('🔐 Token found via getAccessTokenMain');
+        return token;
+      }
+
+      print('⚠️ No token found in any storage');
+      return null;
+    } catch (e) {
+      print('❌ Error retrieving auth token: $e');
+      return null;
+    }
+  }
+
+  Future<String?> _getUserEmail() async {
+    try {
+   
+      String? email = await _storageHelper.retrieveItem(key: 'user_email');
+      if (email != null && email.isNotEmpty) {
+        return email;
+      }
+
+      email = await _storageHelper.retrieveItem(key: _userIdKey);
+      if (email != null && email.isNotEmpty) {
+        return email;
+      }
+
+      return null;
+    } catch (e) {
+      print('❌ Error retrieving user email: $e');
+      return null;
     }
   }
 
   Future<bool> _performTokenValidation(String token) async {
     try {
-      var token = await LocalStorageHelper.getAccessTokenMain();
-
-      logItem(token, title: "User token thingys");
-
-      return token != null;
+      print('🔍 Validating token: ${token.substring(0, 10)}...');
+      
+      
+      await _storageHelper.storeItem(key: _authTokenKey, value: token);
+      await _storageHelper.storeItem(key: 'auth_token', value: token);
+      await _storageHelper.storeItem(key: 'access_token', value: token);
+      
+    
+      bool isValid = token.isNotEmpty && token.length > 10;
+      
+      if (isValid) {
+        print('✅ Token appears valid');
+      
+        await _storageHelper.storeItem(key: _isLoggedInKey, value: 'true');
+      }
+      
+      return isValid;
     } catch (e) {
-      print("Token validation failed: $e");
+      print("❌ Token validation failed: $e");
       return false;
     }
   }
 
   Future<void> _clearAuthenticationData() async {
-    await _storageHelper.deleteItem(key: _authTokenKey);
-    await _storageHelper.deleteItem(key: _userIdKey);
-    await _storageHelper.deleteItem(key: _isLoggedInKey);
+    try {
+      await _storageHelper.deleteItem(key: _authTokenKey);
+      await _storageHelper.deleteItem(key: 'auth_token');
+      await _storageHelper.deleteItem(key: 'access_token');
+      await _storageHelper.deleteItem(key: _userIdKey);
+      await _storageHelper.deleteItem(key: 'user_email');
+      await _storageHelper.deleteItem(key: _isLoggedInKey);
+      await _storageHelper.deleteItem(key: 'current_profile');
+      print('🗑️ Authentication data cleared');
+    } catch (e) {
+      print('❌ Error clearing auth data: $e');
+    }
   }
 
   void _navigateToHome() {
     AppRouter.toHome();
   }
 
-  void _navigateToSelectProfile() {
-    AppRouter.toProfile();
+  void _navigateToSelectProfile(String? token, String? email) {
+    print('🚀 Navigating to profile selection with token and email');
+    
+    // Use Get.offAllNamed to clear the navigation stack
+    // and pass the token and email as arguments
+    Get.offAllNamed('/profileSelection', arguments: {
+      'token': token,
+      'email': email,
+      'from_splash': true,
+    });
   }
 
   void _navigateToOnboarding() {
+    print('🚀 Navigating to onboarding');
     AppRouter.toOnboarding();
   }
 
@@ -122,8 +224,10 @@ class _SplashScreenState extends State<SplashScreen>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
     if (state == AppLifecycleState.resumed) {
-     
-      _validateTokenWithServer();
+      // Add small delay before revalidating to avoid conflicts
+      Future.delayed(Duration(milliseconds: 500), () {
+        _validateTokenWithServer();
+      });
     }
   }
 
@@ -146,6 +250,13 @@ class _SplashScreenState extends State<SplashScreen>
                     children: [
                       AppLogoWidget(size: 200),
                       SizedBox(height: 24),
+                      // Add loading indicator
+                      Container(
+                        padding: EdgeInsets.all(20),
+                        child: CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
+                      ),
                     ],
                   ),
                 ),

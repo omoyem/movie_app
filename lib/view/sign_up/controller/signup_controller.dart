@@ -39,13 +39,14 @@ class SignupController extends GetxController {
   }
 
   void _initializeHttpClient() {
-    if (kDebugMode) {
-      _httpClient =
-          IOClient(InsecureHttpClientHelper.createInsecureHttpClient());
-    } else {
-      _httpClient = http.Client();
-    }
+  
+  _httpClient = IOClient(InsecureHttpClientHelper.createInsecureHttpClient());
+  
+  if (kDebugMode) {
+    print('SignupController: HTTP Client initialized with insecure certificate handling');
+    print('Mode: ${kDebugMode ? 'Debug' : 'Release'}');
   }
+}
 
   void _handleNetworkError(dynamic error, String endpoint) {
     String errorMessage = 'Network error occurred';

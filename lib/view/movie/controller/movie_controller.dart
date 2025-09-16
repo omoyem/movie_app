@@ -1,14 +1,15 @@
 import 'package:get/get.dart';
-import 'package:godly_seed_app/constants/images.dart';
+import 'package:flutter/material.dart';
 import 'package:godly_seed_app/data/models/movie_list_response.dart';
-import 'package:godly_seed_app/utils/helpers.dart';
 import 'dart:convert';
 import 'package:godly_seed_app/constants/endpoints.dart';
 import 'package:godly_seed_app/network/api_client.dart';
+import 'package:godly_seed_app/view/movie/bindings/movie_binding.dart';
+import 'package:godly_seed_app/view/movie/screens/play_movie.dart';
 import 'package:http/http.dart' as http;
+import 'package:godly_seed_app/data/local/secure_storage_helper.dart';
 
 import '../../../data/models/movie.dart';
-import '../screens/play_movie.dart';
 
 class MovieController extends GetxController {
   final Rx<Movies?> currentMovie = Rx<Movies?>(null);
@@ -88,22 +89,82 @@ class MovieController extends GetxController {
   }
 
   void playMovie() {
-    logItem('You need to subscribe to proceed', title: '${currentMovie.value?.filePath} ');
+    if (currentMovie.value == null) return;
+    final movie = currentMovie.value!;
+    final String movieId = movie.id ?? '';
+    final String movieTitle = movie.title ?? 'Movie';
+    final String videoUrl = movie.filePath ?? '';
 
-  
-    Get.to(
-      () => VideoPlayerScreen(
-        movieTitle: currentMovie.value!.title!, 
-        videoUrl: currentMovie.value!.filePath!
-      ),
-      arguments: {
-        'movieId': currentMovie.value!.id!,
-        'movieTitle': currentMovie.value!.title!,
-        'videoUrl': currentMovie.value!.filePath!,
-      },
-    );
+    recordFreeWatchProgress();
+
+    if (videoUrl.isNotEmpty) {
+      Get.to(
+        () => VideoPlayerScreen(movieTitle: movieTitle, videoUrl: videoUrl),
+        binding: MovieBinding(),
+        arguments: {
+          'movieId': movieId,
+          'movieTitle': movieTitle,
+          'videoUrl': videoUrl,
+        },
+      );
+    }
   }
 
+
+  Future<void> recordFreeWatchProgress() async {
+    try {
+      final storage = LocalStorageHelper();
+      final user = await storage.getUser();
+      final profile = await storage.getProfile();
+      final args = Get.arguments as Map<dynamic, dynamic>?;
+
+      final String movieId = args != null && args['movieId'] != null ? args['movieId'].toString() : (currentMovie.value?.id ?? '');
+
+      if (user?.uniqueId == null || profile?.id == null || movieId.isEmpty) {
+        Get.snackbar('Error', 'Missing required data for free watch', backgroundColor: Colors.red, colorText: Colors.white);
+        return;
+      }
+
+      final now = DateTime.now();
+      final body = {
+        "user_id": (user!.email != null && user.email!.isNotEmpty) ? user.email! : (user.uniqueId ?? ''),
+        "profile_id": profile!.id!,
+        "movie_id": movieId,
+        "current_watch_time": "0",
+        "watch_duration": "0",
+        "watched_at": now.toIso8601String().replaceFirst('T', ' ').split('.').first,
+      };
+
+      final response = await apiClient.postRequest(url: Endpoints.freeWatch, data: body);
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        try {
+          if (response.body.isEmpty) {
+            return;
+          }
+          final decoded = json.decode(response.body);
+          final int? code = decoded is Map<String, dynamic>
+              ? (decoded['response_code'] ?? decoded['status_code']) as int?
+              : null;
+          final String? message = decoded is Map<String, dynamic>
+              ? (decoded['response_message'] ?? decoded['message']) as String?
+              : null;
+          if (code != null && code >= 200 && code < 300) {
+            if (message != null && message.isNotEmpty) {
+              Get.snackbar('Success', message, backgroundColor: Colors.green, colorText: Colors.white);
+            }
+          } else if (message != null && message.isNotEmpty) {
+            Get.snackbar('Notice', message, backgroundColor: Colors.orange, colorText: Colors.white);
+          }
+        } catch (_) {
+          // ignore JSON parse errors and treat as success
+        }
+      } else {
+        Get.snackbar('Warning', 'Unable to record free watch', backgroundColor: Colors.orange, colorText: Colors.white);
+      }
+    } catch (e) {
+      Get.snackbar('Error', e.toString(), backgroundColor: Colors.red, colorText: Colors.white);
+    }
+  }
 
   Future<String?> saveWatchProgress({
     required String userId,
@@ -148,7 +209,6 @@ class MovieController extends GetxController {
           
         
           if (decodedResponse is Map<String, dynamic>) {
-            final responseCode = decodedResponse['response_code'] ?? decodedResponse['status_code'];
             final message = decodedResponse['response_message'];
             return message;
           }

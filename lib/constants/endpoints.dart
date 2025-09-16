@@ -28,4 +28,7 @@ class Endpoints {
   static const String searchMovies = "search_movies_advanced";
   static const String saveWatchProgess = "save_watch_progress";
   static const String continueWatching = "continue_watching";
+  static const String freeWatch = "free_watch";
+ 
+  
 }

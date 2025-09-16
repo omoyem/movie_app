@@ -22,6 +22,7 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
+        automaticallyImplyLeading: false, // Ensure no back button is shown
         title: Text(
           'Downloads',
           style: TextStyle(

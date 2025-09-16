@@ -34,7 +34,7 @@ class _ProfileSetupIntroScreenState extends State<ProfileSetupIntroScreen> {
       });
     });
     final controller = Get.find<ProfileController>();
-    controller.userProfiles.clear(); // Ensure fresh fetch
+    controller.userProfiles.clear();
     controller.loadAuthTokenAndFetchProfiles();
   }
 

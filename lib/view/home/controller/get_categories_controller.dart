@@ -71,7 +71,7 @@ class GetCategoriesController extends GetxController {
       logItem(e.toString());
       isLoading.value = false;
 
-      // _signupController.handleNetworkError(e, Endpoints.forgotPassword);
+      // _signupController.handlError(e, Endpoints.forgotPassword);
     } finally {
       isLoading.value = false;
     }
