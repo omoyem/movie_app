@@ -1,5 +1,11 @@
 class Endpoints {
-  static const String appName = "Flutter Boilerplate Project";
+  static const String appName = "Movie App";
+
+  // TODO: replace with the real API. While baseUrl is this placeholder the
+  // app runs on dummy data from lib/network/mock_backend.dart.
+  static const String baseUrl = "https://api.example.com/api/";
+  static const String imageBaseUrl = "https://api.example.com/storage/";
+  static bool get useMockData => baseUrl.contains("api.example.com");
   static const int appVersion = 1;
 
   //Auth

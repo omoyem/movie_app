@@ -5,13 +5,11 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:godly_seed_app/constants/endpoints.dart';
-import 'package:godly_seed_app/data/models/user.dart';
-import 'package:godly_seed_app/utils/local_storage_service.dart';
-import 'package:godly_seed_app/view/profile_setup/screens/profile_selection.dart';
+import 'package:movie_app/constants/endpoints.dart';
+import 'package:movie_app/data/models/user.dart';
+import 'package:movie_app/utils/local_storage_service.dart';
+import 'package:movie_app/view/profile_setup/screens/profile_selection.dart';
 import 'package:http/http.dart' as http show Client, Response;
-import 'package:http/io_client.dart';
-import 'package:godly_seed_app/utils/httpClient_helper.dart';
 
 class SignupController extends GetxController {
   static const Duration _timeoutDuration = Duration(seconds: 30);
@@ -42,7 +40,7 @@ class SignupController extends GetxController {
   void _initializeHttpClient() {
     if (kDebugMode) {
       _httpClient =
-          IOClient(InsecureHttpClientHelper.createInsecureHttpClient());
+          http.Client();
     } else {
       _httpClient = http.Client();
     }

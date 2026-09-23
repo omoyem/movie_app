@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:godly_seed_app/constants/color_palette.dart';
-import 'package:godly_seed_app/view/profile_setup/controller/profile_controller.dart';
+import 'package:movie_app/constants/color_palette.dart';
+import 'package:movie_app/view/profile_setup/controller/profile_controller.dart';
 
 import '../model/profile_response.dart';
 

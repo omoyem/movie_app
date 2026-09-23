@@ -3,17 +3,17 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
-import 'package:godly_seed_app/constants/app_router.dart';
-import 'package:godly_seed_app/constants/color_palette.dart';
-import 'package:godly_seed_app/constants/endpoints.dart';
-import 'package:godly_seed_app/data/models/movie.dart';
-import 'package:godly_seed_app/data/models/movie_list_response.dart';
-import 'package:godly_seed_app/view/movie/controller/add_favourite_controller.dart';
-import 'package:godly_seed_app/view/movie/controller/movie_controller.dart';
-import 'package:godly_seed_app/view/widgets/big_app_text.dart';
+import 'package:movie_app/constants/app_router.dart';
+import 'package:movie_app/constants/color_palette.dart';
+import 'package:movie_app/constants/endpoints.dart';
+import 'package:movie_app/data/models/movie.dart';
+import 'package:movie_app/data/models/movie_list_response.dart';
+import 'package:movie_app/view/movie/controller/add_favourite_controller.dart';
+import 'package:movie_app/view/movie/controller/movie_controller.dart';
+import 'package:movie_app/view/widgets/big_app_text.dart';
 
 import '../../../utils/helpers.dart';
-import 'package:godly_seed_app/view/downloads_screen/controller/downloads_controller.dart';
+import 'package:movie_app/view/downloads_screen/controller/downloads_controller.dart';
 
 
 class MovieDetailsScreen extends GetView<MovieController> {
@@ -65,7 +65,7 @@ class MovieDetailsScreen extends GetView<MovieController> {
             decoration: BoxDecoration(
               image: DecorationImage(
                 image: NetworkImage(
-                    Endpoints.imageBaseUrl + movie.coverPhotoPath!),
+                    getImageUrl(movie.coverPhotoPath!)),
                 fit: BoxFit.cover,
               ),
             ),

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:godly_seed_app/constants/color_palette.dart';
+import 'package:movie_app/constants/color_palette.dart';
 
 class CustomButton extends StatelessWidget {
   final String text;

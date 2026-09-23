@@ -61,7 +61,6 @@ class Data {
       dynamic videoFileSize, 
       String? coverPhotoPath, 
       dynamic thumbnailUrl, 
-      String? biblicalThemes, 
       String? musicalContent, 
       String? animated, 
       String? educationalContent, 
@@ -88,7 +87,6 @@ class Data {
     _videoFileSize = videoFileSize;
     _coverPhotoPath = coverPhotoPath;
     _thumbnailUrl = thumbnailUrl;
-    _biblicalThemes = biblicalThemes;
     _musicalContent = musicalContent;
     _animated = animated;
     _educationalContent = educationalContent;
@@ -117,7 +115,6 @@ class Data {
     _videoFileSize = json['video_file_size'];
     _coverPhotoPath = json['cover_photo_path'];
     _thumbnailUrl = json['thumbnail_url'];
-    _biblicalThemes = json['biblical_themes'];
     _musicalContent = json['musical_content'];
     _animated = json['animated'];
     _educationalContent = json['educational_content'];
@@ -143,7 +140,6 @@ class Data {
   dynamic _videoFileSize;
   String? _coverPhotoPath;
   dynamic _thumbnailUrl;
-  String? _biblicalThemes;
   String? _musicalContent;
   String? _animated;
   String? _educationalContent;
@@ -169,7 +165,6 @@ Data copyWith({  String? id,
   dynamic videoFileSize,
   String? coverPhotoPath,
   dynamic thumbnailUrl,
-  String? biblicalThemes,
   String? musicalContent,
   String? animated,
   String? educationalContent,
@@ -195,7 +190,6 @@ Data copyWith({  String? id,
   videoFileSize: videoFileSize ?? _videoFileSize,
   coverPhotoPath: coverPhotoPath ?? _coverPhotoPath,
   thumbnailUrl: thumbnailUrl ?? _thumbnailUrl,
-  biblicalThemes: biblicalThemes ?? _biblicalThemes,
   musicalContent: musicalContent ?? _musicalContent,
   animated: animated ?? _animated,
   educationalContent: educationalContent ?? _educationalContent,
@@ -222,7 +216,6 @@ Data copyWith({  String? id,
   dynamic get videoFileSize => _videoFileSize;
   String? get coverPhotoPath => _coverPhotoPath;
   dynamic get thumbnailUrl => _thumbnailUrl;
-  String? get biblicalThemes => _biblicalThemes;
   String? get musicalContent => _musicalContent;
   String? get animated => _animated;
   String? get educationalContent => _educationalContent;
@@ -256,7 +249,6 @@ Data copyWith({  String? id,
     map['video_file_size'] = _videoFileSize;
     map['cover_photo_path'] = _coverPhotoPath;
     map['thumbnail_url'] = _thumbnailUrl;
-    map['biblical_themes'] = _biblicalThemes;
     map['musical_content'] = _musicalContent;
     map['animated'] = _animated;
     map['educational_content'] = _educationalContent;

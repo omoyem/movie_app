@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
-import 'package:godly_seed_app/constants/color_palette.dart';
-import 'package:godly_seed_app/constants/endpoints.dart';
-import 'package:godly_seed_app/utils/helpers.dart';
-import 'package:godly_seed_app/view/favourites/controllers/delete_favourite_controller.dart';
-import 'package:godly_seed_app/view/favourites/controllers/get_favourite_controller.dart';
-import 'package:godly_seed_app/view/home/controller/home_controller.dart';
-import 'package:godly_seed_app/view/widgets/big_app_text.dart';
-import 'package:godly_seed_app/view/widgets/custom_container_widget.dart';
-import 'package:godly_seed_app/view/widgets/no_result_widget.dart';
+import 'package:movie_app/constants/color_palette.dart';
+import 'package:movie_app/constants/endpoints.dart';
+import 'package:movie_app/utils/helpers.dart';
+import 'package:movie_app/view/favourites/controllers/delete_favourite_controller.dart';
+import 'package:movie_app/view/favourites/controllers/get_favourite_controller.dart';
+import 'package:movie_app/view/home/controller/home_controller.dart';
+import 'package:movie_app/view/widgets/big_app_text.dart';
+import 'package:movie_app/view/widgets/custom_container_widget.dart';
+import 'package:movie_app/view/widgets/no_result_widget.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 import '../../../data/local/secure_storage_helper.dart';
 import '../../sign_up/controller/signup_controller.dart';
 import '../models/get_favourite_response.dart' as gf;
-import 'package:godly_seed_app/data/models/movie_list_response.dart' as ml;
+import 'package:movie_app/data/models/movie_list_response.dart' as ml;
 
 class CategoryType {
   String title;
@@ -165,7 +165,7 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
                   ? null
                   : DecorationImage(
                       image: NetworkImage(
-                          Endpoints.imageBaseUrl + movie.coverPhotoPath!),
+                          getImageUrl(movie.coverPhotoPath!)),
                       fit: BoxFit.cover,
                     ),
             ),

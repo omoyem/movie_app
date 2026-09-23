@@ -1,15 +1,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
-import 'package:godly_seed_app/constants/app_router.dart';
-import 'package:godly_seed_app/data/local/secure_storage_helper.dart';
-import 'package:godly_seed_app/data/models/movie_list_response.dart' as ml;
-import 'package:godly_seed_app/network/api_client.dart';
-import 'package:godly_seed_app/utils/helpers.dart';
-import 'package:godly_seed_app/view/home/movie_request.dart';
-import 'package:godly_seed_app/view/login/models/login_response.dart';
+import 'package:movie_app/constants/app_router.dart';
+import 'package:movie_app/data/local/secure_storage_helper.dart';
+import 'package:movie_app/data/models/movie_list_response.dart' as ml;
+import 'package:movie_app/network/api_client.dart';
+import 'package:movie_app/utils/helpers.dart';
+import 'package:movie_app/view/home/movie_request.dart';
+import 'package:movie_app/view/login/models/login_response.dart';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'package:godly_seed_app/constants/endpoints.dart';
+import 'package:movie_app/constants/endpoints.dart';
 
 import '../../profile_setup/model/profile_response.dart';
 import '../models/category_response.dart' as gf;
@@ -181,63 +181,7 @@ class HomeController extends GetxController {
 
 
   void loadFallbackMovies() {
- 
-    // featuredMovies.value = [
-    //   MovieModel(
-    //     id: 1,
-    //     title: 'Little Angel',
-    //     year: '2022',
-    //     seasons: '3 seasons',
-    //     imageUrl: movie1,
-    //     description: 'Fun and educational content for kids',
-    //     categories: ['Kids', 'Educational'],
-    //     episodes: [
-    //       EpisodeModel(
-    //         id: 1,
-    //         title: 'Pilot',
-    //         description: 'On an island of haves and have-nots, teen John B enlists his three best friends to hunt a legendary treasure linked to his father\'s disappearance.',
-    //         imageUrl: movie2,
-    //         duration: '24 min',
-    //       ),
-    //       EpisodeModel(
-    //         id: 2,
-    //         title: 'The Pilot',
-    //         description: 'On an island of haves and have-nots, teen John B enlists his three best friends to hunt a legendary treasure linked to his father\'s disappearance.',
-    //         imageUrl: movie3,
-    //         duration: '28 min',
-    //       ),
-    //     ],
-    //   ),
-    //
-    // ];
-    //
-    // topMovies.value = [
-    //   MovieModel(
-    //     id: 3,
-    //     title: 'Jesus for Kids',
-    //     year: '2021',
-    //     seasons: '2 seasons',
-    //     imageUrl: movie3,
-    //     description: 'Biblical stories for children',
-    //     categories: ['Kids', 'Bible Story'],
-    //     episodes: [],
-    //   ),
-    //
-    // ];
-    //
-    // continueWatching.value = [
-    //   MovieModel(
-    //     id: 6,
-    //     title: 'Evan Almighty',
-    //     year: '2007',
-    //     seasons: '1 season',
-    //     imageUrl: movie3,
-    //     description: 'Comedy about modern-day Noah',
-    //     categories: ['Comedy', 'Family'],
-    //     episodes: [],
-    //   ),
-    //
-    // ];
+    // No fallback data; the app shows an empty state when loading fails.
   }
 
 

@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:godly_seed_app/constants/app_router.dart';
-import 'package:godly_seed_app/constants/images.dart';
-import 'package:godly_seed_app/utils/helpers.dart';
-import 'package:godly_seed_app/view/login/controller/login_controller.dart';
-import 'package:godly_seed_app/view/sign_up/controller/signup_controller.dart';
-import 'package:godly_seed_app/view/widgets/app_logo_widget.dart';
-import 'package:godly_seed_app/view/widgets/background_widget.dart';
-import 'package:godly_seed_app/view/widgets/custom_button.dart';
-import 'package:godly_seed_app/view/widgets/custom_text_field.dart';
-import 'package:godly_seed_app/view/widgets/forgot_password.dart';
-import 'package:godly_seed_app/view/widgets/google_signin_button.dart';
-import 'package:godly_seed_app/view/widgets/or_divider_widget.dart';
-import 'package:godly_seed_app/view/widgets/signup_prompt_widget.dart';
+import 'package:movie_app/constants/app_router.dart';
+import 'package:movie_app/constants/images.dart';
+import 'package:movie_app/utils/helpers.dart';
+import 'package:movie_app/view/login/controller/login_controller.dart';
+import 'package:movie_app/view/sign_up/controller/signup_controller.dart';
+import 'package:movie_app/view/widgets/app_logo_widget.dart';
+import 'package:movie_app/view/widgets/background_widget.dart';
+import 'package:movie_app/view/widgets/custom_button.dart';
+import 'package:movie_app/view/widgets/custom_text_field.dart';
+import 'package:movie_app/view/widgets/forgot_password.dart';
+import 'package:movie_app/view/widgets/google_signin_button.dart';
+import 'package:movie_app/view/widgets/or_divider_widget.dart';
+import 'package:movie_app/view/widgets/signup_prompt_widget.dart';
 
 class SignInScreen extends StatefulWidget {
   @override

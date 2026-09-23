@@ -4,10 +4,10 @@ import 'package:get/get.dart';
 import 'package:pod_player/pod_player.dart';
 
 import '../../../utils/helpers.dart';
-import 'package:godly_seed_app/view/movie/controller/movie_controller.dart';
-import 'package:godly_seed_app/data/local/secure_storage_helper.dart';
+import 'package:movie_app/view/movie/controller/movie_controller.dart';
+import 'package:movie_app/data/local/secure_storage_helper.dart';
 import 'dart:async';
-import 'package:godly_seed_app/view/home/controller/home_controller.dart';
+import 'package:movie_app/view/home/controller/home_controller.dart';
 import 'dart:io';
 
 class VideoPlayerScreen extends StatefulWidget {

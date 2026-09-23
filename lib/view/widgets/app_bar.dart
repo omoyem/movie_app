@@ -2,7 +2,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:godly_seed_app/constants/color_palette.dart';
+import 'package:movie_app/constants/color_palette.dart';
 
 class CustomAppBar extends StatelessWidget {
   final String? title;

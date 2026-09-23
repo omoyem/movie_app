@@ -1,12 +1,12 @@
 
 import 'package:flutter/material.dart' hide SearchController;
 import 'package:get/get.dart';
-import 'package:godly_seed_app/constants/color_palette.dart';
-import 'package:godly_seed_app/constants/endpoints.dart';
-import 'package:godly_seed_app/data/models/movie_list_response.dart';
-import 'package:godly_seed_app/data/models/search.dart';
-import 'package:godly_seed_app/view/search/controller/search_controller.dart';
-import 'package:godly_seed_app/view/widgets/custom_container_widget.dart';
+import 'package:movie_app/constants/color_palette.dart';
+import 'package:movie_app/constants/endpoints.dart';
+import 'package:movie_app/data/models/movie_list_response.dart';
+import 'package:movie_app/data/models/search.dart';
+import 'package:movie_app/view/search/controller/search_controller.dart';
+import 'package:movie_app/view/widgets/custom_container_widget.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 class SearchMoviesScreen extends GetView<SearchController> {

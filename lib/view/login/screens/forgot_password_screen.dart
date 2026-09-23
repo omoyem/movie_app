@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:godly_seed_app/constants/app_router.dart';
-import 'package:godly_seed_app/constants/images.dart';
-import 'package:godly_seed_app/view/widgets/app_logo_widget.dart';
-import 'package:godly_seed_app/view/widgets/back_to_signin.dart';
-import 'package:godly_seed_app/view/widgets/background_widget.dart';
-import 'package:godly_seed_app/view/widgets/custom_button.dart';
-import 'package:godly_seed_app/view/widgets/custom_text_field.dart';
+import 'package:movie_app/constants/app_router.dart';
+import 'package:movie_app/constants/images.dart';
+import 'package:movie_app/view/widgets/app_logo_widget.dart';
+import 'package:movie_app/view/widgets/back_to_signin.dart';
+import 'package:movie_app/view/widgets/background_widget.dart';
+import 'package:movie_app/view/widgets/custom_button.dart';
+import 'package:movie_app/view/widgets/custom_text_field.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   @override

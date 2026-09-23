@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-import 'package:godly_seed_app/view/downloads_screen/controller/downloads_controller.dart';
+import 'package:movie_app/view/downloads_screen/controller/downloads_controller.dart';
 
 
 

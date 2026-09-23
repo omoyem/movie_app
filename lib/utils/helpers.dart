@@ -10,8 +10,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
-import 'package:godly_seed_app/constants/endpoints.dart';
-import 'package:godly_seed_app/data/local/secure_storage_helper.dart';
+import 'package:movie_app/constants/endpoints.dart';
+import 'package:movie_app/data/local/secure_storage_helper.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -165,7 +165,8 @@ hideKeyboard(BuildContext context) {
   FocusScope.of(context).requestFocus(new FocusNode());
 }
 
-getImageUrl(String url) {
+String getImageUrl(String url) {
+  if (url.startsWith('http')) return url;
   return Endpoints.imageBaseUrl + url;
 }
 

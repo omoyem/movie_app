@@ -1,11 +1,11 @@
 
 import 'dart:async';
 import 'package:get/get.dart';
-import 'package:godly_seed_app/view/downloads_screen/models/download.dart';
+import 'package:movie_app/view/downloads_screen/models/download.dart';
 import 'package:dio/dio.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
-import 'package:godly_seed_app/utils/encrption_service.dart';
+import 'package:movie_app/utils/encrption_service.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 

@@ -4,11 +4,11 @@ import 'package:shimmer/shimmer.dart';
 
 import '../../constants/images.dart';
 
-class SermonCategoryShimmerWidget extends StatelessWidget {
+class CategoryShimmerWidget extends StatelessWidget {
   final String headerTitle;
   final String imageString;
 
-  const SermonCategoryShimmerWidget(
+  const CategoryShimmerWidget(
       {Key? key, required this.headerTitle, required this.imageString})
       : super(key: key);
 

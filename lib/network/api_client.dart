@@ -1,14 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:http/io_client.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
 import '../data/local/secure_storage_helper.dart';
 import '../constants/endpoints.dart';
 import '../utils/helpers.dart';
-import '../utils/httpClient_helper.dart';
 
 class ApiClient extends GetConnect implements GetxService {
   late String token = Endpoints.baseUrl;
@@ -40,13 +38,12 @@ class ApiClient extends GetConnect implements GetxService {
       _mainHeader = {
         'Content-Type': 'application/json; charset=UTF-8',
         "Authorization": "Bearer $token",
-        "Membership-code": "0000514121"
       };
 
       final uri = Uri.parse(Endpoints.baseUrl + url);
 
       final client =
-      IOClient(InsecureHttpClientHelper.createInsecureHttpClient());
+      http.Client();
         response = await client.get(
           uri,
           headers: {
@@ -88,7 +85,6 @@ class ApiClient extends GetConnect implements GetxService {
       _mainHeader = {
         'Content-Type': 'application/json; charset=UTF-8',
         "Authorization": "Bearer $token",
-        "Membership-code": "0000514121"
       };
       response = await delete(url, headers: _mainHeader);
 
@@ -125,7 +121,7 @@ class ApiClient extends GetConnect implements GetxService {
       final uri = Uri.parse(Endpoints.baseUrl + url);
 
       final client =
-          IOClient(InsecureHttpClientHelper.createInsecureHttpClient());
+          http.Client();
       try {
         final response = await client.post(
           uri,
@@ -225,7 +221,6 @@ class ApiClient extends GetConnect implements GetxService {
       _mainHeader = {
         'Content-Type': 'application/json; charset=UTF-8',
         "Authorization": "Bearer $token",
-        "Membership-code": "0000514121"
       };
 
       logItem(baseUrl);

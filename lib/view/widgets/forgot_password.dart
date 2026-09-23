@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:godly_seed_app/constants/app_router.dart';
+import 'package:movie_app/constants/app_router.dart';
 
 class ForgotPasswordWidget extends StatelessWidget {
   final VoidCallback? onForgotPasswordTap;

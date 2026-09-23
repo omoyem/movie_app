@@ -1,13 +1,14 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:godly_seed_app/data/local/secure_storage_helper.dart';
-import 'package:godly_seed_app/utils/httpClient_helper.dart';
-import 'package:godly_seed_app/data/models/movie.dart';
+import 'package:movie_app/constants/endpoints.dart';
+import 'package:movie_app/data/local/secure_storage_helper.dart';
+import 'package:movie_app/utils/httpClient_helper.dart';
+import 'package:movie_app/data/models/movie.dart';
 
 
 class MovieApiService {
   final LocalStorageHelper _storageHelper = LocalStorageHelper();
- static const String baseUrl = 'https://www.godlyseed.accessng.com/api/';
+ static const String baseUrl = Endpoints.baseUrl;
 
 
 

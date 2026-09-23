@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:godly_seed_app/view/login/models/login_response.dart';
+import 'package:movie_app/view/login/models/login_response.dart';
 
 import '../../utils/helpers.dart';
 import '../../view/profile_setup/model/profile_response.dart';

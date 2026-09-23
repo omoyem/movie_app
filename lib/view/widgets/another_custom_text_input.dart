@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:godly_seed_app/constants/color_palette.dart';
-import 'package:godly_seed_app/view/widgets/custom_container_widget.dart';
+import 'package:movie_app/constants/color_palette.dart';
+import 'package:movie_app/view/widgets/custom_container_widget.dart';
 
 
 import 'animation_widgets/easein_anim.dart';

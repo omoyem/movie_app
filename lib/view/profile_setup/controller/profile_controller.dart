@@ -4,16 +4,14 @@ import 'dart:math' as math;
 import 'package:get/get.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:godly_seed_app/constants/app_router.dart';
-import 'package:godly_seed_app/constants/color_palette.dart';
-import 'package:godly_seed_app/constants/endpoints.dart';
-import 'package:godly_seed_app/data/local/secure_storage_helper.dart';
-import 'package:godly_seed_app/utils/helpers.dart';
-import 'package:godly_seed_app/utils/httpClient_helper.dart';
-import 'package:godly_seed_app/view/bottom_nav/bottom_dart.dart';
+import 'package:movie_app/constants/app_router.dart';
+import 'package:movie_app/constants/color_palette.dart';
+import 'package:movie_app/constants/endpoints.dart';
+import 'package:movie_app/data/local/secure_storage_helper.dart';
+import 'package:movie_app/utils/helpers.dart';
+import 'package:movie_app/view/bottom_nav/bottom_dart.dart';
 import 'package:http/http.dart' as http;
-import 'package:http/io_client.dart';
-import 'package:godly_seed_app/utils/local_storage_service.dart';
+import 'package:movie_app/utils/local_storage_service.dart';
 import '../model/profile_response.dart';
 
 class ProfileController extends GetxController {
@@ -62,7 +60,7 @@ class ProfileController extends GetxController {
           print(
               '🔧 Initializing HTTP client in debug mode (allowing self-signed certificates)');
           _httpClient =
-              IOClient(InsecureHttpClientHelper.createInsecureHttpClient());
+              http.Client();
           print(
               'DEBUG: Using INSECURE HTTP client (self-signed certificates allowed)');
         } else {
@@ -99,7 +97,7 @@ class ProfileController extends GetxController {
 
       if (kDebugMode) {
         _httpClient =
-            IOClient(InsecureHttpClientHelper.createInsecureHttpClient());
+            http.Client();
       } else {
         _httpClient = http.Client();
       }

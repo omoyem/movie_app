@@ -1,5 +1,5 @@
 
-import 'package:godly_seed_app/data/models/movie_list_response.dart';
+import 'package:movie_app/data/models/movie_list_response.dart';
 
 class SearchResult {
   final String id;

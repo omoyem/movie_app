@@ -1,6 +1,6 @@
 
 import 'package:flutter/material.dart';
-import 'package:godly_seed_app/view/widgets/spacer.dart';
+import 'package:movie_app/view/widgets/spacer.dart';
 
 import '../../constants/colors.dart';
 

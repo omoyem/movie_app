@@ -1,4 +1,4 @@
-package com.accessng.godly_seed_app
+package com.gyem.movie_app
 
 import io.flutter.embedding.android.FlutterActivity
 

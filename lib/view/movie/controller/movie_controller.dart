@@ -1,10 +1,10 @@
 import 'package:get/get.dart';
-import 'package:godly_seed_app/constants/images.dart';
-import 'package:godly_seed_app/data/models/movie_list_response.dart';
-import 'package:godly_seed_app/utils/helpers.dart';
+import 'package:movie_app/constants/images.dart';
+import 'package:movie_app/data/models/movie_list_response.dart';
+import 'package:movie_app/utils/helpers.dart';
 import 'dart:convert';
-import 'package:godly_seed_app/constants/endpoints.dart';
-import 'package:godly_seed_app/network/api_client.dart';
+import 'package:movie_app/constants/endpoints.dart';
+import 'package:movie_app/network/api_client.dart';
 import 'package:http/http.dart' as http;
 
 import '../../../data/models/movie.dart';

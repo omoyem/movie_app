@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:godly_seed_app/data/models/user.dart';
+import 'package:movie_app/data/models/user.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class StorageService {

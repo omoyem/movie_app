@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:get/get.dart';
-import 'package:godly_seed_app/constants/color_palette.dart';
-import 'package:godly_seed_app/utils/helpers.dart';
-import 'package:godly_seed_app/view/profile_setup/screens/profile_setup_screen.dart';
-import 'package:godly_seed_app/view/profile_setup/controller/profile_controller.dart';
+import 'package:movie_app/constants/color_palette.dart';
+import 'package:movie_app/utils/helpers.dart';
+import 'package:movie_app/view/profile_setup/screens/profile_setup_screen.dart';
+import 'package:movie_app/view/profile_setup/controller/profile_controller.dart';
 
 import '../../widgets/curved_top.dart';
 import '../model/profile_response.dart';
@@ -18,9 +18,9 @@ class ProfileSetupIntroScreen extends StatefulWidget {
 
 class _ProfileSetupIntroScreenState extends State<ProfileSetupIntroScreen> {
   final List<String> _backgrounds = [
-    'assets/images/movie_1.png',
-    'assets/images/movie_2.png',
-    'assets/images/movie_4.png',
+    'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/BigBuckBunny.jpg',
+    'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/Sintel.jpg',
+    'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/TearsOfSteel.jpg',
   ];
   int _currentBg = 0;
   Timer? _timer;
@@ -176,12 +176,13 @@ class _ProfileSetupIntroScreenState extends State<ProfileSetupIntroScreen> {
           children: [
             AnimatedSwitcher(
               duration: const Duration(milliseconds: 80),
-              child: Image.asset(
+              child: Image.network(
                 _backgrounds[_currentBg],
                 key: ValueKey(_backgrounds[_currentBg]),
                 width: double.infinity,
                 height: double.infinity,
                 fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => const SizedBox.expand(),
               ),
             ),
             Container(

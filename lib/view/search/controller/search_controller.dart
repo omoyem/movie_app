@@ -3,13 +3,13 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:godly_seed_app/constants/app_router.dart';
-import 'package:godly_seed_app/constants/endpoints.dart';
-import 'package:godly_seed_app/data/local/secure_storage_helper.dart';
-import 'package:godly_seed_app/data/models/movie_list_response.dart';
-import 'package:godly_seed_app/data/models/search.dart';
-import 'package:godly_seed_app/network/api_client.dart';
-import 'package:godly_seed_app/utils/helpers.dart';
+import 'package:movie_app/constants/app_router.dart';
+import 'package:movie_app/constants/endpoints.dart';
+import 'package:movie_app/data/local/secure_storage_helper.dart';
+import 'package:movie_app/data/models/movie_list_response.dart';
+import 'package:movie_app/data/models/search.dart';
+import 'package:movie_app/network/api_client.dart';
+import 'package:movie_app/utils/helpers.dart';
 
 
 class SearchController extends GetxController {
@@ -32,7 +32,7 @@ class SearchController extends GetxController {
     'Documentary',
     'Animation',
     'Educational',
-    'Biblical',
+    'Comedy',
     'Musical',
     'Kids',
     'Family',

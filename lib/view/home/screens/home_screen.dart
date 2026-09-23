@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:godly_seed_app/constants/app_router.dart';
-import 'package:godly_seed_app/constants/color_palette.dart';
-import 'package:godly_seed_app/constants/endpoints.dart';
-import 'package:godly_seed_app/constants/images.dart' as Images;
-import 'package:godly_seed_app/data/models/movie_list_response.dart';
-import 'package:godly_seed_app/view/home/controller/home_controller.dart';
-import 'package:godly_seed_app/view/widgets/app_logo_widget.dart';
-import 'package:godly_seed_app/view/widgets/custom_container_widget.dart';
+import 'package:movie_app/constants/app_router.dart';
+import 'package:movie_app/constants/color_palette.dart';
+import 'package:movie_app/constants/endpoints.dart';
+import 'package:movie_app/constants/images.dart' as Images;
+import 'package:movie_app/data/models/movie_list_response.dart';
+import 'package:movie_app/view/home/controller/home_controller.dart';
+import 'package:movie_app/view/widgets/app_logo_widget.dart';
+import 'package:movie_app/view/widgets/custom_container_widget.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import '../models/category_response.dart' as gf;
 
@@ -337,7 +337,7 @@ class HomeScreen extends GetView<HomeController> {
                         ? null
                         : DecorationImage(
                             image: NetworkImage(
-                                Endpoints.imageBaseUrl + movie.coverPhotoPath!),
+                                getImageUrl(movie.coverPhotoPath!)),
                             fit: BoxFit.cover,
                           ),
                   ),

@@ -2,11 +2,11 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:godly_seed_app/constants/endpoints.dart';
-import 'package:godly_seed_app/data/models/base_response.dart';
-import 'package:godly_seed_app/utils/helpers.dart';
-import 'package:godly_seed_app/view/login/models/login_response.dart';
-import 'package:godly_seed_app/view/sign_up/controller/signup_controller.dart';
+import 'package:movie_app/constants/endpoints.dart';
+import 'package:movie_app/data/models/base_response.dart';
+import 'package:movie_app/utils/helpers.dart';
+import 'package:movie_app/view/login/models/login_response.dart';
+import 'package:movie_app/view/sign_up/controller/signup_controller.dart';
 import 'package:http/http.dart' as http;
 
 import '../../../data/local/secure_storage_helper.dart';

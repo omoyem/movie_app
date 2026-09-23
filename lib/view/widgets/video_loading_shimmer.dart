@@ -1,11 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:godly_seed_app/utils/helpers.dart';
+import 'package:movie_app/utils/helpers.dart';
 import 'package:shimmer/shimmer.dart';
 import 'banner_placeholder.dart';
 
-class VideoSermonLoadingShimmer extends StatelessWidget {
-  const VideoSermonLoadingShimmer({Key? key}) : super(key: key);
+class VideoLoadingShimmer extends StatelessWidget {
+  const VideoLoadingShimmer({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

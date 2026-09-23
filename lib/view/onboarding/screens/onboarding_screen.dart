@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:godly_seed_app/constants/app_router.dart';
-import 'package:godly_seed_app/constants/color_palette.dart';
+import 'package:movie_app/constants/app_router.dart';
+import 'package:movie_app/constants/color_palette.dart';
 
-import 'package:godly_seed_app/constants/images.dart';
-import 'package:godly_seed_app/view/onboarding/models/onboarding_data_model.dart';
-import 'package:godly_seed_app/view/widgets/app_logo_widget.dart';
-import 'package:godly_seed_app/view/widgets/background_widget.dart';
-import 'package:godly_seed_app/view/widgets/custom_button.dart';
-import 'package:godly_seed_app/view/widgets/onboarding_card.dart';
+import 'package:movie_app/constants/images.dart';
+import 'package:movie_app/view/onboarding/models/onboarding_data_model.dart';
+import 'package:movie_app/view/widgets/app_logo_widget.dart';
+import 'package:movie_app/view/widgets/background_widget.dart';
+import 'package:movie_app/view/widgets/custom_button.dart';
+import 'package:movie_app/view/widgets/onboarding_card.dart';
 
 class OnboardingScreen extends StatefulWidget {
   @override
@@ -21,8 +21,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   
   List<OnboardingData> get onboardingData => [
     OnboardingData.fromAsset(
-      title: 'Welcome to Godly Seed',
-      description: 'Watch fun Bible stories, read exciting books, and learn about God\'s love',
+      title: 'Welcome to Movie App',
+      description: 'Stream movies and shows for the whole family, all in one place.',
       assetPath: onboarding1,
       imageBorderRadius: BorderRadius.circular(20),
       imagePadding: const EdgeInsets.all(20),
@@ -30,8 +30,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       descriptionColor:campusColor,
     ),
     OnboardingData.fromAsset(
-      title: 'Listen to Christian Songs',
-      description: 'Listen to joyful songs, explore faith-filled games, and grow in Jesus\' love while having so much fun!',
+      title: 'Watch Anywhere',
+      description: 'Download movies to your phone and keep watching even when you are offline.',
       assetPath: onboarding2,
       imageBorderRadius: BorderRadius.circular(20),
       imagePadding: const EdgeInsets.all(20),
@@ -39,8 +39,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       descriptionColor: campusColor,
     ),
     OnboardingData.fromAsset(
-      title: 'Read Christian Books',
-      description: 'Click on Sign Up to begin your journey of faith, fun, and discovery with Jesus by your side',
+      title: 'Your Personal Watchlist',
+      description: 'Sign up to save favourites, pick up where you left off, and create a profile for everyone at home.',
       assetPath: onboarding3,
       imageBorderRadius: BorderRadius.circular(20),
       imagePadding: const EdgeInsets.all(20),

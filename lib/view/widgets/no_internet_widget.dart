@@ -1,6 +1,6 @@
 
 import 'package:flutter/material.dart';
-import 'package:godly_seed_app/view/widgets/custom_button.dart';
+import 'package:movie_app/view/widgets/custom_button.dart';
 
 import '../../constants/images.dart';
 import '../../utils/helpers.dart';

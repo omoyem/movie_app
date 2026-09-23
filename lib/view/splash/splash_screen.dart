@@ -1,11 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:godly_seed_app/constants/app_router.dart';
-import 'package:godly_seed_app/constants/images.dart';
-import 'package:godly_seed_app/data/local/secure_storage_helper.dart';
-import 'package:godly_seed_app/utils/helpers.dart';
-import 'package:godly_seed_app/view/widgets/app_logo_widget.dart';
-import 'package:godly_seed_app/view/widgets/background_widget.dart';
+import 'package:movie_app/constants/app_router.dart';
+import 'package:movie_app/constants/images.dart';
+import 'package:movie_app/data/local/secure_storage_helper.dart';
+import 'package:movie_app/utils/helpers.dart';
+import 'package:movie_app/view/widgets/app_logo_widget.dart';
+import 'package:movie_app/view/widgets/background_widget.dart';
 
 class SplashScreen extends StatefulWidget {
   @override

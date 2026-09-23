@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:godly_seed_app/constants/color_palette.dart';
-import 'package:godly_seed_app/utils/helpers.dart';
+import 'package:movie_app/constants/color_palette.dart';
+import 'package:movie_app/utils/helpers.dart';
 import '../controller/settings_controller.dart';
 
 class SettingsScreen extends GetView<SettingsController> {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:godly_seed_app/constants/color_palette.dart';
-import 'package:godly_seed_app/view/onboarding/models/onboarding_data_model.dart';
+import 'package:movie_app/constants/color_palette.dart';
+import 'package:movie_app/view/onboarding/models/onboarding_data_model.dart';
 
 class OnboardingCard extends StatelessWidget {
   final OnboardingData data;

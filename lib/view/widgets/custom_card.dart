@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:godly_seed_app/view/widgets/custom_container_widget.dart';
+import 'package:movie_app/view/widgets/custom_container_widget.dart';
 
 
 class CustomCard extends StatelessWidget {

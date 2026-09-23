@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:godly_seed_app/constants/images.dart';
+import 'package:movie_app/constants/images.dart';
 
 class GoogleSignInButton extends StatelessWidget {
   final VoidCallback onPressed;

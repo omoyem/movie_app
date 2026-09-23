@@ -1,6 +1,6 @@
 
 import 'package:flutter/material.dart';
-import 'package:godly_seed_app/utils/helpers.dart';
+import 'package:movie_app/utils/helpers.dart';
 
 class BannerPlaceholder extends StatelessWidget {
   const BannerPlaceholder({Key? key}) : super(key: key);

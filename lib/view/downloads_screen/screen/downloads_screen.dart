@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:godly_seed_app/view/downloads_screen/controller/downloads_controller.dart';
-import 'package:godly_seed_app/view/downloads_screen/models/download.dart';
-import 'package:godly_seed_app/view/movie/screens/play_movie.dart';
-import 'package:godly_seed_app/utils/encrption_service.dart';
+import 'package:movie_app/view/downloads_screen/controller/downloads_controller.dart';
+import 'package:movie_app/view/downloads_screen/models/download.dart';
+import 'package:movie_app/view/movie/screens/play_movie.dart';
+import 'package:movie_app/utils/encrption_service.dart';
 
 
 class DownloadsScreen extends GetView<DownloadsController> {
